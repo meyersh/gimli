@@ -1,0 +1,69 @@
+/* LOGIN FORM */
+
+body.login body.profile{
+    background: #eee;
+}
+.profile #container {
+    background: white;
+    border: 1px solid #ccc;
+    width: 65em;
+    min-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 65px;
+}
+.login #container {
+    background: white;
+    border: 1px solid #ccc;
+    width: 28em;
+    min-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+}
+
+.login #content-main, .profile #content-main {
+    width: 100%;
+}
+
+.login form, .profile form {
+    margin-top: 1em;
+}
+
+.login .form-row {
+    padding: 4px 0;
+    float: left;
+    width: 100%;
+}
+
+.profile .form-row {
+    padding: 4px 0;
+    float: left;
+    width: 100%;
+}
+
+.login .form-row label, .profile .form-row label {
+    float: left;
+    width: 9em;
+    padding-right: 0.5em;
+    line-height: 2em;
+    text-align: right;
+    font-size: 1em;
+    color: #333;
+}
+
+.login .form-row #id_username, .login .form-row #id_password,
+.profile .form-row #id_username, .profile .form-row #id_password {
+    width: 14em;
+}
+
+.login span.help, .profile span.help {
+    font-size: 10px;
+    display: block;
+}
+
+.login .submit-row, .profile .submit-row {
+    clear: both;
+    padding: 1em 0 0 9.4em;
+}
+

@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-us" xml:lang="en-us" >
+<head>
+<title>Whiteboard Permissions Editor</title>
+<link rel="stylesheet" type="text/css" href="styles/base.css" />
+<link rel="stylesheet" type="text/css" href="styles/login.css" />
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="styles/ie.css" /><![endif]-->
+<script language="javascript" src="js/ajax.js"></script>
+<script langauge="javascript">
+document.bannedUsers = new Array();
+function getUsers(dataStr) { 
+    var method = "POST";
+    var url = "https://gimli.morningside.edu/~meyersh/270/social/home.cgi";
+    var req = getXMLHttpReq();
+
+    if (req == null)
+	return 1;
+
+    /* if we are using the GET method we need to append the data
+       to the URL after a ?-mark. */
+
+    if ( method == "GET" ) 
+	url += '?' + dataStr.replace(/\n/g, '&');
+
+    req.open(method, url, true);
+    
+    req.onreadystatechange = function()
+	{
+	    if(req.readyState == 4)
+		{
+		    if(req.status == 200)
+			{
+			    //updateLog(req.responseText, 'output', false); /* where do we dump the output? */
+			    parseData(req.responseText);
+                            if ( req.responseText.match("bannedusers=") )
+                            {
+                              var banned = new Array();
+                              banned = req.responseText.split("bannedusers=")[1].replace('\n', '');
+                              banned = banned.split(',');
+                              document.bannedUsers =  banned ;
+                            }  
+                            if ( req.responseText.match("userlist=") )
+                              displayUsers();
+			}
+		    else
+			updateLog("Error Status: " 
+				  + req.status 
+				  + "<br />Error Description: " 
+				  + req.statusText);
+		}
+	}
+
+
+    req.setRequestHeader("Content-Type", "text/plain");
+
+    if (method == "POST")
+	req.send(dataStr);
+    else if (method == "GET")
+	req.send(dataStr);
+
+    return 0;
+}
+
+
+  function gv(id)
+  {
+    return document.getElementById(id).value;
+  }
+/*
+ * This handles displaying the strike-throughs
+ * and keeps a list of the banned userses... 
+ */
+function toggleStrike(obj)
+{
+  if ( obj.style.textDecoration )
+  {
+    obj.style.textDecoration = '';
+    for (i=0; i<document.bannedUsers.length; i++)
+    {
+      if (document.bannedUsers[i] == obj.id )
+        document.bannedUsers.splice(i,1);
+    }
+  }
+   else
+  {
+    obj.style.textDecoration = 'line-through';
+
+    document.bannedUsers.push(obj.id);
+  }
+}
+
+function displayUsers(checkBanned) 
+{
+//  text-decoration: line-through;
+if ( !checkBanned )
+{
+  var users = document.getElementById('userlist').value.split('\n');
+  var output= document.getElementById('banform')
+  for (i = 0; i<users.length; i++)
+  {
+    output.innerHTML += "<a href='#' onClick='toggleStrike(this);' id='" + users[i] + ">" + users[i] + "</a> "; 
+  }
+}
+{
+  for (i = 0; i<document.bannedUsers.length; i++)
+  {
+    if ( document.getElementById( document.bannedUsers[i] ) )
+      document.getElementById( document.bannedUsers[i] ).style.textDecoration='line-through';
+  }
+}
+}
+
+</script>
+
+<meta name="robots" content="NONE,NOARCHIVE" />
+</head>
+
+
+<body class="login">
+
+<!-- Container -->
+
+<div id="container">
+
+    
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+        
+	  <h1 id="site-name">Whiteboard Permissions Editor</h1>
+
+        </div>
+        
+        
+    </div>
+    <!-- END Header -->
+
+    
+       
+
+    <!-- Content -->
+    <div id="content" class="colM">
+        
+    <div id="error"></div>
+        
+
+<div id="content-main">
+  <form id="login-form">
+    <h3>Choose users to BAN them from viewing your Whiteboard.</h3>
+    <div id="banform"></div>
+  
+  <div class="submit-row">
+    <label>&nbsp;</label><input type="button" value="Save" onClick="sendData('action=banUsers\nbannedusers='+document.bannedUsers + '\n', 'https://gimli.morningside.edu/~meyersh/270/social/home.cgi', 'POST')"/>
+    <label>&nbsp;</label><input type="button" value="Close" onClick="window.close()" />
+  </div>
+  <div id="userlist" style="display:none"></div>
+</form>
+
+<script type="text/javascript">
+//document.getElementById('username').focus()
+getUsers("action=getBannedWhiteboard\n");
+</script>
+</div>
+
+        
+        <br class="clear" />
+    </div>
+    <!-- END Content -->
+
+    <div id="footer"></div>
+</div>
+<!-- END Container -->
+<center>This style stolen from <a href="http://www.djangoproject.com/">DJANGO's</a> admin<br>login page. I think it looks cool...</center>
+<center><small><div id="responseSpot"></div></small></center>
+</body>
+</html>
+

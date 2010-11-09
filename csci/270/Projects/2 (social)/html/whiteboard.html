@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-us" xml:lang="en-us" >
+<head>
+<title>Profile Page</title>
+<link rel="stylesheet" type="text/css" href="styles/base.css" />
+<link rel="stylesheet" type="text/css" href="styles/login.css" />
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="styles/ie.css" /><![endif]-->
+<script language="javascript" src="js/ajax.js"></script>
+<!-- <script type="text/javascript" src="editor.js"></script> -->
+<script langauge="javascript">
+
+  // get object (by id)
+  function go(id)
+  {
+    return document.getElementById(id);
+  }
+
+  // get object (by name)
+  function gn(name)
+  {
+    return document.getElementByName(name);
+  }
+
+  // get value
+  function gv(id)
+  {
+    return document.getElementById(id).value;
+  }
+
+  function showProfile(username)
+  {
+    if (!username)
+      username = go('username').innerHTML;
+    sendData("action=getWhiteboard\nusername=" + username + "\n",
+             "https://gimli.morningside.edu/~meyersh/fp/home.cgi", "POST");
+  }
+             
+
+  function editprofile()
+  {
+    if (gv('edit') == "Edit") {
+      var entries = new Array('username', 'realname', 'password', 'email', 'favorite_movie', 'shoe_size')
+      for (entry in entries)
+      {  
+        go(entries[entry]).readOnly = false;
+      }
+      go('edit').value = "Save";
+      go('cancel').style.visibility = "Visible";
+    }
+    else 
+    {
+      register('update'); 
+      cancelEdit(); /* This just changes the buttons around. */
+    }
+  }
+
+  function cancelEdit()
+  {
+    if (gv('edit') == "Save" )
+      go('edit').value = "Edit";
+    go('cancel').style.visibility = "Hidden";
+    go('saveWhiteboard').style.visibility = "Hidden";
+  }  
+
+  function checkQueryString()
+  {
+    if (location.search != "")
+      var qs = location.search.split('?')[1];
+    if (!qs)
+      return 0;
+      var keyval;
+      var key;
+      var val;
+      qs = qs.split('&');
+      for (var q in qs) {
+        keyval = qs[q].split('=');
+        key = keyval[0];
+        val = keyval[1];
+        if ( key == "ShaunSession" )
+          document.getElementById('sessionkey').value = val;
+        if ( key == "username" )
+          go('username').innerHTML = val;
+     }
+  }
+
+  function loadProfile()
+  { 
+  url = "https://gimli.morningside.edu/~meyersh/fp/home.cgi";
+  //ses = document.getElementById('sessionkey').value;
+  sendData("action=getWhiteboard\n", url, "POST");
+  }
+
+  function delPost(obj)
+  {
+    var id = obj.parentNode.id;
+    sendData("action=deleteWhiteboardMessage\n" +
+             "username=" + go('username').innerHTML + "\n" +
+             "messageId=" + id + "\n",
+             "https://gimli.morningside.edu/~meyersh/fp/home.cgi", "POST");
+
+   showProfile(go('username').innerHTML);
+    
+  }
+
+  function replyPost(obj)
+  {
+    messageId = obj.parentNode.id;
+    go('inResponseTo'+messageId).style.display='inline';
+  }
+
+  function submitReply(obj)
+  {
+    messageId = obj.parentNode.id.split('inResponseTo')[1];
+    var body = gv("responseText" + messageId);
+    go("responseText"+ messageId).value = "";
+    var toUsername = go("username").innerHTML;
+    sendData("action=writeWhiteboard\n" +
+             "inResponseTo=" + messageId + "\n" +
+             "toUsername=" + toUsername + "\n" + 
+             "body=" + body + "\n", 
+             "https://gimli.morningside.edu/~meyersh/fp/home.cgi", "POST");
+    // Update message list...
+    showProfile( gv('username') );
+    cancelReply(obj); // put away the form.
+
+  }
+  function cancelReply(obj)
+  { 
+    messageId = obj.parentNode.id.split('inResponseTo')[1];
+    go('inResponseTo'+messageId).style.display='none';
+   }
+
+</script>
+
+<meta name="robots" content="NONE,NOARCHIVE" />
+</head>
+
+
+<body class="profile">
+
+<!-- Container -->
+
+<div id="container">
+
+    
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+        
+	  <h1 id="site-name"><span id="username"></span>'s <i>Private</i> Whiteboard</h1>
+
+        </div>
+        
+        
+    </div>
+    <!-- END Header -->
+
+    
+       
+
+    <!-- Content -->
+    <div id="content" class="colM">
+        
+    <div id="error"></div><div id="notice"></div>
+        
+
+<div id="content-main">
+[ <a href="#" onClick="window.close()">close</a> ]
+<h3>Messages:</h3>
+<div id="0">
+  [ <a href = "#" onClick="replyPost(this);">post new</a> ]
+  [ <a href = "#" onClick="showProfile(gv('username'));">refresh</a> ]
+  <div class="form-row" id="inResponseTo0" style="display:none";>
+    <label for="0">Your response:</label>
+    <input type="text" id="responseText0" maxlength=65 size=60/>
+    [ <a href="#" onClick="submitReply(this)">submit</a> ]
+    [ <a href="#" onClick="cancelReply(this)">cancel</a> ]
+  </div>
+</div>
+
+<p></p>
+
+<!-- Code paste from C++ output to test html formatting: -->
+<div id="messages"></div>
+<!-- end paste -->
+
+
+<!-- Button Row -->
+<!--
+  <div class="submit-row">
+    <label>&nbsp;</label><input type="button" value="Log Out" 
+				onClick="window.location='logout.cgi';"/>
+    <label>&nbsp;</label><input type="button" value="Edit" id="edit"
+				onClick="editprofile();"/>
+    <label>&nbsp;</label><input type="button" value="Cancel" id="cancel"
+				style="visibility:hidden;"
+				onClick="cancelEdit();"/>
+  </div>
+
+</form> -->
+<!-- End of Button Row -->
+
+<!-- User List --> <!--
+<div><h4><u>Your fellow users:</u></h4> ( you may click on these to see their profiles )</u><hr>
+  <div id=userlist></div>
+</div> -->
+<!-- End of User List -->
+</td>
+</tr></table>
+</div>
+
+        
+        <br class="clear" />
+    </div>
+    <!-- END Content -->
+
+    <div id="footer"></div>
+</div>
+<!-- END Container -->
+<center>This style stolen from <a href="http://www.djangoproject.com/">DJANGO's</a> admin<br>login page. I think it looks cool...</center>
+<center><div id="responseSpot" style="height:100px;"></div></center>
+<script language="javascript">
+//window.onload=sendData("action=loadprofile", "https://gimli.morningside.edu/~meyersh/home.cgi", "GET");
+window.onload=checkQueryString();
+window.onload=showProfile( go('username').innerHTML );
+</script>
+
+</body>
+</html>
+

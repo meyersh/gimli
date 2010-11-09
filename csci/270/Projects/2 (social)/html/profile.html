@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-us" xml:lang="en-us" >
+<head>
+<title>Profile Page</title>
+<link rel="stylesheet" type="text/css" href="styles/base.css" />
+<link rel="stylesheet" type="text/css" href="styles/login.css" />
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="styles/ie.css" /><![endif]-->
+<script language="javascript" src="js/ajax.js"></script>
+<!-- <script type="text/javascript" src="/~meyersh/fp/js/tinymce/jscripts/tiny_mce/tiny_mce.js"></script> -->
+<!-- <script type="text/javascript" src="editor.js"></script> -->
+<script langauge="javascript">
+
+  // get object (by id)
+  function go(id)
+  {
+    return document.getElementById(id);
+  }
+
+  // get value
+  function gv(id)
+  {
+    return document.getElementById(id).value;
+  }
+
+  function register(action)
+  {
+  if (action == null)
+    action = "register";
+  var username = gv('username');
+  var realname = gv('realname');
+  var password = gv('password');
+  //var password2 = gv('password2');
+  var email = gv('email');
+  var favorite_movie = gv('favorite_movie');
+  var shoe_size = gv('shoe_size');
+
+  if (!username)
+    raiseError("Please enter a username!");
+  else if (!password)
+    raiseError("You must enter a password!");
+  //else if (password != password2)
+  //  raiseError("Passwords do not match!");
+  else if (!realname)
+    raiseError("Please enter your real name.");
+  else if (!email)
+    raiseError("Please enter your E-Mail address.");
+  else if (!favorite_movie)
+    raiseError("Please enter your favorite Movie!");
+  else if (!shoe_size)
+    raiseError("Please enter your shoe size!");
+  else if (shoe_size.match(/[^0-9.]/) || shoe_size.match(/.*\..*\./) )
+    raiseError("Shoesize can be numerals and decimal only.");
+  else /* I guess we can go ahead and register/update... */
+  {
+    sendData('action=' + action + '\nusername='+username + '\n' + 
+    'password='+password + '\n' + 
+    'email='+email + '\n' + 
+    'realname='+realname + '\n' + 
+    'favorite_movie='+favorite_movie + '\n' +
+    'shoe_size='+shoe_size + '\n' +
+    'ShaunSession='+document.getElementById('sessionkey').value + '\n',
+    'https://gimli.morningside.edu/~meyersh/270/social/home.cgi', 'POST');
+  }
+  
+  }
+
+  function saveWhiteboard() 
+  {
+    var whiteboard = document.getElementById('whiteboard').value;
+
+    var username = document.getElementById('username').innerHTML;
+
+    sendData('action=update\n' +
+             'username='+username+'\n' +
+             'whiteboard='+whiteboard+'\n', 
+             'https://gimli.morningside.edu/~meyersh/270/social/home.cgi',
+             'POST');
+  }
+
+  function showPassword2() {
+    if (go('password').readOnly == false) {
+      if ( go('hiddenpassword').style.display == 'none') {
+        go('hiddenpassword').style.display = 'inline';
+         }
+      else if ( gv('password2') == gv('password') )
+        lowerError();
+      else if ( gv('password2') != gv('password') )
+        raiseError("Passwords do not match.");
+     }
+  } 
+
+  function showProfile(username)
+  {
+    cancelEdit(); /* reset the buttons */
+    go('publicDoorLink').href = "public.html?username="+go('username').innerHTML;
+    go('privateDoorLink').href = "private.html?username="+go('username').innerHTML;
+    sendData("action=loadprofile\nusername="+username+"\n",
+             "https://gimli.morningside.edu/~meyersh/270/social/home.cgi",
+             "POST");
+  }
+             
+
+  function editprofile()
+  {
+    if (gv('edit') == "Edit") {
+      var entries = new Array('username', 'realname', 'password', 'email', 'favorite_movie', 'shoe_size')
+      for (entry in entries)
+      {  
+        go(entries[entry]).readOnly = false;
+      }
+      go('edit').value = "Save";
+      go('cancel').style.visibility = "Visible";
+    }
+    else 
+    {
+      register('update'); 
+      cancelEdit(); /* This just changes the buttons around. */
+    }
+  }
+
+  function cancelEdit()
+  {
+    if (gv('edit') == "Save" )
+      go('edit').value = "Edit";
+    go('cancel').style.visibility = "Hidden";
+    //go('saveWhiteboardButton').style.visibility = "Hidden";
+  }  
+
+  function checkQueryString()
+  {
+    if (location.search != "")
+      var qs = location.search.split('?')[1];
+    if (!qs)
+      return 0;
+      var keyval;
+      var key;
+      var val;
+      qs = qs.split('&');
+      for (var q in qs) {
+        keyval = qs[q].split('=');
+        key = keyval[0];
+        val = keyval[1];
+        if ( key == "ShaunSession" )
+          document.getElementById('sessionkey').value = val;
+     }
+  }
+
+  function loadProfile()
+  { 
+  url = "https://gimli.morningside.edu/~meyersh/270/social/home.cgi";
+  ses = document.getElementById('sessionkey').value;
+  sendData("action=loadprofile", url, "POST");
+
+  }
+
+  function setActionLinks()
+  {
+  go('publicDoorLink').href = "public.html?username="+go('username').innerHTML;
+  go('privateDoorLink').href = "private.html?username="+ go('username').innerHTML;
+
+}
+
+
+</script>
+
+<meta name="robots" content="NONE,NOARCHIVE" />
+</head>
+
+
+<body class="profile">
+
+<!-- Container -->
+
+<div id="container">
+
+    
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+        
+	  <h1 id="site-name"><span id="username"></span>'s Profile</h1>
+
+        </div>
+        
+        
+    </div>
+    <!-- END Header -->
+
+    
+       
+
+    <!-- Content -->
+    <div id="content" class="colM">
+        
+    <div id="error"></div><div id="notice"></div>
+        
+
+<div id="content-main">
+<table border=1>
+<tr>
+<td width=50%>
+<form id="login-form">
+<!--   <div class="form-row">
+    <label for="username">Username:</label> <input type="text" name="username" id="username" readonly />
+  </div> -->
+  <div class="form-row">
+
+    <label for="password">Password:</label> <input type="password" name="password" id="password" 
+						   onKeyUp='showPassword2();' readonly />
+    <input type="hidden" name="this_is_the_login_form" value="1" />
+  </div>
+
+  <div id="hiddenpassword" style="display:none">
+    <div class="form-row">
+      <label for="password2">Again, Please:</label> <input type="password" name="password2" id="password2" 
+							   onKeyUp='showPassword2();' />
+      <input type="hidden" name="sessionkey" id="sessionkey" />
+    </div>
+  </div>
+ 
+
+  <div class="form-row">
+    <label for="realname">Real Name:</label> <input type="text" name="realname" id="realname" readonly />
+  </div>
+  <div class="form-row">
+    <label for="email">E-Mail:</label> <input type="text" name="email" id="email" readonly />
+  </div>
+  <div class="form-row">
+    <label for="favorite_movie">Favorite Movie:</label> <input type="text" name="favorite_movie" id="favorite_movie" readonly />
+  </div>
+  <div class="form-row">
+    <label for="shoe_size">Shoe Size:</label> <input type="text" name="shoe_size" id="shoe_size" readonly />
+  </div>
+
+
+</div> <!-- end of hidden div -->
+
+<!-- Button Row -->
+  <div class="submit-row">
+    <label>&nbsp;</label><input type="button" value="Log Out" 
+				onClick="window.location='logout.cgi';"/>
+    <label>&nbsp;</label><input type="button" value="Edit" id="edit"
+				onClick="editprofile();"/>
+    <label>&nbsp;</label><input type="button" value="Cancel" id="cancel"
+				style="visibility:hidden;"
+				onClick="cancelEdit();"/>
+  </div>
+
+</form>
+</td>
+<td>
+<!-- right hand column -->
+<form id="login-form">
+  <h3> Whiteboard:</h3>
+  <textarea name="whiteboard" id="whiteboard" style="width:65%;height:40%;"></textarea><br/>
+  <input type="button" value="View/Edit Whiteboard" id="saveWhiteboardButton" 
+	 onClick="window.open('whiteboard.html?username='+go('username').innerHTML,
+              	  'whiteboard', 'menubar=no,width=800,height=430,toolbar=no');" />
+<label>&nbsp;</label><input type="button" value="WhiteBoard Permissions" id="modifyWhiteboard" 
+			    onClick="window.open('whiteboardPerms.html','whiteboard perms',
+'menubar=no,width=430,height=430,toolbar=no');">
+</form>
+
+<h2>Actions:</h2>
+<h3><a href="#" id="publicDoorLink" onClick="setActionLinks();">Public door</a></h3>
+View / Modify messages outside this door
+
+<h3><a href="#" id="privateDoorLink" onClick="setActionLinks();">Private Door</a></h3>
+View / Modify a private message from under this door
+<!-- end right hand column -->
+</td>
+</tr>
+<tr>
+<td colspan=2>
+<!-- End of Button Row -->
+
+<!-- User List -->
+<div><h4><u>Your fellow users:</u></h4> ( you may click on these to see their profiles )</u><hr>
+  <div id=userlist></div>
+</div>
+<!-- End of User List -->
+
+</td>
+</tr></table>
+</div>
+
+        
+        <br class="clear" />
+    </div>
+    <!-- END Content -->
+
+    <div id="footer"></div>
+</div>
+<!-- END Container -->
+<center>This style stolen from <a href="http://www.djangoproject.com/">DJANGO's</a> admin<br>login page. I think it looks cool...</center>
+<center><div id="responseSpot" style="height:100px;"></div></center>
+<script language="javascript">
+//window.onload=sendData("action=loadprofile", "https://gimli.morningside.edu/~meyersh/270/social/home.cgi", "GET");
+window.onload=checkQueryString();
+window.onload=loadProfile();
+</script>
+
+</body>
+</html>
+

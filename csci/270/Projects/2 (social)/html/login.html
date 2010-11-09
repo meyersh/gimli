@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-us" xml:lang="en-us" >
+<head>
+<title>Log in</title>
+<link rel="stylesheet" type="text/css" href="styles/base.css" />
+<link rel="stylesheet" type="text/css" href="styles/login.css" />
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="styles/ie.css" /><![endif]-->
+<script language="javascript" src="js/ajax.js"></script>
+<script langauge="javascript">
+
+  function gv(id)
+  {
+    return document.getElementById(id).value;
+  }
+
+  function register()
+  {
+  var username = gv('username');
+  var realname = gv('realname');
+  var password = gv('password');
+  var password2 = gv('password2');
+  var email = gv('email');
+  var favorite_movie = gv('favorite_movie');
+  var shoe_size = gv('shoe_size');
+
+  if (!username)
+    raiseError("Please enter a username!");
+  else if (!password)
+    raiseError("You must enter a password!");
+  else if (password != password2)
+    raiseError("Passwords do not match!");
+  else if (!realname)
+    raiseError("Please enter your real name.");
+  else if (!email)
+    raiseError("Please enter your E-Mail address.");
+  else if (!favorite_movie)
+    raiseError("Please enter your favorite Movie!");
+  else if (!shoe_size)
+    raiseError("Please enter your shoe size!");
+  else if (shoe_size.match(/[^0-9.]/) || shoe_size.match(/.*\..*\./) )
+    raiseError("Shoesize can be numerals and decimal only.");
+  else /* I guess we can go ahead and register... */
+  {
+    sendData('action=register\nusername='+username + '\n' + 
+    'password='+password + '\n' + 
+    'email='+email + '\n' + 
+    'realname='+realname + '\n' + 
+    'favorite_movie='+favorite_movie + '\n' +
+    'shoe_size='+shoe_size + '\n' + 
+    'whiteboard=This user hasnt put anything in their whiteboard yet!\n', 
+    'https://gimli.morningside.edu/~meyersh/270/social/login.cgi', 'POST');
+  }
+  
+  }
+</script>
+
+<meta name="robots" content="NONE,NOARCHIVE" />
+</head>
+
+
+<body class="login">
+
+<!-- Container -->
+
+<div id="container">
+
+    
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+        
+	  <h1 id="site-name">Login</h1>
+
+        </div>
+        
+        
+    </div>
+    <!-- END Header -->
+
+    
+       
+
+    <!-- Content -->
+    <div id="content" class="colM">
+        
+    <div id="error"></div>
+        
+
+<div id="content-main">
+<form id="login-form">
+  <div class="form-row">
+    <label for="username">Username:</label> <input type="text" name="username" id="username" />
+  </div>
+  <div class="form-row">
+
+    <label for="password">Password:</label> <input type="password" name="password" id="password" />
+    <input type="hidden" name="this_is_the_login_form" value="1" />
+  </div>
+
+<!-- Hidden div that becomes visible on a register event -->
+<div style="display:none;" id="extraform">
+  <div class="form-row">
+    <label for="password2">Again, Please:</label> <input type="password" name="password2" id="password2" />
+  </div>
+  <div class="form-row">
+    <label for="realname">Real Name:</label> <input type="text" name="realname" id="realname" />
+  </div>
+  <div class="form-row">
+    <label for="email">E-Mail:</label> <input type="text" name="email" id="email" />
+  </div>
+  <div class="form-row">
+    <label for="favorite_movie">Favorite Movie:</label> <input type="text" name="favorite_movie" id="favorite_movie" />
+  </div>
+  <div class="form-row">
+    <label for="shoe_size">Shoe Size:</label> <input type="text" name="shoe_size" id="shoe_size" />
+  </div>
+</div>
+
+</div> <!-- end of hidden div -->
+  <div class="submit-row">
+    <label>&nbsp;</label><input type="button" value="Log in" 
+				onClick="sendData('action=login\nusername='+document.getElementById('username').value + '\n' + 
+					 'password='+document.getElementById('password').value + '\n',
+					 'https://gimli.morningside.edu/~meyersh/270/social/login.cgi', 'POST');"/>
+    <label>&nbsp;</label><input type="button" value="Register"
+				onClick="if (document.getElementById('extraform').style.display=='none') {document.getElementById('extraform').style.display='inline';} else {register();}"/>
+  </div>
+</form>
+
+<script type="text/javascript">
+document.getElementById('username').focus()
+
+</script>
+</div>
+
+        
+        <br class="clear" />
+    </div>
+    <!-- END Content -->
+
+    <div id="footer"></div>
+</div>
+<!-- END Container -->
+<center>This style stolen from <a href="http://www.djangoproject.com/">DJANGO's</a> admin<br>login page. I think it looks cool...</center>
+<center><small><div id="responseSpot"></div></small></center>
+</body>
+</html>
+

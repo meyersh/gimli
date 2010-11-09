@@ -1,0 +1,76 @@
+body {
+    FONT-SIZE:11px;
+    /* COLOR: #003399; */
+    /* Awesome darkish blue: */
+    COLOR: #183145;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    padding:10%;
+    }
+    
+.right {
+  text-align:right;
+  }
+.background {
+  background-repeat:no-repeat;
+  background-image:url('/~meyersh/images/main_background.jpg');
+  float:inherit;
+  /* margin-left: 10%; */
+  /*width:80%; */
+  /* margin-top: 2%; */
+  height:95%;
+  padding:3px;
+  overflow:auto;
+  }
+.header {
+    background-color:#f4f7fc;
+    opacity:0.7;
+    margin:3px;
+    padding:1px;
+    }
+.paragraph {
+    background-color:#f4f7fc;
+    opacity:0.85;
+}
+div.paragraph {
+    margin:3px;
+    padding:3px;
+    }
+/* Some awesome stylistic stuff */
+UL {
+    list-style-image: url(/~meyersh/images/star10.gif);
+    margin-left: -10px;
+}
+H1 {
+    FONT-WEIGHT: bold; 
+    FONT-SIZE: 32px; 
+    COLOR: #669933; 
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    LINE-HEIGHT:0pt;
+    MARGIN-BOTTOM:10pt;
+    PADDING-BOTTOM: 0px;
+}
+H2 {
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 18px; 
+    COLOR: #669933; 
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+}
+H3 {
+    FONT-WEIGHT: bold; 
+    FONT-SIZE: 15px; 
+    COLOR: #669933; 
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+}
+/* 
+ * Our A tags (urls) 
+ */
+A:link {
+    FONT-SIZE:11px;
+    COLOR: #003399;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    TEXT-DECORATION: underline;
+    }
+A:hover {
+    TEXT-DECORATION: none;
+    COLOR: #990000;
+    }
