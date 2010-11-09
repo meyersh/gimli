@@ -1,0 +1,6 @@
+ALL:whiteboard:5
+OWNER:whiteboard:7
+ALL:outsideDoor:6
+OWNER:outsideDoor:7
+ALL:underDoor:2
+OWNER:underDoor:7

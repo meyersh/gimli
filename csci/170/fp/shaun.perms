@@ -1,0 +1,5 @@
+ALL:guestbook:4
+ALL:privateMessage:2
+ALL:publicMessage:7
+mike:guestbook:0
+roy:privateMessage:0

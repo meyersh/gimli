@@ -1,0 +1,57 @@
+#include <iostream>
+#include <mysql.h>
+#include <stdlib.h> // exit()
+
+using namespace std;
+
+int main(int argc, char* argv[])
+{
+
+  MYSQL *conn;
+  MYSQL_RES *res;
+  MYSQL_ROW row;
+
+  char *server = "localhost";
+  char *user = "meyersh";
+  char *password = "forwhomtbt";
+  char *database = "dbmeyersh";
+
+  conn = mysql_init(NULL);
+
+  /* Connect to database */
+  if (!mysql_real_connect(conn, server,
+			  user, password, database, 0, NULL, 0))
+    {
+      cout << mysql_error(conn) << endl;
+      exit(1);
+    }
+
+  /* Send SQL query */
+  if (mysql_query(conn, "select * from EMPLOYEE;")) 
+    {
+      cout << mysql_error(conn) << endl;
+      exit(1);
+    }
+
+  res = mysql_use_result(conn);
+
+  /* ouput table name */
+
+  cout << "Mysql tables in mysql db:\n";
+  unsigned int num_fields = mysql_num_fields(res);
+  cout << "Query returned " << num_fields << " fields.\n";
+
+  while ((row = mysql_fetch_row(res)) != NULL)
+    {
+      cout << row[0] << endl;
+      cout << "length: " << (unsigned int)mysql_fetch_lengths(res)[0] << endl;
+    }
+
+  /* close connection */
+  mysql_free_result(res);
+  mysql_close(conn);
+
+
+  return 0;
+
+}

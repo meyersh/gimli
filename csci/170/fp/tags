@@ -1,0 +1,95 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.7	//
+COOKIES	cookies.hpp	2;"	d
+GET	cookies.hpp	/^  map<string,string> GET; \/* All GET data in key \/ value pairs. *\/$/;"	m	struct:HttpRequest
+HttpRequest	cookies.hpp	/^struct HttpRequest {$/;"	s
+HttpResponse	cookies.hpp	/^struct HttpResponse {$/;"	s
+MAX_SESSION_AGE	session.hpp	4;"	d
+META	cookies.hpp	/^  map<string, string> META; \/* this will hold our env variables later *\/$/;"	m	struct:HttpRequest
+MSG_PATH	messaging.cpp	18;"	d	file:
+MSG_SUFFIX	messaging.cpp	19;"	d	file:
+POST	cookies.hpp	/^  map<string, string> POST; \/* All POST data in key \/ value pairs. *\/$/;"	m	struct:HttpRequest
+RANDOMSTR_HPP	randomStr.hpp	2;"	d
+REGISTRATION_FILE	login.cpp	14;"	d	file:
+REGISTRATION_FILE	session.cpp	21;"	d	file:
+SEEDSIZE	randomStr.cpp	6;"	d	file:
+SESSION	session.hpp	2;"	d
+SESSION_FILE	session.cpp	19;"	d	file:
+SESSION_PATH	session.cpp	18;"	d	file:
+SESSION_SUFFIX	session.cpp	17;"	d	file:
+SHAUNCGIHPP	shaunscgi.hpp	2;"	d
+USER_PATH	login.cpp	16;"	d	file:
+USER_PATH	session.cpp	23;"	d	file:
+USER_SUFFIX	login.cpp	15;"	d	file:
+USER_SUFFIX	session.cpp	22;"	d	file:
+body	messaging.cpp	/^  string sender, body;$/;"	m	class:message	file:
+checkAllSessions	session.cpp	/^checkAllSessions(int maxAge)$/;"	f
+checkPassword	login.cpp	/^bool checkPassword(string username, string password)$/;"	f
+checkSession	session.cpp	/^checkSession(string sessionkey, int maxage)$/;"	f
+childMessages	messaging.cpp	/^  vector<int> childMessages;$/;"	m	class:message	file:
+contentType	cookies.hpp	/^  string contentType;$/;"	m	struct:HttpResponse
+cookies	cookies.hpp	/^  map<string, string> cookies;$/;"	m	struct:HttpRequest
+cookies	cookies.hpp	/^  map<string, string> cookies;$/;"	m	struct:HttpResponse
+email	session.hpp	/^  string email;$/;"	m	struct:userProfile
+favorite_movie	session.hpp	/^  string favorite_movie;$/;"	m	struct:userProfile
+getCookies	cookies.cpp	/^getCookies(HttpRequest& request)$/;"	f
+getGET	cookies.cpp	/^getGET(HttpRequest& request)$/;"	f
+getKeyValue	cookies.cpp	/^pair<string,string> getKeyValue(string mypair)$/;"	f
+getSessionAge	session.cpp	/^getSessionAge(string sessionkey)$/;"	f
+hasCookie	cookies.cpp	/^bool hasCookie(HttpRequest &request, string cookie) $/;"	f
+hasCookie	cookies.hpp	/^  bool hasCookie(string search)$/;"	f	struct:HttpRequest
+hasGET	cookies.hpp	/^  bool hasGET(string search)$/;"	f	struct:HttpRequest
+hasMessage	messaging.cpp	/^  bool hasMessage( int id )$/;"	f	class:msgs
+hasPOST	cookies.hpp	/^  bool hasPOST(string search)$/;"	f	struct:HttpRequest
+headers	cookies.hpp	/^  map<string, string> headers;$/;"	m	struct:HttpResponse
+hexToChar	shaunscgi.hpp	/^char hexToChar(string hexstring)$/;"	f
+id	messaging.cpp	/^  int timestamp, id, inResponseTo;$/;"	m	class:message	file:
+inResponseTo	messaging.cpp	/^  int timestamp, id, inResponseTo;$/;"	m	class:message	file:
+insert	messaging.cpp	/^  void insert( message m )$/;"	f	class:msgs
+isRegistered	login.cpp	/^isRegistered(string username)$/;"	f
+lastMessage	messaging.cpp	/^  int lastMessage()$/;"	f	class:msgs	file:
+listUsers	home.cpp	/^listUsers()$/;"	f
+main	checksession.cpp	/^main()$/;"	f
+main	home.cpp	/^main()$/;"	f
+main	login.cpp	/^main()$/;"	f
+main	logout.cpp	/^main()$/;"	f
+main	messaging.cpp	/^main()$/;"	f
+main	ses-obj-drv.cpp	/^main()$/;"	f
+message	messaging.cpp	/^class message {$/;"	c	file:
+msgList	messaging.cpp	/^   map<int, message> msgList; \/* msgList[id] = <message> *\/$/;"	m	class:msgs	file:
+msgs	messaging.cpp	/^  msgs(string username)$/;"	f	class:msgs
+msgs	messaging.cpp	/^class msgs {$/;"	c	file:
+newSession	session.cpp	/^newSession(string username)$/;"	f
+password	session.hpp	/^  string password;$/;"	m	struct:userProfile
+printCookies	cookies.cpp	/^printCookies(map<string, string> cookies)$/;"	f
+randomString	randomStr.cpp	/^void randomString(string &rstr, int slen, const string &basechars)$/;"	f
+readMessages	messaging.cpp	/^  int readMessages( )$/;"	f	class:msgs
+readProfile	session.cpp	/^readProfile(string username, userProfile& profile)$/;"	f
+readSession	session.cpp	/^readSession(string seskey)$/;"	f
+realname	session.hpp	/^  string realname;$/;"	m	struct:userProfile
+registerUser	login.cpp	/^void registerUser(string username, string password)$/;"	f
+renderHttpHeaders	cookies.cpp	/^renderHttpHeaders(HttpResponse& response)$/;"	f
+returnCookieHeaders	cookies.cpp	/^returnCookieHeaders(HttpResponse& response)$/;"	f
+returnHtmlFile	login.cpp	/^returnHtmlFile(string filename)$/;"	f
+rmSession	session.cpp	/^rmSession(string sessionkey)$/;"	f
+sender	messaging.cpp	/^  string sender, body;$/;"	m	class:message	file:
+session	cookies.hpp	/^  map<string,string> session; \/* Our session middleware! *\/$/;"	m	struct:HttpRequest
+setCookie	cookies.cpp	/^setCookie(HttpResponse& response, string key, string val)$/;"	f
+setHttpRequestMeta	cookies.cpp	/^setHttpRequestMeta(HttpRequest &request)$/;"	f
+setPassword	login.cpp	/^void setPassword(string username, string password)$/;"	f
+shoe_size	session.hpp	/^  double shoe_size;$/;"	m	struct:userProfile
+size	messaging.cpp	/^  int size()$/;"	f	class:msgs
+timestamp	messaging.cpp	/^  int timestamp, id, inResponseTo;$/;"	m	class:message	file:
+touchSession	session.cpp	/^touchSession(string sessionkey)$/;"	f
+tryOpen	messaging.cpp	/^  bool tryOpen()$/;"	f	class:msgs	file:
+urlDecode	shaunscgi.hpp	/^urlDecode(string urlencoded)$/;"	f
+urlEncode	shaunscgi.hpp	/^urlEncode(string url)$/;"	f
+userProfile	session.hpp	/^struct userProfile {$/;"	s
+username	messaging.cpp	/^  string username;$/;"	m	class:msgs	file:
+username	session.hpp	/^  string username;$/;"	m	struct:userProfile
+writeMessages	messaging.cpp	/^  int writeMessages(string msgFileName = "")$/;"	f	class:msgs
+writeProfile	session.cpp	/^writeProfile(userProfile& profile)$/;"	f

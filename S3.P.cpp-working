@@ -1,0 +1,279 @@
+#include <iostream>
+#include <climits>
+#include <cmath>
+
+using namespace std;
+
+/* showBinary(unsigned int) - output the binary 
+ * to stdout 
+ */
+void showBinary(unsigned int foo)
+{
+  int length = sizeof(foo)*8;
+  unsigned int mask = pow(2, length-1);
+
+  for (int i = 0; i < length; i++)
+    {
+      if (mask & foo)
+	cout << "1";
+      else
+	cout << "0";
+      mask = mask >> 1;
+    }
+  cout << endl;
+}
+
+/* showBinary( bool[], length ) - output the binary
+ * to stdout
+ */
+void showBinary(bool * word, int length)
+{
+  for (int i = 0; i < length; i++)
+    {   
+
+      cout << word[i];
+      if ((i+1)%8 == 0)
+	cout << " ";
+
+    }
+
+  cout << endl;
+}
+
+
+/*
+ * hammingBits(length) - return the number of hambits for length-bit binary.
+ *
+ * When in doubt - use brute force. We loop through all 
+ * the numbers up to oru length to find out how many hambits
+ * we'll need.
+ *
+ * Based on the formula: (m + r + 1) <= 2^r
+ */
+
+int hammingBits(int length)
+{
+  int hambits = 0;
+  for (hambits = 0; hambits < length; hambits++)
+    if (hambits + length + 1 <= pow(2, hambits))
+      return hambits;
+  return -1;
+}
+
+/* 
+ * setHambits() - 
+ * set the hambits in our word. We take in length of word
+ * and number of desired hambits.
+ * Also, we can calculate both odd / even parity.
+ */
+
+void setHambits(bool * word, int length, int hambits, bool evenParity=true)
+{
+  /* This deserves a comment. H is our current ham bit, 
+   * hh is our sub-loop hambit that we're comparing to.
+   */
+
+  int h, hh;  
+  int numOnes = 0; // number of ones. 
+  int checkh; // index we're checking.
+
+  for (int i = 0; i < hambits; i++)
+    {
+      h = pow(2, i);
+      cout << h << ": ";
+
+      cout << "(";
+      for (int j = 0; j < hambits; j++)
+	{
+	  hh = pow(2, j);
+	  checkh = h + hh;
+	  if (hh != h && checkh < length+hambits) /* Don't add to ourselves or past our word*/
+	    {
+
+	      cout << checkh << " [" << word[checkh-1] << "] ";
+	      
+	      if (word[checkh-1]) 
+		numOnes++;
+	    }
+	}
+
+      cout << ")";
+
+      /* if numOnes is even, we should have 0 for our hambit
+	 if its odd, we should have 1 for our hambit. */
+
+      cout << " Number of Ones for " << h << " is " << numOnes << endl;
+
+      if (numOnes % 2) /* # of ones is odd */
+	{
+	  word[h-1] = evenParity;
+	}
+      else /* # of ones is even */
+	{
+	  word[h-1] = !evenParity;
+	}
+      numOnes = 0;
+      cout << endl; 
+    }
+
+  cout << endl;
+}
+
+/* 
+ * isHambit(index, length) - is a given index in length a hambit?
+ */
+
+bool isHambit(int index, int length)
+{
+  /* hambit is pow(2, i)-1 so the inverse must be true... */
+
+  int h; 
+
+  for (int i = 0; i < hammingBits(length); i++)
+    {
+      h = pow(2, i)-1;
+      if (h == index)
+	return true;
+    }
+  return false;
+  
+}
+
+/*
+ * encodeWord(bool word[], unHammedWord, wordLength, inthambits)
+ * put unHammedWord binary into bool word[] with empty spaces for
+ * hambit locations.
+ * 
+ * TODO: Probably could use sizeof(unHammedWord) here instead of 
+ * taking wordLength.  We can also figure out hambits dynamically.
+ */
+
+void 
+encodeWord(bool * word, unsigned int unHammedWord, 
+	   int wordLength, int hambits)
+{
+  unsigned int mask = 1;
+  mask <<= sizeof(unHammedWord)*8-1;
+  for (int i = 0; i < wordLength+hambits; i++)
+    {
+      if (isHambit(i, wordLength))
+	{
+	  cout << "skipping " << i << "\n";
+	  continue;
+	}
+
+      if (mask & unHammedWord)
+	word[i] = 1;
+      else
+	word[i] = 0;
+      mask >>= 1;
+      
+    }
+}
+
+/*
+ * checkHambits() - given a codeword, length, and (even/odd) parity return
+ * the number of incorrect bits ( and repair them ). 
+ */
+int checkHambits(bool * word, int length, int hambits, bool evenParity = true)
+{
+
+  /* This deserves a comment. H is our current ham bit, 
+   * hh is our sub-loop hambit that we're comparing to.
+   */
+
+  int h, hh;  
+  int numOnes = 0; // number of ones. 
+  int checkh; // index we're checking.
+  int invalidHamBits = 0;
+
+  cout << "Checking Hambits.\n";
+
+  for (int i = 0; i < hambits; i++)
+    {
+      h = pow(2, i);
+      cout << h << ": ";
+     
+
+      cout << "(";
+      for (int j = 0; j < hambits; j++)
+	{
+	  hh = pow(2, j);
+	  checkh = h + hh;
+	  if (hh != h && checkh < length+hambits) /* Don't add to ourselves or past our word*/
+	    {
+
+	      cout << checkh << " [" << word[checkh-1] << "] ";
+	      
+	      if (word[checkh-1]) 
+		numOnes++;
+	    }
+	}
+
+      cout << ")";
+
+      /* if numOnes is even, we should have 0 for our hambit
+	 if its odd, we should have 1 for our hambit. */
+
+      cout << " Number of Ones for " << h << " is " << numOnes << endl;
+
+      if (numOnes % 2) /* # of ones is odd */
+	{
+	  if (evenParity) /* error - we should have an even number. */
+	    invalidHamBits += h;
+	}
+      else /* # of ones is even */
+	{
+	  if (!evenParity)
+	    invalidHamBits += h;
+	}
+      numOnes = 0;
+      cout << endl; 
+    }
+
+  cout << endl;
+
+  cout << "invalidbit: " << invalidHamBits << endl;
+
+}
+
+int main()
+{
+  
+  unsigned int unHammedWord = 12;
+  unsigned int wordLength = sizeof(unHammedWord)*8;
+  
+  int hambits = hammingBits(wordLength);
+
+  bool * hammedWord = new bool[wordLength+hambits-2];
+  
+
+  cout << "unHammed: " << unHammedWord << " wordLength: " << wordLength << endl;
+
+  showBinary(unHammedWord);
+
+  cout << "We require " << hambits << " ham bits.\n";
+  
+  /* populate our hamming word - HamBits are left undefined here. */
+  encodeWord(hammedWord, unHammedWord, wordLength, hambits);
+
+  /* set all the hambits in our populated hamming word to their correct 
+   * values. */
+  setHambits(hammedWord, wordLength, hambits);
+
+  cout << "Hammed Word: " << endl;
+ 
+  showBinary(hammedWord, wordLength+hambits);
+  hammedWord[22] = !hammedWord[22]; // simulate a 1-bit error.
+  showBinary(hammedWord, wordLength+hambits);
+
+  checkHambits(hammedWord, wordLength,hambits);
+
+
+
+
+  delete [] hammedWord;
+  return 0;
+
+
+}

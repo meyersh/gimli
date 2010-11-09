@@ -1,0 +1,337 @@
+/*******************************************************************************
+ * Final Project for CSCI-170-001
+ * Shaun Meyer, Apr 2010
+ *
+ * File: session.cpp
+ * Purpose: Handle user profiles & session data.
+ * This provides many helper functions for both.
+ *
+ * All user data is accessed through userProfile objects which are
+ * written and read by function. This lets our business logic 
+ * worry about the methods and not the underlying storage 
+ * mechanisms.
+ *
+ * If I were to use this again, I'd objectify it. In fact,
+ * I've basically already done this but 85% of my Final Project
+ * code was written so I've kept this in. As far as I can tell,
+ * the session_objectified object is ready and working.
+ *
+ */
+
+using namespace std;
+
+#include <string>
+#include <fstream>
+#include <cstdlib>
+#include <iostream>
+
+/* For stat()... I use file mod time to check a sessions freshness. */
+#include <sys/stat.h>
+#include <ctime>
+#include <utime.h>
+
+#include <mysql.h>
+#include <database.hpp>
+
+#define DB_PASSWORD "forwhomtbt"
+#define DB_USER "meyersh"
+#define DB_HOST "localhost"
+#define DB_DATABASE "dbmeyersh"
+#define TBL_PREFIX "270_social_"
+
+#include "session.hpp"
+#include "randomStr.hpp"
+
+#define SESSION_SUFFIX ".session"
+#define SESSION_PATH "/home/meyersh/private/"
+#define SESSION_FILE "/home/meyersh/private/sessions.txt"
+
+#define REGISTRATION_FILE "/home/meyersh/private/user_registrations.txt"
+#define USER_SUFFIX ".user"
+#define USER_PATH "/home/meyersh/private/"
+
+
+/*
+ * Read a given user profile, setting it to the given
+ * userProfile structure. Returns non-zero on error.
+ */
+
+int 
+readProfile(string username, userProfile& profile)
+{
+  profile.username = username;
+
+  /*
+    select name,password,first_name,last_name,email,shoe_size,
+    favorite_movie,general_statement from 270_social_user where name='meyersh';
+  */
+
+  /* Connect to MYSQL Database */
+  MYSQL *conn;
+  MYSQL_RES *res;
+  MYSQL_ROW row;
+
+  bool retcode = 0;
+
+  conn = mysql_init(NULL);
+  if (!mysql_real_connect(conn, DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, 0, NULL, 0))
+    {
+      cout << mysql_error(conn) << endl;
+      exit(1);
+    }
+
+  /* perform database query */
+  string sql = "SELECT name,password,first_name,last_name,email,shoe_size,favorite_movie,general_statement ";
+  sql += "FROM 270_social_user WHERE name='" + username + "';";
+
+  if (mysql_query(conn,sql.c_str()))
+    { cout << mysql_error(conn) << endl;
+      exit(1);
+    }
+
+
+  /* if everything went ok, store our values in the profile */
+
+  res = mysql_store_result(conn);
+  
+  if (mysql_num_rows(res) == 1)
+    {
+      row = mysql_fetch_row(res);
+      profile.username       = row[0]; 
+      profile.password       = row[1];
+      profile.realname       = row[2];
+      profile.realname      += " ";
+      profile.realname      += row[3];
+      profile.email          = row[4];
+      profile.shoe_size      = atof(row[5]);
+      profile.favorite_movie = row[6];
+      profile.whiteboard     = row[7];
+    }
+  else {
+    retcode = 1;
+    }
+
+  /*
+   * Clean up
+   */
+
+  mysql_free_result(res);
+  mysql_close(conn);
+  return retcode;
+}
+
+string 
+readSession(string seskey)
+{
+  ifstream sesfile;
+  string filename = SESSION_PATH + seskey + SESSION_SUFFIX;
+  sesfile.open( filename.c_str() );
+
+  string username;
+  std::getline(sesfile, username);
+  
+  return username;
+}
+
+/*
+ * Write the contents of a given userProfile structure to 
+ * ascii-flat file.
+ */
+
+int
+writeProfile(userProfile& profile)
+{
+  ofstream userfile;
+  string filename = USER_PATH + profile.username + USER_SUFFIX;
+
+  userfile.open( filename.c_str());
+  if (!userfile.is_open())
+    return -1;
+
+  userfile << profile.password << endl
+	   << profile.realname << endl
+	   << profile.email << endl
+	   << profile.favorite_movie << endl
+	   << profile.shoe_size << endl
+	   << profile.whiteboard << endl;
+
+  userfile.close();
+
+  /*
+    replace into 270_social_user 
+    (name,password,first_name,last_name,email,shoe_size,general_statement) 
+    values("meyersh","forwhomtbt","Shaun","Meyer","meyersh@morningside.edu", 
+    10.5, "To be, or not to be...");
+  */
+
+  return 0;
+}
+
+/* 
+ * start a new session for "username". This does not do any checking on
+ * passwords or etc, just tries to create the session and returns the session
+ * ID.
+ */
+
+string
+newSession(string username)
+{
+  string random_string;
+  randomString(random_string, 128);
+
+  /* above doesn't check for key collision. */
+
+  // write username to key.
+  ofstream f;
+  string filename(SESSION_PATH + random_string + SESSION_SUFFIX);
+
+  ofstream sessionfile;
+  sessionfile.open(SESSION_FILE, ios::app);
+  sessionfile << random_string << endl;
+
+  f.open(filename.c_str());
+  f << username << endl;
+  f.close();
+  sessionfile.close();
+  return random_string;
+}
+
+/*
+ * Validate session. Will return true if session is OK,
+ * under age and what have you, false if does not exist or
+ * too old.
+ */
+
+bool 
+checkSession(string sessionkey, int maxage)
+{
+  ifstream allsessions;
+  string ses; 
+  allsessions.open(SESSION_FILE);
+  while ( std::getline(allsessions, ses) )
+    {
+      if ( sessionkey == ses )
+	if (getSessionAge(sessionkey) < maxage)
+	  {
+	    touchSession( sessionkey); 
+	    return true;
+	  }
+	else
+	  {
+	    rmSession( sessionkey );
+	    break;
+	  }
+    }
+  return false;
+}
+
+/*
+ * Remove a session. Works by copying every OTHER session into
+ * a temporary file and then moving the temporary file into the
+ * sessionfile. 
+ * also removes the .session file.
+ */
+
+void
+rmSession(string sessionkey)
+{
+  string filename, session;
+  filename = SESSION_PATH + sessionkey + SESSION_SUFFIX;
+  remove( filename.c_str() );
+
+  /* remove the session from SESSION_FILE */
+  string altsesfilename = SESSION_FILE;
+  altsesfilename += ".tmp";
+
+  ifstream sesfile;
+  ofstream altsesfile;
+  
+  sesfile.open( SESSION_FILE );
+  altsesfile.open( altsesfilename.c_str() );
+
+  std::getline(sesfile, session, '\n');
+  while ( std::getline(sesfile, session, '\n') )
+    {
+      if (session != sessionkey)
+	{
+	  altsesfile << session << endl;
+	}
+    }
+
+  /* Now move in the new file... */
+  rename( altsesfilename.c_str(), SESSION_FILE );
+
+}
+
+
+/*
+ * Return the session age in seconds. 
+ * On error: returns -1
+ */
+
+int
+getSessionAge(string sessionkey)
+{
+  string filename = SESSION_PATH + sessionkey + SESSION_SUFFIX;
+  struct stat foo;
+  int mtime;
+
+  if ( stat(filename.c_str(), &foo) )
+    return -1;
+
+  mtime = (int)foo.st_mtime; /* seconds since epoch */
+
+  return time(NULL) - mtime; //  - mtime;
+
+}
+
+
+/*
+ * housekeeping - iterate through all sessions and clean up.
+ */
+
+void 
+checkAllSessions(int maxAge)
+{
+  ifstream sesfile;
+  sesfile.open(SESSION_FILE);
+  string altsesfilename = SESSION_FILE;
+  altsesfilename += ".tmp";
+
+  ofstream altsesfile;
+  altsesfile.open(altsesfilename.c_str());
+
+  string session;
+  string filename;
+  while (std::getline(sesfile, session, '\n'))
+    {
+      int age = getSessionAge(session);
+
+      if (age < maxAge)
+	altsesfile << session << endl;
+      else
+	{
+	  filename = SESSION_PATH + session + SESSION_SUFFIX;
+	  remove( filename.c_str() );
+	}
+	  
+    }
+  altsesfile.close();
+  rename(altsesfilename.c_str(), SESSION_FILE);
+}
+
+/*
+ * touch a given session, set its age to 0 seconds. 
+ */
+
+void 
+touchSession(string sessionkey)
+{
+  string filename = SESSION_PATH + sessionkey + SESSION_SUFFIX;
+
+  struct utimbuf new_times;
+  new_times.modtime = time(NULL);
+  utime(filename.c_str(), &new_times);
+
+}
+
