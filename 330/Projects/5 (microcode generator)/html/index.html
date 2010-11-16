@@ -166,6 +166,7 @@ function assemble_form_data() {
   output += gv('BSRC') + ' ';
   output += gv('ASRC') + ' ';
   alert(output);
+  return output;
 }
 
 function getXMLHttpReq()
@@ -207,16 +208,7 @@ return 0;
 
 function submit_data()
 {
-  if (check() != 0)
-    return 0; // don't send data if check doesn't pass!
-  data = ""
-
-  for (i=0; i < numFields; i++)
-    if (document.getElementById("f"+i).value != "") 
-      data += document.getElementById("f"+i).value + "\n";
-
-   document.getElementById("average").innerHTML="";
-   sendData(data, "s4.e1.1.cgi");
+   sendData(assemble_form_data(), "330-p5.cgi");
 }
 
 
