@@ -171,9 +171,12 @@ function assemble_form_data() {
 
 function clear_form() {
   ge('next_instr').value = "";
+
+  /* clear checkboxes */
   ge('JAM1').checked = 0;
   ge('JAM2').checked = 0;
-  ge('JAM3').checked = 0;
+  ge('JAM3').checked = 0;  
+  e('JAM4').checked = 0;
   ge('ZR1').checked = 0;
   ge('ZR2').checked = 0;
   ge('ZR3').checked = 0;
@@ -196,10 +199,17 @@ function clear_form() {
   ge('R010_2').checked = 0;
   ge('R001_1').checked = 0;
   ge('R001_2').checked = 0;
-
+  ge('R000_1').checked = 0;
+  ge('R000_2').checked = 0;
   ge('PRMMEM_ACCESS').checked = 0;
   ge('PRMMEM_RW').checked = 0;
-  ge('R100_1').checked = 0;
+
+  /* reset drop-down boxen */
+  ge('MADSRC').selectedIndex = 0;
+  ge('MDBSRC').selectedIndex = 0;
+  ge('ASRC').selectedIndex = 0;
+  ge('BSRC').selectedIndex = 0;
+
 }
 
 function getXMLHttpReq()
