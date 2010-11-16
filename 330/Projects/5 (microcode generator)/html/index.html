@@ -131,6 +131,24 @@ function submit_data()
   <input type=text id="f0" maxlength=5 size=5 value="Next Instr"/>
   <input type=text id="f1" maxlength=5 size=5 value="JMP"/>
   <input type=text id="f2" maxlength=5 size=5 value="ALU Contr"/>
+  <select>
+    <option value="B011000">A</option>
+    <option value="B010100">B</option>
+    <option value="B011010">!A</option>
+    <option value="B101100">!B</option>
+    <option value="B111100">A+B</option>
+    <option value="B111101">A+B+1</option>
+    <option value="B111001">A+1</option>
+    <option value="B110101">B+1</option>
+    <option value="B111111">B-A</option>
+    <option value="B110110">B-1</option>
+    <option value="B111011">-A</option>
+    <option value="B001100">A AND B</option>
+    <option value="B011100">A OR B</option>
+    <option value="B010000">0</option>
+    <option value="B110001">1</option>
+    <option value="B110010">-1</option>
+  </select>
   <input type=text id="f3" maxlength=5 size=5 value="Zone RD"/>
   <input type=text id="f4" maxlength=5 size=5 value="Register RD"/>
   <input type=text id="f5" value="Primary Memory">
