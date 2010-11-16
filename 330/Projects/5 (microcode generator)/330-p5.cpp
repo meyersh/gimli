@@ -171,7 +171,6 @@ int main()
     s_B_source,
     s_A_source;
 
-  /*
   cin >> s_next_instruction 
       >> s_jmp 
       >> s_alu_control
@@ -183,15 +182,27 @@ int main()
       >> s_B_source
       >> s_A_source;
   
-  */
-  cin >> s_A_source;
-  ulli binary = str_to_binary(s_A_source);
+  ulli binary = 0; /* this is where our result is going */
+  
+  binary += set_binary_pos(str_to_binary(s_next_instruction), NEXT_INSTR, 10);
+  binary += set_binary_pos(str_to_binary(s_jmp), JMP, 4);
+  binary += set_binary_pos(str_to_binary(s_alu_control, ALU_CONTR, 8));
+  binary += set_binary_pos(str_to_binary(s_zone_read, ZONE_RD, 4));
+  binary += set_binary_pos(str_to_binary(s_register_read, REG_RD, 20));
+  binary += set_binary_pos(str_to_binary(s_primary_memory, PRM_MEM, 2));
+  binary += set_binary_pos(str_to_binary(s_MAD_source, MAD_SRC, 4));
+  binary += set_binary_pos(str_to_binary(s_MDB_source, MDB_SRC, 4));
+  binary += set_binary_pos(str_to_binary(s_B_source, B_SRC, 4));
+  binary += set_binary_pos(str_to_binary(s_A_source, A_SRC, 4));
+  
+  cout << binary_to_str(binary) << endl;
 
+  /*
   cout << binary << endl
        << binary_to_str(binary) << endl
        << binary_to_str(set_binary_pos(15, 4, 4)) << endl
        << binary_to_str(set_binary_pos(15, 64, 4)) << endl;
-
+  */
   return 0;
 
 }
