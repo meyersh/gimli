@@ -169,6 +169,39 @@ function assemble_form_data() {
   return output;
 }
 
+function clear_form() {
+  ge('next_instr') = "";
+  ge('JAM1').checked = 0;
+  ge('JAM2').checked = 0;
+  ge('JAM3').checked = 0;
+  ge('ZR1').checked = 0;
+  ge('ZR2').checked = 0;
+  ge('ZR3').checked = 0;
+  ge('ZR4').checked = 0;
+  ge('PC1').checked = 0;
+  ge('PC2').checked = 0;
+  ge('IR1').checked = 0;
+  ge('IR2').checked = 0;
+  ge('R111_1').checked = 0;
+  ge('R111_2').checked = 0;
+  ge('R110_1').checked = 0;
+  ge('R110_2').checked = 0;
+  ge('R101_1').checked = 0;
+  ge('R101_2').checked = 0;
+  ge('R100_1').checked = 0;
+  ge('R100_2').checked = 0;
+  ge('R011_1').checked = 0;
+  ge('R011_2').checked = 0;
+  ge('R010_1').checked = 0;
+  ge('R010_2').checked = 0;
+  ge('R001_1').checked = 0;
+  ge('R001_2').checked = 0;
+
+  ge('PRMMEM_ACCESS').checked = 0;
+  ge('PRMMEM_RW').checked = 0;
+  ge('R100_1').checked = 0;
+}
+
 function getXMLHttpReq()
 { var req = null;
 
@@ -271,7 +304,8 @@ function submit_data()
 
   <!-- REGISTER READ -->
   <br/>
-  <label for=PC1 for=PC2 for=IR1 for=IR2 for=R111 for=R110 for=R101 for=R100 for=R011 for=R010 for=R001 for=R000>Register Read</label>
+  <label for=PC1 for=PC2 for=IR1 for=IR2 for=R111 for=R110 
+	 for=R101 for=R100 for=R011 for=R010 for=R001 for=R000>Register Read</label>
   <br/>
   <input type=checkbox id=PC1 value=PC1>PC Access</input>
   <input type=checkbox id=PC2 value=PC2>PC Bus Select</input>
