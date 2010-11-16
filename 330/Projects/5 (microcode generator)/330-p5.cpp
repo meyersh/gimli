@@ -52,11 +52,6 @@ typedef unsigned long long int ulli;
 
 */
 
-
-
-
-
-
 /*
  * binary_to_str(ulli) - given a ulli representation of a number, 
  * return a string of that binary.

@@ -234,24 +234,31 @@ function submit_data()
 
   <br/>
   <label for=ALUCTRL>ALU Function</label>
+  <select id=ALUSHIFT>
+    <option value="B00">No Shift</option>
+    <option value="B01">Arithmetic Shift Right</option>
+    <option value="B10">Logical left shift 1 bit</option>
+    <option value="B11">Logical right shift 1 bit</option>
+  </select>
+
   <select id=ALUCTRL>
-    <option value="D-1">---</option>
-    <option value="B011000">A</option>
-    <option value="B010100">B</option>
-    <option value="B011010">!A</option>
-    <option value="B101100">!B</option>
-    <option value="B111100">A+B</option>
-    <option value="B111101">A+B+1</option>
-    <option value="B111001">A+1</option>
-    <option value="B110101">B+1</option>
-    <option value="B111111">B-A</option>
-    <option value="B110110">B-1</option>
-    <option value="B111011">-A</option>
-    <option value="B001100">A AND B</option>
-    <option value="B011100">A OR B</option>
-    <option value="B010000">0</option>
-    <option value="B110001">1</option>
-    <option value="B110010">-1</option>
+    <option value="1">---</option>
+    <option value="011000">A</option>
+    <option value="010100">B</option>
+    <option value="011010">!A</option>
+    <option value="101100">!B</option>
+    <option value="111100">A+B</option>
+    <option value="111101">A+B+1</option>
+    <option value="111001">A+1</option>
+    <option value="110101">B+1</option>
+    <option value="111111">B-A</option>
+    <option value="110110">B-1</option>
+    <option value="111011">-A</option>
+    <option value="001100">A AND B</option>
+    <option value="011100">A OR B</option>
+    <option value="010000">0</option>
+    <option value="110001">1</option>
+    <option value="110010">-1</option>
   </select>
 
   <!-- ZONE READ -->
