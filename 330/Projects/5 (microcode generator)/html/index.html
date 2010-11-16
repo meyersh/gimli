@@ -140,7 +140,7 @@ function submit_data()
 
   <!-- ALU CONTROL -->
 
-<br/>
+  <br/>
   <label for=ALUCTRL>ALU Settings</label>
   <select id=ALUCTRL>
     <option value="B011000">A</option>
@@ -162,6 +162,7 @@ function submit_data()
   </select>
 
   <!-- ZONE READ -->
+  <br/>
   <label for=ZR1 for=ZR2 for=ZR3 for=ZR4>Zone Read</label>
   <input type=checkbox id=ZR1 value=ZR1>Zone 3</input>
   <input type=checkbox id=ZR2 value=ZR2>Zone 2</input>
@@ -169,14 +170,17 @@ function submit_data()
   <input type=checkbox id=ZR4 value=ZR4>Zone 0</input>
 
   <!-- REGISTER READ -->
+  <br/>
   <input type=text id="REG_RD"value="Register RD"/> 
 
   <!-- PRIMARY MEMORY -->
+  <br/>
   <label for=PRMMEM>Primary Memory</label>
   <input type=checkbox id=PRMMEM value=PRMMEM_ACCESS>Access</input>
   <input type=checkbox id=PRMMEM value=PRMMEM_RW>R/W</input>
 
   <!-- MAD SRC -->
+  <br/>
   <label for=MADSRC>MAD SRC</label>
   <select id=MADSRC>
     <option value="B0000">Register 0</option>
@@ -193,9 +197,10 @@ function submit_data()
     <option value="B1001">Zone 1</option>
     <option value="B1010">Zone 2</option>
     <option value="B1011">Zone 3</option>
-</select>
+  </select>
 
   <!-- MDB SRC -->
+  <br/>
   <label for=MDBSRC>MDB SRC</label>
   <select id=MDBSRC>
     <option value="B0000">Register 0</option>
@@ -212,9 +217,10 @@ function submit_data()
     <option value="B1001">Zone 1</option>
     <option value="B1010">Zone 2</option>
     <option value="B1011">Zone 3</option>
-</select>
+  </select>
 
   <!-- A SRC -->
+  <br/>
   <label for=ASRC>A Source</label>
   <select id=ASRC>
     <option value="B0000">Register 0</option>
@@ -234,6 +240,7 @@ function submit_data()
 </select>
 
   <!-- B SRC -->
+  <br/>
   <label for=BSRC>B Source</label>
   <select id=BSRC>
     <option value="B0000">Register 0</option>
