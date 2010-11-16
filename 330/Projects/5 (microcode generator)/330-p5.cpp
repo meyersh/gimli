@@ -140,7 +140,7 @@ ulli str_to_binary(string inpt)
 
 ulli set_binary_pos(ulli binary, int pos, int len)
 {
-  ulli mask = 0;
+  ulli mask = 1;
   mask <<= len;
   mask -= 1;
   return (binary & mask) << (pos-len);
@@ -200,7 +200,7 @@ int main()
   binary += set_binary_pos(str_to_binary(s_MAD_source), MAD_SRC, 4);
   binary += set_binary_pos(str_to_binary(s_MDB_source), MDB_SRC, 4);
   binary += set_binary_pos(str_to_binary(s_B_source), B_SRC, 4);
-  binary += set_binary_pos(str_to_binary(s_A_source), A_SRC, 4);
+  binary += set_binary_pos(str_to_binary(s_A_source), A_SRC, 4); 
   
   cout << "Content-Type: text/plain\n\n";
   cout << binary_to_str(binary) << endl;
