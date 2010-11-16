@@ -54,20 +54,8 @@ typedef unsigned long long int ulli;
 
 
 
-*/
 
-/* Microinstruction format positions: */
-enum {
-  NEXT_INSTR = 64,
-  JMP = 54,
-  ALU_CONTR = 50,
-  ZONE_RD = 42,
-  REG_RD = 38,
-  PRM_MEM = 18,
-  MAD_SRC = 16,
-  MDB_SRC = 12,
-  B_SRC = 8,
-  A_SRC = 4};
+
 
 /*
  * binary_to_str(ulli) - given a ulli representation of a number, 
@@ -158,6 +146,20 @@ ulli set_binary_pos(ulli binary, int pos, int len)
 int main()
 {
 
+/* Microinstruction format positions: */
+  enum {
+    NEXT_INSTR = 64,
+    JMP = 54,
+    ALU_CONTR = 50,
+    ZONE_RD = 42,
+    REG_RD = 38,
+    PRM_MEM = 18,
+    MAD_SRC = 16,
+    MDB_SRC = 12,
+    B_SRC = 8,
+    A_SRC = 4
+};
+
   /* inputs */
 
   string s_next_instruction, 
@@ -186,15 +188,16 @@ int main()
   
   binary += set_binary_pos(str_to_binary(s_next_instruction), NEXT_INSTR, 10);
   binary += set_binary_pos(str_to_binary(s_jmp), JMP, 4);
-  binary += set_binary_pos(str_to_binary(s_alu_control, ALU_CONTR, 8));
-  binary += set_binary_pos(str_to_binary(s_zone_read, ZONE_RD, 4));
-  binary += set_binary_pos(str_to_binary(s_register_read, REG_RD, 20));
-  binary += set_binary_pos(str_to_binary(s_primary_memory, PRM_MEM, 2));
-  binary += set_binary_pos(str_to_binary(s_MAD_source, MAD_SRC, 4));
-  binary += set_binary_pos(str_to_binary(s_MDB_source, MDB_SRC, 4));
-  binary += set_binary_pos(str_to_binary(s_B_source, B_SRC, 4));
-  binary += set_binary_pos(str_to_binary(s_A_source, A_SRC, 4));
+  binary += set_binary_pos(str_to_binary(s_alu_control), ALU_CONTR, 8);
+  binary += set_binary_pos(str_to_binary(s_zone_read), ZONE_RD, 4);
+  binary += set_binary_pos(str_to_binary(s_register_read), REG_RD, 20);
+  binary += set_binary_pos(str_to_binary(s_primary_memory), PRM_MEM, 2);
+  binary += set_binary_pos(str_to_binary(s_MAD_source), MAD_SRC, 4);
+  binary += set_binary_pos(str_to_binary(s_MDB_source), MDB_SRC, 4);
+  binary += set_binary_pos(str_to_binary(s_B_source), B_SRC, 4);
+  binary += set_binary_pos(str_to_binary(s_A_source), A_SRC, 4);
   
+  cout << "Content-Type: text/plain\n\n";
   cout << binary_to_str(binary) << endl;
 
   /*
