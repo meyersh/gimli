@@ -162,7 +162,7 @@ function gv(id) {
 
 function assemble_form_data() {
   output = "";
-  output += gv('next_instr').replace(' ', '') + ' ';
+  output += gv('next_instr').replace(/ /g, '') + ' ';
   output += checkboxes_to_binary("JAM") + ' ';
   output += gv('ALUSHIFT') + gv('ALUCTRL') + ' ';
   output += checkboxes_to_binary("ZONERD") + ' ';
