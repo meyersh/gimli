@@ -140,7 +140,7 @@ function checkboxes_to_binary(bits)
   if (bits = "PRMMEM") 
   { 
     prmbits = "B";
-    prmbits += checkbox_to_binary("PRMMEM_ACCESS") . 
+    prmbits += checkbox_to_binary("PRMMEM_ACCESS") + 
               checkbox_to_binary("PRMMEM_RW");
     return prmbits;
   }
