@@ -195,7 +195,7 @@ req.onreadystatechange = function()
       if(req.status == 200)
       {
          //alert(req.responseText); /* handle the response here! */
-         document.getElementById('average').innerHTML +=req.responseText;
+         document.getElementById('average').innerHTML = req.responseText;
       }
       else
         alert("Error Status: " + req.status + "<br />Error Description: " + req.statusText);
