@@ -94,8 +94,7 @@ function checkboxes_to_binary(bits)
 
   if (bits == "JAM")
   {
-    jambits = "B";
-    jambits += checkbox_to_binary("JAM1") + 
+    jambits = "B" + checkbox_to_binary("JAM1") + 
               checkbox_to_binary("JAM2") +
               checkbox_to_binary("JAM3") +
               checkbox_to_binary("JAM4");
