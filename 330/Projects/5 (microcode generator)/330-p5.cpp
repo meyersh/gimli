@@ -131,6 +131,8 @@ ulli str_to_binary(string inpt)
   given something like '000011' if we want this entire thing moved to a given
   location, where the leading 0 would be at `pos` we simply left shift by 
   (pos-len).
+
+  We mask against the `len` argument to make sure we don't get field overflows.
   
   pos = position. 0 is the least significant (right-most) bit
   len = length of our input binary.
@@ -138,7 +140,9 @@ ulli str_to_binary(string inpt)
 
 ulli set_binary_pos(ulli binary, int pos, int len)
 {
-  return binary << (pos-len);
+  ulli mask ~= 0; /* mask is ALL 1's */
+  mask <<= len;
+  return (binary & mask) << (pos-len);
 }
 	   
       
