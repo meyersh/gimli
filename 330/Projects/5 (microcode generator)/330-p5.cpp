@@ -140,8 +140,9 @@ ulli str_to_binary(string inpt)
 
 ulli set_binary_pos(ulli binary, int pos, int len)
 {
-  ulli mask = ~0; /* mask is ALL 1's */
-  mask >>= (sizeof(mask)-len);
+  ulli mask = 0;
+  mask <<= len;
+  mask -= 1;
   return (binary & mask) << (pos-len);
 }
 	   
