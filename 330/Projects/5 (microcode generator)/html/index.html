@@ -144,6 +144,29 @@ function checkboxes_to_binary(bits)
   }
 }
 
+function ge(id) {
+  return document.getElementById(id);
+}
+
+function gv(id) {
+  return ge(id).value;
+}
+
+function assemble_form_data() {
+  output = "";
+  output += gv('next_instr') . ' ';
+  output += checkboxes_to_binary("JAM") . ' ';
+  output += gv('ALU') . ' ';
+  output += checkboxes_to_binary("ZONERD") . ' ';
+  output += checkboxes_to_binary("REGRD") . ' ';
+  output += checkboxes_to_binary("PRMMEM") . ' ' ;
+  output += gv('MADSRC') . ' ';
+  output += gv('MDBSRC') . ' ';
+  output += gv('BSRC') . ' ';
+  output += gv('ASRC') . ' ';
+  alert(output);
+}
+
 function getXMLHttpReq()
 { var req = null;
 
@@ -203,7 +226,7 @@ function submit_data()
 <body>
 <div name="form-body" style="text-align:center;width:600px;">
 <div id="fields">
-  <input type=text id="f0" size=22 value="Next Instr"/><br>
+  <input type=text id="next_instr" size=22 value="Next Instr"/><br>
 
 
   <!-- JAM BITS -->
@@ -371,7 +394,7 @@ function submit_data()
   
 </div>
   <input type=button id="clear" value="Clear Form" onClick="clear_form();"/>
-  <input type=button id="submit" value="Compute Microinstruction" onClick="submit_data();"/>
+  <input type=button id="submit" value="Compute Microinstruction" onClick="assemble_form_data();"/>
   <div id="average" style="margin-left:auto;margin-right:auto;margin-top:10px;border-style:dotted; width:400px;padding:4px;"><i>Your answer will be displayed here.</i></div>
 </div>
 <p>Algorithm Used:
