@@ -93,9 +93,9 @@ function checkboxes_to_binary(bits)
   if (bits == "JAM")
   {
     jambits = "B";
-    jambits += checkbox_to_binary("JAM1") . 
-              checkbox_to_binary("JAM2") .
-              checkbox_to_binary("JAM3") .
+    jambits += checkbox_to_binary("JAM1") + 
+              checkbox_to_binary("JAM2") +
+              checkbox_to_binary("JAM3") +
               checkbox_to_binary("JAM4");
     return jambits;
   }
@@ -103,9 +103,9 @@ function checkboxes_to_binary(bits)
   if (bits == "ZONERD")
   {
     zonebits = "B";
-    zonebits += checkbox_to_binary("ZR1") . 
-	       checkbox_to_binary("ZR2") . 
-               checkbox_to_binary("ZR3") . 
+    zonebits += checkbox_to_binary("ZR1") + 
+	       checkbox_to_binary("ZR2") + 
+               checkbox_to_binary("ZR3") + 
                checkbox_to_binary("ZR4");
     return zonebits;
   }
@@ -113,25 +113,25 @@ function checkboxes_to_binary(bits)
   if (bits == "REGRD")
   { 
     regbits = "B";
-    regbits += checkbox_to_binary("PC1") . 
-              checkbox_to_binary("PC2") .
-              checkbox_to_binary("IR1") .
-              checkbox_to_binary("IR2") .
-              checkbox_to_binary("R111_1") .
-              checkbox_to_binary("R111_2") .
-              checkbox_to_binary("R110_1") .
-              checkbox_to_binary("R110_2") .
-              checkbox_to_binary("R101_1") .
-              checkbox_to_binary("R101_2") .
-              checkbox_to_binary("R100_1") .
-              checkbox_to_binary("R100_2") .
-              checkbox_to_binary("R011_1") .
-              checkbox_to_binary("R011_2") .
-              checkbox_to_binary("R010_1") .
-              checkbox_to_binary("R010_2") .
-              checkbox_to_binary("R001_1") .
-              checkbox_to_binary("R001_2") .
-              checkbox_to_binary("R000_1") .
+    regbits += checkbox_to_binary("PC1") + 
+              checkbox_to_binary("PC2") +
+              checkbox_to_binary("IR1") +
+              checkbox_to_binary("IR2") +
+              checkbox_to_binary("R111_1") +
+              checkbox_to_binary("R111_2") +
+              checkbox_to_binary("R110_1") +
+              checkbox_to_binary("R110_2") +
+              checkbox_to_binary("R101_1") +
+              checkbox_to_binary("R101_2") +
+              checkbox_to_binary("R100_1") +
+              checkbox_to_binary("R100_2") +
+              checkbox_to_binary("R011_1") +
+              checkbox_to_binary("R011_2") +
+              checkbox_to_binary("R010_1") +
+              checkbox_to_binary("R010_2") +
+              checkbox_to_binary("R001_1") +
+              checkbox_to_binary("R001_2") +
+              checkbox_to_binary("R000_1") +
               checkbox_to_binary("R000_2");
     return regbits;
   }
@@ -154,16 +154,16 @@ function gv(id) {
 
 function assemble_form_data() {
   output = "";
-  output += gv('next_instr') . ' ';
-  output += checkboxes_to_binary("JAM") . ' ';
-  output += gv('ALU') . ' ';
-  output += checkboxes_to_binary("ZONERD") . ' ';
-  output += checkboxes_to_binary("REGRD") . ' ';
-  output += checkboxes_to_binary("PRMMEM") . ' ' ;
-  output += gv('MADSRC') . ' ';
-  output += gv('MDBSRC') . ' ';
-  output += gv('BSRC') . ' ';
-  output += gv('ASRC') . ' ';
+  output += gv('next_instr') + ' ';
+  output += checkboxes_to_binary("JAM") + ' ';
+  output += gv('ALU') + ' ';
+  output += checkboxes_to_binary("ZONERD") + ' ';
+  output += checkboxes_to_binary("REGRD") + ' ';
+  output += checkboxes_to_binary("PRMMEM") + ' ' ;
+  output += gv('MADSRC') + ' ';
+  output += gv('MDBSRC') + ' ';
+  output += gv('BSRC') + ' ';
+  output += gv('ASRC') + ' ';
   alert(output);
 }
 
