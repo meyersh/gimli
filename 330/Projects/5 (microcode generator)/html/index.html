@@ -81,6 +81,8 @@ function check() {
 function checkbox_to_binary(chkboxid)
 {
   chkbox = document.getElementById(chkboxid);
+  if (!chkbox)
+    alert(chkboxid);
   if (chkbox.checked == 1)
     return 1;
   else
