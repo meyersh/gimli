@@ -2,6 +2,7 @@
  * CSCI 330 Slice 5 Project
  * Convert input into 64-bit machine code
  * Shaun Meyer, Nov 2010
+ * Working with Steven Throne
  *****************************************************************************/
 
 #include <iostream>
@@ -15,14 +16,16 @@ typedef unsigned long long int ulli;
 /*
  Instruction layout:
 
- [ NEXT INSTR (10 p.64) ] [ JMP (4 p.54) ] [ ALU CONTR (8 p.50) ] [ ZONE RD (4 p.42) ] [ REGISTER RD (20 p.38) ] 
- [ PRM MEM (2 p.18) ] [ MAD SRC (4 p.16) ] [ MDB SRC (4 p.12) ] [ B SRC (4 p.8) ] [ A SRC (4 p.4) ]
+ [ NEXT INSTR (10 p.64) ] [ JMP (4 p.54) ] [ ALU CONTR (8 p.50) ] 
+ [ ZONE RD (4 p.42) ] [ REGISTER RD (20 p.38) ] [ PRM MEM (2 p.18) ] 
+ [ MAD SRC (4 p.16) ] [ MDB SRC (4 p.12) ] [ B SRC (4 p.8) ] 
+ [ A SRC (4 p.4) ]
 */
 
 /* The webpage should have fields for the following:
 
- * Next Instruction (accept binary or decimal... first character should be a 
-   B or D to indicate which)
+ * Next Instruction (accept binary or decimal... first character 
+   should be a B or D to indicate which)
 
  * JMP (4 binary digits)
 
@@ -30,25 +33,27 @@ typedef unsigned long long int ulli;
 
  * Zone Read (4 bits)
 
- * Register Read (10 fields, each labeled for a register, 2 binary digits per 
-   field)
+ * Register Read (10 fields, each labeled for a register, 2 binary
+   digits per field)
 
  * Primary Memory (2 bits)
 
- * MAD source ( accept binary or decimal... first character should be a B or D 
-   to indicate which)
+ * MAD source ( accept binary or decimal... first character should 
+   be a B or D to indicate which)
 
- * MDB source ( accept binary or decimal... first character should be a B or D 
-   to indicate which)
+ * MDB source ( accept binary or decimal... first character should 
+   be a B or D to indicate which)
 
- * B source ( accept binary or decimal... first character should be a B or D 
-   to indicate which)
+ * B source ( accept binary or decimal... first character should 
+   be a B or D to indicate which)
 
- * A  source ( accept binary or decimal... first character should be a B or D 
-   to indicate which)
+ * A  source ( accept binary or decimal... first character should 
+   be a B or D to indicate which)
 
- * For JMP, ALU control, Zone Read, each of the Register Read subfields, and Primary Memory 
- you may use individual bit labels w/ radio buttons, check boxes, and/or select lists if you prefer.
+ * For JMP, ALU control, Zone Read, each of the Register Read 
+   subfields, and Primary Memory you may use individual bit 
+   labels w/ radio buttons, check boxes, and/or select lists 
+   if you prefer.
 
 */
 
@@ -103,6 +108,11 @@ ulli b_str_to_binary(string inpt)
 
   return binary;
 }
+
+/*
+ * str_to_binary(inpt) - based on the prefix (B | D) return the ulli 
+ * type with the value of the given string in it.
+ */
 
 ulli str_to_binary(string inpt)
 {
@@ -200,7 +210,7 @@ int main()
   cout << "Content-Type: text/plain\n\n";
   cout << binary_to_str(binary) << endl;
 
-  /*
+  /* // Legacy debugging business:
   cout << binary << endl
        << binary_to_str(binary) << endl
        << binary_to_str(set_binary_pos(15, 4, 4)) << endl
