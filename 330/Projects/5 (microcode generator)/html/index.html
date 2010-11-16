@@ -128,11 +128,17 @@ function submit_data()
 <body>
 <div name="form-body" style="text-align:center;width:500px;">
 <div id="fields">
-  <input type=text id="f0" maxlength=5 size=5/>
-  <input type=text id="f1" maxlength=5 size=5/>
-  <input type=text id="f2" maxlength=5 size=5/>
-  <input type=text id="f3" maxlength=5 size=5/>
-  <input type=text id="f4" maxlength=5 size=5/>
+  <input type=text id="f0" maxlength=5 size=5 value="Next Instr"/>
+  <input type=text id="f1" maxlength=5 size=5 value="JMP"/>
+  <input type=text id="f2" maxlength=5 size=5 value="ALU Contr"/>
+  <input type=text id="f3" maxlength=5 size=5 value="Zone RD"/>
+  <input type=text id="f4" maxlength=5 size=5 value="Register RD"/>
+  <input type=text id="f5" value="Primary Memory">
+  <input type=text id="f5" value="MAD SRC">
+  <input type=text id="f5" value="MDB SRC">
+  <input type=text id="f5" value="A SOURCE">
+  <input type=text id="f5" value="B SOURCE">
+  
 </div>
   <input type=button id="more" value="More Numbers, Please" onClick="addFields(1);"/>
   <input type=button id="submit" value="Calculate Average" onClick="submit_data();"/>
