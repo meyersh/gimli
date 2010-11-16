@@ -129,12 +129,17 @@ function submit_data()
 <div name="form-body" style="text-align:center;width:500px;">
 <div id="fields">
   <input type=text id="f0" maxlength=5 size=5 value="Next Instr"/>
+
+
+  <!-- JAM BITS -->
   <input type=text id="f1" maxlength=5 size=5 value="JMP"/>
   <input type=checkbox value=JAM1>JAMN</input>
   <input type=checkbox value=JAM2>JAMZ</input>
   <input type=checkbox value=JAM3>JAMP</input>
   <input type=checkbox value=JAM4>JAMC</input>
- 
+
+  <!-- ALU CONTROL -->
+
   <input type=text id="f2" maxlength=5 size=5 value="ALU Contr"/>
   <select>
     <option value="B011000">A</option>
@@ -154,8 +159,21 @@ function submit_data()
     <option value="B110001">1</option>
     <option value="B110010">-1</option>
   </select>
+
+  <!-- ZONE READ -->
   <input type=text id="f3" maxlength=5 size=5 value="Zone RD"/>
+  <input type=checkbox value=ZR1>Zone 3</input>
+  <input type=checkbox value=ZR2>Zone 2</input>
+  <input type=checkbox value=ZR3>Zone 1</input>
+  <input type=checkbox value=ZR4>Zone 0</input>
+
+  <!-- REGISTER READ -->
   <input type=text id="f4" maxlength=5 size=5 value="Register RD"/>
+
+
+
+
+
   <input type=text id="f5" value="Primary Memory">
   <input type=text id="f5" value="MAD SRC">
   <input type=text id="f5" value="MDB SRC">
