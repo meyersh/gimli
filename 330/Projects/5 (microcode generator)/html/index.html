@@ -103,8 +103,7 @@ function checkboxes_to_binary(bits)
 
   if (bits == "ZONERD")
   {
-    zonebits = "B";
-    zonebits += checkbox_to_binary("ZR1") + 
+    zonebits = "B" + checkbox_to_binary("ZR1") + 
 	       checkbox_to_binary("ZR2") + 
                checkbox_to_binary("ZR3") + 
                checkbox_to_binary("ZR4");
@@ -113,8 +112,7 @@ function checkboxes_to_binary(bits)
 
   if (bits == "REGRD")
   { 
-    regbits = "B";
-    regbits += checkbox_to_binary("PC1") + 
+    regbits = "B" + checkbox_to_binary("PC1") + 
               checkbox_to_binary("PC2") +
               checkbox_to_binary("IR1") +
               checkbox_to_binary("IR2") +
@@ -138,8 +136,7 @@ function checkboxes_to_binary(bits)
   }
   if (bits = "PRMMEM") 
   { 
-    prmbits = "B";
-    prmbits += checkbox_to_binary("PRMMEM_ACCESS") + 
+    prmbits = "B" + checkbox_to_binary("PRMMEM_ACCESS") + 
               checkbox_to_binary("PRMMEM_RW");
     return prmbits;
   }
