@@ -1,0 +1,148 @@
+<html>
+<head>
+<title>CSCI 330 Project 5 (Microarchitecture)</title>
+<style>
+.error {
+  color: #000;
+  background: #ffa20f;
+  border: 2px inset #d7b9c9;
+}
+</style>
+<script>
+
+var field_ids = new Array();
+var numFields = 5; 
+
+function addFields(num)
+{
+  // remember the values from the boxes:
+  var fvalues = new Array();
+  for (i = 0; i< numFields; i++)
+    fvalues.push(document.getElementById("f"+i).value);
+
+  t = num+numFields;
+  for (i = numFields; i < t; i++)
+  {
+    document.getElementById('fields').innerHTML += 
+       "<input type='text' id=f"+i+" maxlength=5 size=5/>";
+    numFields++;
+    fvalues.push("");
+  }
+
+  // write the values back into the boxes:
+  for (i = 0; i < numFields; i++)
+    document.getElementById("f"+i).value = fvalues[i];
+
+}
+
+// Check all fields for correctness.
+function check() {
+  //field_ids = new Array('a', 'b', 'c', 'd', 'e');
+  var sum = 0;
+
+  for (i = 0; i < numFields; i++)
+  {
+ //   fields.push( document.getElementById( "f" + i ) );
+    sum += document.getElementById("f"+i).value;
+  }
+
+  r = 0;
+
+  for (i = 0; i < numFields; i++)
+  {
+    if (document.getElementById("f"+i).value == "")
+    {
+      document.getElementById("f"+i).className="error";
+      r = 1
+    }
+    else
+      document.getElementById("f"+i).className="";
+   }
+
+  if (sum == 0)
+    {
+    document.getElementById("average").innerHTML = "No average because you gave no input.";
+   return 1;
+    }
+
+  return 0;
+}
+
+
+function getXMLHttpReq()
+{ var req = null;
+
+if (window.XMLHttpRequest)
+   req = new XMLHttpRequest();
+else if (window.ActiveXObject)
+   req = new ActiveXObject(Microsoft.XMLHTTP);
+return req;
+}
+
+function sendData(dataStr, url)
+{ var req = getXMLHttpReq();
+
+if (req == null)
+   return 1;
+
+req.open("POST",
+         url,
+         true);
+req.onreadystatechange = function()
+   {
+   if(req.readyState == 4)
+      {
+      if(req.status == 200)
+      {
+         //alert(req.responseText); /* handle the response here! */
+         document.getElementById('average').innerHTML +=req.responseText;
+      }
+      else
+        alert("Error Status: " + req.status + "<br />Error Description: " + req.statusText);
+      }
+   }
+req.setRequestHeader("Content-Type", "text/plain");
+req.send(dataStr);
+return 0;
+}
+
+function submit_data()
+{
+  if (check() != 0)
+    return 0; // don't send data if check doesn't pass!
+  data = ""
+
+  for (i=0; i < numFields; i++)
+    if (document.getElementById("f"+i).value != "") 
+      data += document.getElementById("f"+i).value + "\n";
+
+   document.getElementById("average").innerHTML="";
+   sendData(data, "s4.e1.1.cgi");
+}
+
+
+</script>
+
+
+</head>
+<body>
+<div name="form-body" style="text-align:center;width:500px;">
+<div id="fields">
+  <input type=text id="f0" maxlength=5 size=5/>
+  <input type=text id="f1" maxlength=5 size=5/>
+  <input type=text id="f2" maxlength=5 size=5/>
+  <input type=text id="f3" maxlength=5 size=5/>
+  <input type=text id="f4" maxlength=5 size=5/>
+</div>
+  <input type=button id="more" value="More Numbers, Please" onClick="addFields(1);"/>
+  <input type=button id="submit" value="Calculate Average" onClick="submit_data();"/>
+  <div id="average" style="margin-left:auto;margin-right:auto;margin-top:10px;border-style:dotted; width:400px;padding:4px;"><i>Your answer will be displayed here.</i></div>
+</div>
+<p>Algorithm Used:
+<p> Data Collection: We push all numbers onto a heap-array. When we try to add something more than the size of our array, we replace it with an array 2x the size and move all elements over.
+  <ul>
+<li> For 1-4 numbers: Sum and divide by number of numbers </li>
+<li> For 5 or more numbers: Drop highest and lowest then sum and divide by remaining number of numbers.</li>
+</ul>
+</body>
+</html>
