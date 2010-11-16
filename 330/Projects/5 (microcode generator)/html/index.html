@@ -147,6 +147,9 @@ function checkboxes_to_binary(bits)
 }
 
 function ge(id) {
+  obj = document.getElementById(id);
+  if (!obj) 
+    alert(id);
   return document.getElementById(id);
 }
 
