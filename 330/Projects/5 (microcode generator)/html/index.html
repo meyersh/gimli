@@ -78,6 +78,71 @@ function check() {
   return 0;
 }
 
+function checkbox_to_binary(chkboxid)
+{
+  chkbox = document.getElementById(chkboxid);
+  if (chkbox.checked == 1)
+    return 1;
+  else
+    return 0;
+}
+
+function checkboxes_to_binary(bits) 
+{
+
+  if (bits == "JAM")
+  {
+    jambits = "B";
+    jambits += checkbox_to_binary("JAM1") . 
+              checkbox_to_binary("JAM2") .
+              checkbox_to_binary("JAM3") .
+              checkbox_to_binary("JAM4");
+    return jambits;
+  }
+
+  if (bits == "ZONERD")
+  {
+    zonebits = "B";
+    zonebits += checkbox_to_binary("ZR1") . 
+	       checkbox_to_binary("ZR2") . 
+               checkbox_to_binary("ZR3") . 
+               checkbox_to_binary("ZR4");
+    return zonebits;
+  }
+
+  if (bits == "REGRD")
+  { 
+    regbits = "B";
+    regbits += checkbox_to_binary("PC1") . 
+              checkbox_to_binary("PC2") .
+              checkbox_to_binary("IR1") .
+              checkbox_to_binary("IR2") .
+              checkbox_to_binary("R111_1") .
+              checkbox_to_binary("R111_2") .
+              checkbox_to_binary("R110_1") .
+              checkbox_to_binary("R110_2") .
+              checkbox_to_binary("R101_1") .
+              checkbox_to_binary("R101_2") .
+              checkbox_to_binary("R100_1") .
+              checkbox_to_binary("R100_2") .
+              checkbox_to_binary("R011_1") .
+              checkbox_to_binary("R011_2") .
+              checkbox_to_binary("R010_1") .
+              checkbox_to_binary("R010_2") .
+              checkbox_to_binary("R001_1") .
+              checkbox_to_binary("R001_2") .
+              checkbox_to_binary("R000_1") .
+              checkbox_to_binary("R000_2");
+    return regbits;
+  }
+  if (bits = "PRMMEM") 
+  { 
+    prmbits = "B";
+    prmbits += checkbox_to_binary("PRMMEM_ACCESS") . 
+              checkbox_to_binary("PRMMEM_RW");
+    return prmbits;
+  }
+}
 
 function getXMLHttpReq()
 { var req = null;
@@ -190,31 +255,29 @@ function submit_data()
   <input type=checkbox id=IR1 value=IR1>IR Access</input>
   <input type=checkbox id=IR1 value=IR1>IR Bus Select</input>
   <br/>
-  <input type=checkbox id=R111 value=R111>R7 Access</input>
-  <input type=checkbox id=R111 value=R111>R7 Bus Select</input>
+  <input type=checkbox id=R111_1 value=R111>R7 Access</input>
+  <input type=checkbox id=R111_2 value=R111>R7 Bus Select</input>
   <br/>
-  <input type=checkbox id=R110 value=R110>R6 Access</input>
-  <input type=checkbox id=R110 value=R110>R6 Bus Select</input>
+  <input type=checkbox id=R110_1 value=R110>R6 Access</input>
+  <input type=checkbox id=R110_2 value=R110>R6 Bus Select</input>
   <br/>
-  <input type=checkbox id=R101 value=R101>R5 Access</input>
-  <input type=checkbox id=R101 value=R101>R5 Bus Select</input>
+  <input type=checkbox id=R101_1 value=R101>R5 Access</input>
+  <input type=checkbox id=R101_2 value=R101>R5 Bus Select</input>
   <br/>
-  <input type=checkbox id=R100 value=R100>R4 Access</input>
-  <input type=checkbox id=R100 value=R100>R4 Bus Select</input>
+  <input type=checkbox id=R100_1 value=R100>R4 Access</input>
+  <input type=checkbox id=R100_2 value=R100>R4 Bus Select</input>
   <br/>
-  <input type=checkbox id=R011 value=R011>R3 Access</input>
-  <input type=checkbox id=R011 value=R011>R3 Bus Select</input>
+  <input type=checkbox id=R011_1 value=R011>R3 Access</input>
+  <input type=checkbox id=R011_2 value=R011>R3 Bus Select</input>
   <br/>
-  <input type=checkbox id=R010 value=R010>R2 Access</input>
-  <input type=checkbox id=R010 value=R010>R2 Bus Select</input>
+  <input type=checkbox id=R010_1 value=R010>R2 Access</input>
+  <input type=checkbox id=R010_2 value=R010>R2 Bus Select</input>
   <br/>
-  <input type=checkbox id=R001 value=R001>R1 Access</input>
-  <input type=checkbox id=R001 value=R001>R1 Bus Select</input>
+  <input type=checkbox id=R001_1 value=R001>R1 Access</input>
+  <input type=checkbox id=R001_2 value=R001>R1 Bus Select</input>
   <br/>
-  <input type=checkbox id=R000 value=R000>R0 Access</input>
-  <input type=checkbox id=R000 value=R000>R0 Bus Select</input>
-
-
+  <input type=checkbox id=R000_1 value=R000>R0 Access</input>
+  <input type=checkbox id=R000_2 value=R000>R0 Bus Select</input>
 
   <!-- PRIMARY MEMORY -->
   <br/>
