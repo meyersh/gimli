@@ -11,7 +11,7 @@
  * use a structure to store the following data about a speaker:
  *   - Name
  *   - Telephone number
- *   - Speaking Topic
+ *   - Speaking Topicx
  *   - Fee Required
  *
  * This will be a stand-alone app.
@@ -204,21 +204,6 @@ int main(int argc, char **argv)
 
   choice = print_menu();
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   write_records(speakers_file, speakers, num_records);
 
