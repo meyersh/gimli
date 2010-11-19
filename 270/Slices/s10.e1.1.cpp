@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
@@ -33,28 +34,16 @@ struct Speaker {
   double fee;
 };
 
-
-/* 
- * For this we're assuming that size is always at least 1 less
- * than capacity 
- */
-void insert_record(Speaker &speaker, Speaker *ary, int size)
-{
-  ary[size+1] = speaker;
-
-}
-
 /*
  * Here we depend on size being correct
  */
-void write_records(fstream &ofile, Speaker *speakers, int num_records)
+void write_records(fstream &ofile, vector<Speaker> *speakers, int num_records)
 {
   ofile.clear();
   ofile.seekp(0);
-  ofile.write(reinterpret_cast<char *>(&num_records), sizeof(int));
   cout << "Writing records";
-  for (int i = 0; i < num_records; i++) {
-    ofile.write(reinterpret_cast<char *>(&speakers[i]), sizeof(speakers[i]));   
+  for (int i = 0; i < speakers->size(); i++) {
+    ofile.write(reinterpret_cast<char *>(&((*speakers)[i])), sizeof((*speakers)[i]));   
     cout << '.';
   }
   cout << endl;
@@ -78,19 +67,23 @@ Speaker new_speaker()
   return s;
 }
 
-void print_record(Speaker *speakers, int record_num)
+void print_record(vector<Speaker> *speakers, int record_num)
 {
+  Speaker *record = &((*speakers)[record_num]);
   cout << "Speaker data:\n"
-       << "NAME:  " << speakers[record_num].name << endl
-       << "PHONE: " << speakers[record_num].phone << endl
-       << "TOPIC: " << speakers[record_num].topic << endl
-       << "FEE:   " << speakers[record_num].fee << endl;
+       << "NAME:  " << record->name << endl
+       << "PHONE: " << record->phone << endl
+       << "TOPIC: " << record->topic << endl
+       << "FEE:   " << record->fee << endl;
 }
 
-void print_records(Speaker *speakers)
+void print_records(vector<Speaker> *speakers)
 {
-  for (int i = 0; &speakers[i] != NULL; i++)
-    print_record(speakers, i);
+  for (int i = 0; i < speakers->size(); i++)
+    {
+      cout << "Record " << i << endl;
+      print_record(speakers, i);
+    }
 }
 
 char print_menu()
@@ -101,7 +94,8 @@ char print_menu()
        << "2) Save records" << endl
        << "3) Read records" << endl
        << "4) Print a record" << endl
-       << "5) EOF" << endl
+       << "5) Print all records" << endl
+       << "6) Delete a record" << endl
        << endl << "> ";
 
   cin >> choice;
@@ -110,25 +104,21 @@ char print_menu()
    
 }
 
-Speaker *read_records(fstream &file, int &num_records)
+vector<Speaker> *read_records(fstream &file)
 {
   file.clear();
   file.seekg(0);
-  num_records = 0;
-  int size = 0;
-  file.read(reinterpret_cast<char *>(&num_records), sizeof(num_records));
-  Speaker *speakers = new Speaker[num_records+10];
+  vector<Speaker> *speakers = new vector<Speaker>;
   if (file.eof())
     return speakers;
 
-  Speaker s;
+  Speaker new_speaker;
   cout << "Reading records";
   while (file.eof() != 1)
     {
-      file.read(reinterpret_cast<char *>(&s), sizeof(s));
-      insert_record(s, speakers, size-1);
+      file.read(reinterpret_cast<char *>(&new_speaker), sizeof(Speaker));
+      speakers->push_back(new_speaker);
       cout << '.';
-      size++;
     }
   cout << endl;
   return speakers;
@@ -136,14 +126,7 @@ Speaker *read_records(fstream &file, int &num_records)
 
 int report(fstream &file,int quiet=0)
 {
-  file.clear();
-  file.seekg(0);
-  int num_records;
-  file.read(reinterpret_cast<char *>(&num_records), sizeof(int));
-  cout << "INT SIZE: " << sizeof(int) << endl
-       << "NUM RECS: " << num_records << endl;
-
-  return num_records;
+  return 1;
 }
 
 int main(int argc, char **argv)
@@ -166,7 +149,7 @@ int main(int argc, char **argv)
 
   int num_records = 0;
   
-  Speaker *speakers = read_records(speakers_file, num_records);
+  vector<Speaker> *speakers = read_records(speakers_file);
 
   report(speakers_file);
 
@@ -184,19 +167,26 @@ int main(int argc, char **argv)
     option = 0;
     switch (choice) {
     case '1':
-      new_speaker();
+      speakers->push_back(new_speaker());
       break;
     case '2':
       write_records(speakers_file, speakers, num_records);
       break;
     case '3':
-      read_records(speakers_file, num_records);
+      read_records(speakers_file);
       break;
     case '4':
       cout << "Which record? > ";
       cin >> option;
       print_record(speakers, option);
       break;
+    case '5':
+      print_records(speakers);
+      break;
+    case '6':
+      cout << "Which record? > ";
+      cin >> option;
+      speakers->erase(speakers->begin()+option);
     default:
       choice = print_menu();
       break;
