@@ -8,7 +8,7 @@
 function getXMLHttpReq()
 { 
     var req = null;
-
+    
     if (window.XMLHttpRequest)
 	req = new XMLHttpRequest();
     else if (window.ActiveXObject)
@@ -27,7 +27,7 @@ function urlDecode(encoded)
 {
     if (encoded == null)
 	return null;
-
+    
     var plaintext = "";
     var HEXCHARS = "0123456789ABCDEFabcdef";
     var i = 0;
@@ -64,12 +64,12 @@ function urlDecode(encoded)
 function updateLog(html, outputDivId, append)
 {
     /* These are our default values: */
-
+    
     /* default div Id: 'responseSpot' */
     var outputDivId = (outputDivId == null) ? 'responseSpot' : outputDivId;
     /* default: should we append? TRUE */
     var append = (append == null) ? true : false;
-
+    
     divObj = document.getElementById(outputDivId);
     if (append)
 	{
@@ -110,10 +110,9 @@ function raiseError( message)
 function lowerError()
 {
     var divObj = document.getElementById("error");
-    if (divObj) 
-    {
-        divObj.className = "";
-        divObj.innerHTML = "";
+    if (divObj) {
+	divObj.className = "";
+	divObj.innerHTML = "";
     }
 }
 
@@ -127,10 +126,10 @@ function parseData(data)
 {
     var temp = new Array();
     var lines = new Array();
-
+    
     if (data.match('<html>')) {
-	    updateLog(data, 'output', 0);
-	}
+	updateLog(data, 'output', 0);
+    }
     else
 	{
 	    lines = data.split('\n');
@@ -170,8 +169,7 @@ function parseData(data)
 				    }
 				
 			    }
-					 
-			       
+			
 			else if ( key == "redirect" )
 			    window.location = val;
 			else if ( key == "error" )
@@ -196,16 +194,16 @@ function parseData(data)
 
 function sendData(dataStr, url, method) { 
     var req = getXMLHttpReq();
-
+    
     if (req == null)
 	return 1;
-
+    
     /* if we are using the GET method we need to append the data
        to the URL after a ?-mark. */
-
+    
     if ( method == "GET" ) 
 	url += '?' + dataStr.replace(/\n/g, '&');
-
+    
     req.open(method, url, true);
     
     req.onreadystatechange = function()
@@ -225,15 +223,15 @@ function sendData(dataStr, url, method) {
 				  + req.statusText);
 		}
 	}
-
-
+    
+    
     req.setRequestHeader("Content-Type", "text/plain");
-
+    
     if (method == "POST")
 	req.send(dataStr);
     else if (method == "GET")
 	req.send(dataStr);
-
+    
     return 0;
 }
 
@@ -248,7 +246,7 @@ function sendData(dataStr, url, method) {
 function checkDefault(boxObj, setfocus)
 {
     boxObj.hasFocus = setfocus;
-
+    
     if (boxObj.hasFocus && boxObj.value ==  boxObj.defaultValue) 
         boxObj.value = "";
     else if (!boxObj.hasFocus && boxObj.value == "")
@@ -295,7 +293,8 @@ function Submit(formid)
     var url = frm.action;
     var inpt = frm.input.value;
     sendData(inpt, url, method);
- }
+}
+
 //
 // EOF
 //

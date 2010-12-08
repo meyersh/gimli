@@ -10,7 +10,7 @@
  *
  * How:
  * All authentication & session handling is done by helper modules
- * cookies.hpp and session.hpp which free's us to merely process 
+ * cookies.hpp and session.hpp which frees us to merely process 
  * requests here.
  *
  * All requests are POSTed in key=value sets with one record per line.
@@ -45,7 +45,7 @@ using namespace std;
 int
 main()
 {
-  /* Initialize our reponse & request objects */
+  /* Initialize our response & request objects */
 
   HttpResponse response;
   response.contentType = "text/plain";
@@ -71,7 +71,7 @@ main()
 	    && checkSession( request.GET["ShaunSession"] ) )
     sessionkey = request.GET["ShaunSession"];
   
-  /* Now, when sessionkey == "" it is invalid. */
+  /* Now, when (sessionkey == "") it is invalid. */
 
 
 

@@ -237,35 +237,7 @@ class msgs {
    * This is antiquated now that insert() does a save.
    */
 
-  int writeMessages()
-  {
-    //msgFileName = MSG_PATH + username + MSG_SUFFIX;
-
-    //   std::map<int, message>::iterator it;
-    //for ( it = msgList.begin(); it != msgList.end(); it++)
-    // {
-	/* Yeah, this is a bit weird... I render a quick
-	 * pointer to our current message object so the code
-	 * below is a bit more legible. 
-	 */
-
-    //	message* m = &(it->second);
-
-    //	if (DEBUG)
-    //	  cout << "DEBUG- WRITING MSG " << m->id << endl;
-	// <message id>,<in response-to>,<author>,<time>,<content>\n
-
-	/*
-	msgFile << m->id << ','
-		<< m->inResponseTo << ','
-		<< m->sender << ','
-		<< m->timestamp << ','
-		<< m->body << endl;
-	*/
-    // }
-
-    return 0;
-  }
+  int writeMessages()  { return 0; }
 
   /*
    * remove( int message-id, bool removeChildren )
