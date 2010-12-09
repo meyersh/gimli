@@ -113,12 +113,13 @@ class Alu
 end
   
 class Microinstruction
-  attr_accessor :symbol, :next_instr, :jmp, :alu_shift, :alu_control, :zone_rd, :reg_rd, :prm_mem, :mad_src, :mdb_src, :b_src, :a_src
+  attr_accessor :opcode, :symbol, :next_instr, :jmp, :alu_shift, :alu_control, :zone_rd, :reg_rd, :prm_mem, :mad_src, :mdb_src, :b_src, :a_src
 
   def initialize(params)
 
     # Set default parameters to something sane(?)
     params = {
+      :opcode => 0,
       :symbol => nil,
       :next_instr => 0, 
       :jmp => 0, 
@@ -134,6 +135,7 @@ class Microinstruction
     }.merge(params)
 
     # Set all of our attributes:
+    @opcode = params[:opcode]
     @symbol = params[:symbol]
     @next_instr = params[:next_instr] & 1023 # Mask out any more than 10 bits
     @jmp = params[:jmp]
@@ -150,10 +152,9 @@ class Microinstruction
 
   # Return a string representation (64-bit binary, in our case)
   def binary
-    return "%010b%04b%02b%06b%04b%020b%02b%04b%04b%04b%04b" % [@next_instr, @jmp, 
-                                                          @alu_shift, @alu_control, 
-                                                          @zone_rd, @reg_rd, @prm_mem, 
-                                                          @mad_src, @mdb_src, @b_src, @a_src]
+    return "%010b%04b%02b%06b%04b%020b%02b%04b%04b%04b%04b" % [
+       @next_instr, @jmp, @alu_shift, @alu_control, @zone_rd, @reg_rd, @prm_mem, 
+       @mad_src, @mdb_src, @b_src, @a_src]
   end
 
   def hex
@@ -172,19 +173,22 @@ instructions.push Microinstruction.new(
                                        :symbol => "JUMP",
                                        :a_src => Src::PC,
                                        :alu_control => Alu::INC_A,
-                                       :reg_rd => Reg::PC::Select
+                                       :reg_rd => Reg::PC::Access
 )
 
 instructions.push Microinstruction.new(
                          :symbol => "LOAD_IMM1",
                          :next_instr => 0b0000000001,
                          :alu_control => Alu::A,
-                         :reg_rd => Reg::IR::Access | Reg::IR::Select,
+                         :mdb_src => Src::IR,
+                         :reg_rd => Reg::IR::Access,
                          :zone_rd => Src::ZONE3
 )
 
 instructions.push Microinstruction.new(
                                        :symbol => "ADD",
+                                       :opcode => 0b10000100,
+                                       :next_instr => 0b0000000001,
                                        :alu_control => Alu::ADD,
                                        :a_src => Src::ZONE0,
                                        :b_src => Src::ZONE1,
@@ -193,10 +197,9 @@ instructions.push Microinstruction.new(
 
 instructions.each do |mi|
   puts mi.symbol << ":"
-  puts " => " << mi.to_s
-  puts " => " << mi.hex
+  puts "%8s    %s" % ["Opcode", "Machine instruction"]
+  puts "%08b => %s" % [ mi.opcode, mi.to_s ]
+  puts "Hex => " << mi.hex
   puts
 end
-
-
 
