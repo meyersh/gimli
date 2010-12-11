@@ -29,8 +29,10 @@
     raiseError("You must enter a password!");
   else if (password != password2)
     raiseError("Passwords do not match!");
-  else if (!realname)
-    raiseError("Please enter your real name.");
+  else if (!firstname)
+    raiseError("Please enter your first name.");
+  else if (!lastname)
+    raiseError("Please enter your last name.");
   else if (!email)
     raiseError("Please enter your E-Mail address.");
   else if (!favorite_movie)
@@ -103,7 +105,10 @@
     <label for="password2">Again, Please:</label> <input type="password" name="password2" id="password2" />
   </div>
   <div class="form-row">
-    <label for="realname">Real Name:</label> <input type="text" name="realname" id="realname" />
+    <label for="firstname">First Name:</label> <input type="text" name="firstname" id="firstname" />
+  </div>
+  <div class="form-row">
+    <label for="lastname">Last Name:</label> <input type="text" name="lastname" id="lastname" />
   </div>
   <div class="form-row">
     <label for="email">E-Mail:</label> <input type="text" name="email" id="email" />
