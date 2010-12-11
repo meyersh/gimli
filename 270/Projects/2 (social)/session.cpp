@@ -93,9 +93,8 @@ readProfile(string username, userProfile& profile)
       row = mysql_fetch_row(res);
       profile.username       = row[0]; 
       profile.password       = row[1];
-      profile.realname       = row[2];
-      profile.realname      += " ";
-      profile.realname      += row[3];
+      profile.firstname      = row[2];
+      profile.lastname       = row[3];
       profile.email          = row[4];
       profile.shoe_size      = atof(row[5]);
       profile.favorite_movie = (row[6]? row[6] : "");
@@ -158,7 +157,7 @@ writeProfile(userProfile& profile)
   char sql[512];
   sprintf(sql, "REPLACE INTO 270_social_user (name,password,first_name,last_name,email,shoe_size,favorite_movie,general_statement) values('%s','%s','%s','%s','%s',%f,'%s','%s')", 
 	  profile.username.c_str(), profile.password.c_str(), 
-	  profile.realname.c_str(), "",
+	  profile.firstname.c_str(), profile.lastname.c_str(),
 	  profile.email.c_str(), profile.shoe_size, 
 	  profile.favorite_movie.c_str(), profile.whiteboard.c_str());
 

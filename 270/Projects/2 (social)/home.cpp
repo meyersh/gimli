@@ -156,7 +156,8 @@ main()
 	      msgs ms( username, "whiteboard");
 
 	      output << "username=" << profile.username << endl
-		     << "realname=" << profile.realname << endl
+		     << "firstname=" << profile.firstname << endl
+		     << "lastname=" << profile.lastname << endl
 		     << "email=" << profile.email << endl
 		     << "shoe_size=" << profile.shoe_size << endl
 		     << "favorite_movie=" << profile.favorite_movie << endl
@@ -228,8 +229,10 @@ main()
 			profile.password = method["password"];
 		      if ( request.hasPOST("email") )
 			profile.email = method["email"];
-		      if ( request.hasPOST("realname") )
-			profile.realname = method["realname"];
+		      if ( request.hasPOST("firstname") )
+			profile.firstname = method["firstname"];
+		      if ( request.hasPOST("lastname") )
+			profile.lastname = method["lastname"];
 		      if ( request.hasPOST("favorite_movie") )
 			profile.favorite_movie = method["favorite_movie"];
 		      if ( request.hasPOST("shoe_size") ) 

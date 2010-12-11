@@ -147,8 +147,9 @@ main()
 	    {
 	      /* A little tom-foolery to write the profile we recieved... */
 	      userProfile profile;
-	      profile.realname = request.POST["realname"];
 	      profile.username = request.POST["username"];
+	      profile.firstname = request.POST["firstname"];
+	      profile.lastname = request.POST["lastname"];
 	      profile.email = request.POST["email"];
 	      profile.favorite_movie = request.POST["favorite_movie"];
 	      profile.shoe_size = atof( request.POST["shoe_size"].c_str() );
@@ -204,7 +205,8 @@ main()
       cout << "Reading profile..\n";
       cout << readProfile("meyersh", shaun) << endl
 	   << "Username:   " << shaun.username << endl
-	   << "Real Name:  " << shaun.realname << endl
+	   << "First Name:  " << shaun.firstname << endl
+	   << "Last Name:  " << shaun.lastname << endl
 	   << "E-Mail:     " << shaun.email << endl
 	   << "Shoe Size:  " << shaun.shoe_size << endl
 	   << "Fav. Movie: " << shaun.favorite_movie << endl

@@ -25,7 +25,8 @@
 
 struct userProfile {
   string username;
-  string realname;
+  string firstname;
+  string lastname;
   string password;
   string email;
   string favorite_movie;
@@ -34,7 +35,6 @@ struct userProfile {
 };
 
 /* Prototypes */
-
 
 int readProfile(string username, userProfile& profile);
 int writeProfile(userProfile& profile);

@@ -63,7 +63,8 @@ main()
 
       output << "hasGET: " << request.hasGET("ShaunSession") << " <br/>\n";
       output << "<p>Profile stuff:<br>\n"
-	     << profile.realname << "<br>\n"
+	     << profile.firstname << "<br>\n"
+	     << profile.lastname << "<br>\n"
 	     << profile.email << "<br>\n"
 	     << profile.shoe_size << "<br>\n"
 	     << profile.favorite_movie << "<br>\n"
