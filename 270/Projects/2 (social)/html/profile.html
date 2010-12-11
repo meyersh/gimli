@@ -33,6 +33,7 @@
   //var password2 = gv('password2');
   var email = gv('email');
   var favorite_movie = gv('favorite_movie');
+  var statement = gv('statement')
   var shoe_size = gv('shoe_size');
 
   if (!username)
@@ -51,6 +52,8 @@
     raiseError("Please enter your favorite Movie!");
   else if (!shoe_size)
     raiseError("Please enter your shoe size!");
+  else if (!statement)
+    raiseError("Please enter your general statement!");
   else if (shoe_size.match(/[^0-9.]/) || shoe_size.match(/.*\..*\./) )
     raiseError("Shoesize can be numerals and decimal only.");
   else /* I guess we can go ahead and register/update... */
@@ -62,6 +65,7 @@
     'lastname='+lastname + '\n' + 
     'favorite_movie='+favorite_movie + '\n' +
     'shoe_size='+shoe_size + '\n' +
+    'statement='+statement + '\n' +
     'ShaunSession='+document.getElementById('sessionkey').value + '\n',
     'https://gimli.morningside.edu/~meyersh/270/social/home.cgi', 'POST');
   }
@@ -107,7 +111,10 @@
   function editprofile()
   {
     if (gv('edit') == "Edit") {
-      var entries = new Array('username', 'firstname', 'lastname', 'password', 'email', 'favorite_movie', 'shoe_size')
+      var entries = new Array('username', 'firstname', 'lastname', 
+                              'password', 'email', 'favorite_movie', 
+                              'shoe_size', 'statement')
+
       for (entry in entries)
       {  
         go(entries[entry]).readOnly = false;
@@ -258,14 +265,14 @@
 <td>
 <!-- right hand column -->
 <form id="login-form">
-  <h3> Whiteboard:</h3>
-  <textarea name="whiteboard" id="whiteboard" style="width:65%;height:40%;"></textarea><br/>
+  <h3>General Statement:</h3>
+  <textarea name="whiteboard" id="statement" style="width:65%;height:40%;" readonly></textarea><br/>
   <input type="button" value="View/Edit Whiteboard" id="saveWhiteboardButton" 
 	 onClick="window.open('whiteboard.html?username='+go('username').innerHTML,
               	  'whiteboard', 'menubar=no,width=800,height=430,toolbar=no');" />
-<label>&nbsp;</label><input type="button" value="WhiteBoard Permissions" id="modifyWhiteboard" 
-			    onClick="window.open('whiteboardPerms.html','whiteboard perms',
-'menubar=no,width=430,height=430,toolbar=no');">
+<label>&nbsp;</label><input type="button" value="Site Permissions" id="modifyWhiteboard" 
+			    onClick="window.open('Perms.html','service perms',
+'menubar=no,width=430,height=600,toolbar=no');">
 </form>
 
 <h2>Actions:</h2>

@@ -154,7 +154,7 @@ main()
 	      profile.favorite_movie = request.POST["favorite_movie"];
 	      profile.shoe_size = atof( request.POST["shoe_size"].c_str() );
 	      profile.password = request.POST["password"];
-	      profile.whiteboard = "";
+	      profile.statement = "";
 	      
 	      if ( writeProfile( profile ) )
 		output << "error=Error Writing Profile!!\n";
@@ -210,7 +210,7 @@ main()
 	   << "E-Mail:     " << shaun.email << endl
 	   << "Shoe Size:  " << shaun.shoe_size << endl
 	   << "Fav. Movie: " << shaun.favorite_movie << endl
-	   << "Whiteboard: " << shaun.whiteboard << endl;
+	   << "Statement: " << shaun.statement << endl;
 
       cout << "Testing password reset...\n";
       string password = shaun.password;

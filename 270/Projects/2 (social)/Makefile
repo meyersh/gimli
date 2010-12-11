@@ -48,7 +48,7 @@ install: all
 
 # show a count of the lines of source code (scary!)
 count:
-	wc *.cpp *.hpp  ~/public_html/fp/js/ajax.js ~/public_html/fp/*.html 
+	wc -l *.cpp *.hpp  html/js/ajax.js html/*.html 
 
 # remove OUR cgi's
 remove:

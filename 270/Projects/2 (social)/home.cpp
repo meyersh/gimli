@@ -162,14 +162,13 @@ main()
 		     << "shoe_size=" << profile.shoe_size << endl
 		     << "favorite_movie=" << profile.favorite_movie << endl
 		     << "userlist=" << urlEncode(listUsers()) << endl
-		     << "sessionkey=" << sessionkey << endl;
+		     << "sessionkey=" << sessionkey << endl
+		     << "statement=" << profile.statement << endl;
 
 	      if ( bl.has(loggedInUser) )
 		output << "whiteboard=" << username 
 		       << " is PREVENTING you from viewing his "
 		       << "or her whiteboard.\n";
-	      else
-		output << "whiteboard=" << urlEncode(ms[ms.size()].body) << endl;
 	      
 	      if (loggedInUser == username)
 		{
@@ -237,8 +236,8 @@ main()
 			profile.favorite_movie = method["favorite_movie"];
 		      if ( request.hasPOST("shoe_size") ) 
 			profile.shoe_size = atof( method["shoe_size"].c_str() );
-		      if ( request.hasPOST("whiteboard") )
-			profile.whiteboard = method["whiteboard"];
+		      if ( request.hasPOST("statement") )
+			profile.statement = method["statement"];
 		      
 		      
 		      if (writeProfile(profile))
@@ -333,15 +332,22 @@ main()
 		username = loggedOnUser;
 
 	      msgs ms(username, "private" );
-	      for (int i=0; i < ms.size(); i++)
+	      blacklist blst(username, "privateSenders");
+	      if (blst.has(loggedOnUser))
+		output << "error=You are not allowed to write on this "
+		       << "users private message board." << endl;
+
+	      for (map<int,message>::iterator i= ms.msgList.begin(); 
+		   i != ms.msgList.end(); 
+		   i++)
 		{
 		  /* if ( !ms.hasMessage(i) )
 		     continue; // no garantees the ID's are contiguous */
-		   if ( ms[i].inResponseTo == 0 && 
-		       (ms[i].sender == loggedOnUser 
+		   if ( ms[i->first].inResponseTo == 0 && 
+		       (ms[i->first].sender == loggedOnUser 
 			|| username == loggedOnUser) 
 		       ) 
-		    ss << ms.listMessages(i);
+		    ss << ms.listMessages(i->first);
 		}
 	      output << "messages=" << urlEncode( ss.str() ) << endl;
 	      output << "username=" << username << endl
@@ -361,14 +367,23 @@ main()
 	       * Valid username to write to
 	       * valid in-response-to
 	       */
-	      
-	      message m;
-	      m.inResponseTo = atoi( request.POST["inResponseTo"].c_str() );
-	      m.sender = readSession( sessionkey );
-	      m.body = request.POST["body"];
-	      msgs ms(request.POST["toUsername"], "private");
-	      ms.insert( m );
-	      ms.writeMessages();
+	      blacklist blst(request.POST["toUsername"], "privateSenders");
+	      if (blst.has(readSession( sessionkey ))) 
+		{
+		  output << "error=You are not allowed to post on "
+			 << request.POST["toUsername"] << "'s whiteboard."
+			 << endl;
+		}
+	      else
+		{
+		  message m;
+		  m.inResponseTo = atoi( request.POST["inResponseTo"].c_str() );
+		  m.sender = readSession( sessionkey );
+		  m.body = request.POST["body"];
+		  msgs ms(request.POST["toUsername"], "private");
+		  ms.insert( m );
+		  ms.writeMessages();
+		}
 	    }
 
 	  /**************************************************************
@@ -401,8 +416,7 @@ main()
 
 	  else if ( *action == "getWhiteboard" )
 	    {
-	      /* This has to be in reverse order (so newest first)
-	       * and we don't need reply functionality so we'll only show
+	       /* we don't need reply functionality so we'll only show
 	       * parent messages. easy? */
 	      string loggedInUser = readSession ( sessionkey );
 	      if ( username == "" )
@@ -412,19 +426,24 @@ main()
 	      msgs ms( username, "whiteboard");
 
 	      if ( bl.has( loggedInUser ) )
-		output << "error=You're not allowed to see this whiteboard!\n";
-	      else
+		output << "error=You're not allowed to write on this "
+		       << "whiteboard!\n";
+
+
+	      output << "messages=";
+	      for ( map<int, message>::iterator i = ms.msgList.begin(); 
+		    i != ms.msgList.end(); 
+		    i++)
 		{
-		  output << "messages=";
-		  for ( int i = ms.size(); i > 0; i--)
-		    {
-		      if ( username == loggedInUser ) // show [ delete ] button
-			output << urlEncode( ms.listMessages( i, 0, false, true ) );
-		      else // hide [delete button]
-			output << urlEncode( ms.listMessages( i, 0, false, false ) );
-		    }
-		  output << endl;
+		  if ( username == loggedInUser ) // show [ delete ] button
+		    output << urlEncode( ms.listMessages( i->first, 0, false, 
+							  true ) );
+		  else // hide [delete button]
+		    output << urlEncode( ms.listMessages( i->first, 0, false, 
+							  false ) );
 		}
+	      output << endl;
+	      
 	    }
 
 	  /************************************************************* 
@@ -434,19 +453,34 @@ main()
 	  else if ( *action == "writeWhiteboard" )
 	    {
 	      string loggedInUser = readSession( sessionkey );
-
+	      bool canWrite = true;
 	      /* default to whoever we're logged in as */
-	      if ( username == "" )
-		username = loggedInUser;
+	      if ( username == "" ) 
+		{
+		  username = loggedInUser;
+		} 
+	      else 
+		{
+		  blacklist blst(username, "whiteboard");
+		  canWrite = !blst.has(loggedInUser);
+		}
 	      
-	      msgs ms( username, "whiteboard");
-	      message m;
+	      if (canWrite) 
+		{
 
-	      m.inResponseTo = atoi( request.POST["inResponseTo"].c_str() );
-	      m.sender = readSession( sessionkey );
-	      m.body = request.POST["body"];
-	      if ( username == loggedInUser )
-		ms.insert( m );
+		  msgs ms( username, "whiteboard");
+		  message m;
+		  
+		  m.inResponseTo = atoi( request.POST["inResponseTo"].c_str() );
+		  m.sender = readSession( sessionkey );
+		  m.body = request.POST["body"];
+		  ms.insert( m );
+		}
+	      else 
+		{
+		  output << "error=You have been blocked from "
+			 << "writing on this whiteboard." << endl;
+	      }
 
 	    }
 
@@ -481,6 +515,33 @@ main()
 	      output << "userlist=" << urlEncode(listUsers(true)) << endl;
 	      output << "bannedusers=" << bl.renderCSV() << endl;
 	      
+	    }
+
+	  /*********************************************************
+	   * `action=getBannedUsers`
+	   * return a list of banned users for a specific service
+	   */
+
+	  else if ( *action == "getBannedUsers" )
+	    {
+	      /* we require a service= directive, being one of
+	       * publicWhiteboard
+	       * privateWhiteboard
+	       * privateMessaging
+	       */
+
+	      if (!request.hasPOST("service"))
+		{
+		  output << "error=No service specified!\n";
+		}
+	      else
+		{
+		  blacklist blst(readSession(sessionkey), 
+				 request.POST["service"]);
+		  output << "userlist=" << urlEncode(listUsers(true)) << endl;
+		  output << "bannedusers=" << blst.renderCSV() << endl;
+
+		}
 	    }
 
 	  /***********************************************************
@@ -527,7 +588,64 @@ main()
 	      else output << "error=No one is currently banned.";
 
 	    }
+	
+	  else if ( *action == "submitBannedUsers" )
+	    {
+	      
+	      string loggedInUser = readSession ( sessionkey );
+	      if (!request.hasPOST("service"))
+		{
+		  output << "error=No service specified!" << endl;
+		}
+	      else if (request.POST["service"] != "publicWhiteboard" &&
+		       request.POST["service"] != "privateWhiteboard" &&
+		       request.POST["service"] != "privateMessaging")
+		{
+		  output << "error=Invalid service specified!" << endl;
+		}
+	      else
+		{
+		  blacklist bl(loggedInUser, request.POST["service"]);
+		  vector<string> bannedFromPage;
+		  
+		  vector<string>::iterator it;
+		  
+		  bl.clear();  /* unban everyone in there since I don't know
+				  which have changed from before */
+		  
+		  if ( request.hasPOST("bannedusers") 
+		       && request.POST["bannedusers"] != "1" )
+		    {
+		      
+		      // Split the line on Commas
+		      
+		      stringstream ss(request.POST["bannedusers"]);
+		      string user;
+		      
+		      while (std::getline(ss, user, ','))
+			{
+			  if ( user != "" )
+			    bannedFromPage.push_back(user);
+			}
+		      
+		      it = bannedFromPage.begin();
+		      
+		      for ( it; it != bannedFromPage.end(); it++ )
+			bl.add( *it );
+		      
+		      output << "error=Settings saved. " 
+			     << bl.size() << " users banned for " 
+			     << request.POST["service"]
+			     << " service." << endl;
+		    }
+		  else output << "error=No one is currently banned.";
+		}
+	    }
+    
 	}
+
+
+
     } /* END OF POST BLOCK */
 
   /*******************************************************************
@@ -560,33 +678,15 @@ main()
     string loggedOnUser = "meyersh";
     string username = "meyersh";
     
-    msgs ms("meyersh", "private" );
-    
-    bool author = false;
-    bool owner = false;
-    
-    if (loggedOnUser == username)
-      owner = true;
+    userProfile profile;
 
+    readProfile(username, profile);
 
-    for (int i=0; i < ms.size(); i++)
-      {
-	/* if ( !ms.hasMessage(i) )
-	   continue; // no garantees the ID's are contiguous */
-	if (ms[i].sender == loggedOnUser)
-	  author = true;
-	else
-	  author = false;
-
-	if ( ms[i].inResponseTo == 0 && 
-	     (author || owner) 
-	     ) 
-	  ss << ms.listMessages(i);
-      }
-    output << "messages=" << urlEncode( ss.str() ) << endl;
-    output << "username=" << username << endl
-	   << "userlist=" << urlEncode(listUsers()) << endl;
+    cout << "Profile for " << username << endl
+	 << "statement: " << profile.statement << endl
+	 << endl;
   }
+
   /**************************************
    * FINALLY - Return any output we've collected
    *************************************/
@@ -598,6 +698,7 @@ main()
   logfile << renderHttpHeaders(response);
   logfile << output.str() << endl;
   logfile.close();
+  
 
   return 0;
 }

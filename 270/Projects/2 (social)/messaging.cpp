@@ -91,9 +91,11 @@ class message {
 */
 
 class msgs {
- private:
+private:
   bool DEBUG;
+public: /* I'm not proud of this. */
   map<int, message> msgList; /* msgList[id] = <message> */
+private:
   string username, entity;
   
   string msgfile()

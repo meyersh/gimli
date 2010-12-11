@@ -31,7 +31,7 @@ struct userProfile {
   string email;
   string favorite_movie;
   double shoe_size;
-  string whiteboard;
+  string statement;
 };
 
 /* Prototypes */

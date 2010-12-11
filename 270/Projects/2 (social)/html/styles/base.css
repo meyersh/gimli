@@ -359,6 +359,7 @@ textarea {
 
 input[type=text], input[type=password], textarea, select, .vTextField {
     border: 1px solid #ccc;
+    width:150px;
 }
 
 /* FORM BUTTONS */

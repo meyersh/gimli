@@ -98,7 +98,7 @@ readProfile(string username, userProfile& profile)
       profile.email          = row[4];
       profile.shoe_size      = atof(row[5]);
       profile.favorite_movie = (row[6]? row[6] : "");
-      profile.whiteboard     = (row[7]? row[7] : "");
+      profile.statement      = (row[7]? row[7] : "");
     }
   else {
     retcode = 1;
@@ -159,7 +159,7 @@ writeProfile(userProfile& profile)
 	  profile.username.c_str(), profile.password.c_str(), 
 	  profile.firstname.c_str(), profile.lastname.c_str(),
 	  profile.email.c_str(), profile.shoe_size, 
-	  profile.favorite_movie.c_str(), profile.whiteboard.c_str());
+	  profile.favorite_movie.c_str(), profile.statement.c_str());
 
   MYSQL *connection = conn();
   MYSQL_RES *res = result(sql, connection, false);
