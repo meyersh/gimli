@@ -32,7 +32,7 @@
     if (!username)
       username = go('username').innerHTML;
     sendData("action=getWhiteboard\nusername=" + username + "\n",
-             "https://gimli.morningside.edu/~meyersh/fp/home.cgi", "POST");
+             "https://gimli.morningside.edu/~meyersh/270/social/home.cgi", "POST");
   }
              
 
@@ -85,7 +85,7 @@
 
   function loadProfile()
   { 
-  url = "https://gimli.morningside.edu/~meyersh/fp/home.cgi";
+  url = "https://gimli.morningside.edu/~meyersh/270/social/home.cgi";
   //ses = document.getElementById('sessionkey').value;
   sendData("action=getWhiteboard\n", url, "POST");
   }
@@ -96,7 +96,7 @@
     sendData("action=deleteWhiteboardMessage\n" +
              "username=" + go('username').innerHTML + "\n" +
              "messageId=" + id + "\n",
-             "https://gimli.morningside.edu/~meyersh/fp/home.cgi", "POST");
+             "https://gimli.morningside.edu/~meyersh/270/social/home.cgi", "POST");
 
    showProfile(go('username').innerHTML);
     
@@ -118,7 +118,7 @@
              "inResponseTo=" + messageId + "\n" +
              "toUsername=" + toUsername + "\n" + 
              "body=" + body + "\n", 
-             "https://gimli.morningside.edu/~meyersh/fp/home.cgi", "POST");
+             "https://gimli.morningside.edu/~meyersh/270/social/home.cgi", "POST");
     // Update message list...
     showProfile( gv('username') );
     cancelReply(obj); // put away the form.
@@ -220,7 +220,7 @@
 <center>This style stolen from <a href="http://www.djangoproject.com/">DJANGO's</a> admin<br>login page. I think it looks cool...</center>
 <center><div id="responseSpot" style="height:100px;"></div></center>
 <script language="javascript">
-//window.onload=sendData("action=loadprofile", "https://gimli.morningside.edu/~meyersh/home.cgi", "GET");
+//window.onload=sendData("action=loadprofile", "https://gimli.morningside.edu/~meyersh/270/social/home.cgi", "GET");
 window.onload=checkQueryString();
 window.onload=showProfile( go('username').innerHTML );
 </script>
