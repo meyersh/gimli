@@ -27,7 +27,8 @@
   if (action == null)
     action = "register";
   var username = gv('username');
-  var realname = gv('realname');
+  var firstname = gv('firstname');
+  var lastname = gv('lastname);
   var password = gv('password');
   //var password2 = gv('password2');
   var email = gv('email');
@@ -40,8 +41,10 @@
     raiseError("You must enter a password!");
   //else if (password != password2)
   //  raiseError("Passwords do not match!");
-  else if (!realname)
-    raiseError("Please enter your real name.");
+  else if (!firstname)
+    raiseError("Please enter your first name.");
+  else if (!lastname)
+    raiseError("Please enter your last name.");
   else if (!email)
     raiseError("Please enter your E-Mail address.");
   else if (!favorite_movie)
@@ -55,7 +58,8 @@
     sendData('action=' + action + '\nusername='+username + '\n' + 
     'password='+password + '\n' + 
     'email='+email + '\n' + 
-    'realname='+realname + '\n' + 
+    'firstname='+firstname + '\n' +
+    'lastname='+lastname + '\n' + 
     'favorite_movie='+favorite_movie + '\n' +
     'shoe_size='+shoe_size + '\n' +
     'ShaunSession='+document.getElementById('sessionkey').value + '\n',
@@ -103,7 +107,7 @@
   function editprofile()
   {
     if (gv('edit') == "Edit") {
-      var entries = new Array('username', 'realname', 'password', 'email', 'favorite_movie', 'shoe_size')
+      var entries = new Array('username', 'firstname', 'lastname', 'password', 'email', 'favorite_movie', 'shoe_size')
       for (entry in entries)
       {  
         go(entries[entry]).readOnly = false;
@@ -220,7 +224,10 @@
  
 
   <div class="form-row">
-    <label for="realname">Real Name:</label> <input type="text" name="realname" id="realname" readonly />
+    <label for="firstname">First Name:</label> <input type="text" name="firstname" id="firstname" readonly />
+  </div>
+  <div class="form-row">
+    <label for="lastname">Last Name:</label> <input type="text" name="lastname" id="lastname" readonly />
   </div>
   <div class="form-row">
     <label for="email">E-Mail:</label> <input type="text" name="email" id="email" readonly />
