@@ -172,6 +172,7 @@ main()
 	}
       else if (request.POST["action"] == "login")
 	{
+	  checkAllSessions(); /* quick piece of housekeeping. */
 	  if (checkPassword( request.POST["username"], request.POST["password"] ) )
 	    {
 	      //output << "error=Valid Password\n";

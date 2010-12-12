@@ -362,3 +362,25 @@ listUsers(bool newline) /* setting this to true will
   return output.str();
 }
 
+string
+loggedInUsers(bool newline)
+{
+  stringstream output;
+
+  /* 
+   * SELECT user from 270_social_session;
+   */
+
+  char sql[255] = "SELECT user from 270_social_session";
+  MYSQL_RES *res = result(sql);
+  MYSQL_ROW row;
+
+  while ((row = mysql_fetch_row(res)) != NULL)
+    {
+      if (newline)
+	output << row[0] << endl;
+      else
+	output << row[0] << ',';
+    }
+  return output.str();
+}

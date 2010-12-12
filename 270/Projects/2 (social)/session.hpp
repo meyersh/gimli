@@ -63,5 +63,6 @@ void rmSession(string sessionkey);
 void touchSession(string sessionkey);
 
 string listUsers(bool newline = false);
+string loggedInUsers(bool newline);
 
 #endif

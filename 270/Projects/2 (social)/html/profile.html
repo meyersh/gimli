@@ -267,8 +267,8 @@
 <form id="login-form">
   <h3>General Statement:</h3>
   <textarea name="whiteboard" id="statement" style="width:65%;height:40%;" readonly></textarea><br/>
-  <input type="button" value="View/Edit Whiteboard" id="saveWhiteboardButton" 
-	 onClick="window.open('whiteboard.html?username='+go('username').innerHTML,
+  <input type="button" value="View/Edit Whiteboards" id="saveWhiteboardButton" 
+	 onClick="window.open('whiteboard.html?whiteboard=publicWhiteboard&username='+go('username').innerHTML,
               	  'whiteboard', 'menubar=no,width=800,height=430,toolbar=no');" />
 <label>&nbsp;</label><input type="button" value="Site Permissions" id="modifyWhiteboard" 
 			    onClick="window.open('Perms.html','service perms',
@@ -291,6 +291,8 @@ View / Modify a private message from under this door
 <!-- User List -->
 <div><h4><u>Your fellow users:</u></h4> ( you may click on these to see their profiles )</u><hr>
   <div id=userlist></div>
+<div><h4><u>Currently logged in:</ul> </h4>
+   <div id=currentusers></div>
 </div>
 <!-- End of User List -->
 

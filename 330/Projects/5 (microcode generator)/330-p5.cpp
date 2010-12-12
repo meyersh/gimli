@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <iomanip>
 
 using namespace std;
 
@@ -208,7 +209,10 @@ int main()
   binary += set_binary_pos(str_to_binary(s_A_source), A_SRC, 4); 
   
   cout << "Content-Type: text/plain\n\n";
+  cout << hex << setw(64/4) << setfill('0') << binary << endl;
+  cout << "<br>";
   cout << binary_to_str(binary) << endl;
+  //cout << binary_to_str(binary) << endl;
 
   /* // Legacy debugging business:
   cout << binary << endl

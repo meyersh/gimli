@@ -155,6 +155,8 @@ main()
 	      blacklist bl(username, "whiteboard");
 	      msgs ms( username, "whiteboard");
 
+	      string currentUsers = loggedInUsers(false);
+
 	      output << "username=" << profile.username << endl
 		     << "firstname=" << profile.firstname << endl
 		     << "lastname=" << profile.lastname << endl
@@ -163,7 +165,8 @@ main()
 		     << "favorite_movie=" << profile.favorite_movie << endl
 		     << "userlist=" << urlEncode(listUsers()) << endl
 		     << "sessionkey=" << sessionkey << endl
-		     << "statement=" << profile.statement << endl;
+		     << "statement=" << profile.statement << endl
+		     << "currentusers=" << currentUsers << endl; 
 
 	      if ( bl.has(loggedInUser) )
 		output << "whiteboard=" << username 
@@ -419,23 +422,43 @@ main()
 	       /* we don't need reply functionality so we'll only show
 	       * parent messages. easy? */
 	      string loggedInUser = readSession ( sessionkey );
+	      string whiteboard = "";
 	      if ( username == "" )
 		username = loggedInUser;
 
-	      blacklist bl(username, "whiteboard");
-	      msgs ms( username, "whiteboard");
+	      if (!request.hasPOST("whiteboard"))
+		whiteboard = "publicWhiteboard";
+	      else
+		whiteboard = request.POST["whiteboard"];
 
-	      if ( bl.has( loggedInUser ) )
-		output << "error=You're not allowed to write on this "
-		       << "whiteboard!\n";
+	      blacklist bl(username, whiteboard);
+	      msgs ms( username, whiteboard);
+
+	      /*
+	       * Permissions are backwards. EVERYONE, except those
+	       * on the ban-list are allowed in publicWhiteboard
+	       * while EVERYONE, except those in the ban-list are
+	       * _NOT_ allowed to see the privateWhiteboard...
+	       */
+
+	      if ( 
+		  (bl.has( loggedInUser ) && 
+		   whiteboard == "publicWhiteboard") 
+		  || /* OR */
+		  (whiteboard == "privateWhiteboard" && 
+		   !bl.has( loggedInUser) &&
+		   loggedInUser != username)
+		   )
+		output << "error=You're not allowed on this whiteboard!\n";
 
 
 	      output << "messages=";
 	      for ( map<int, message>::iterator i = ms.msgList.begin(); 
 		    i != ms.msgList.end(); 
 		    i++)
-		{
-		  if ( username == loggedInUser ) // show [ delete ] button
+		{ /* show the [ delete ] button? */
+		  if ( username == loggedInUser || 
+		       i->second.sender == loggedInUser ) 
 		    output << urlEncode( ms.listMessages( i->first, 0, false, 
 							  true ) );
 		  else // hide [delete button]
@@ -454,6 +477,12 @@ main()
 	    {
 	      string loggedInUser = readSession( sessionkey );
 	      bool canWrite = true;
+	      string whiteboard = "";
+	      if (request.hasPOST("whiteboard"))
+		whiteboard = request.POST["whiteboard"];
+	      else
+		whiteboard = "publicWhiteboard";
+
 	      /* default to whoever we're logged in as */
 	      if ( username == "" ) 
 		{
@@ -461,14 +490,15 @@ main()
 		} 
 	      else 
 		{
-		  blacklist blst(username, "whiteboard");
-		  canWrite = !blst.has(loggedInUser);
+		  blacklist blst(username, whiteboard);
+		  canWrite = (whiteboard=="publicWhiteboard") ? 
+		    true : !blst.has(loggedInUser);
 		}
 	      
 	      if (canWrite) 
 		{
 
-		  msgs ms( username, "whiteboard");
+		  msgs ms( username, whiteboard);
 		  message m;
 		  
 		  m.inResponseTo = atoi( request.POST["inResponseTo"].c_str() );
@@ -491,14 +521,20 @@ main()
 	    {
 
 	      string loggedInUser = readSession( sessionkey );
+	      string whiteboard = "publicWhiteboard";
+	      if (request.hasPOST("whiteboard")) 
+		whiteboard = request.POST["whiteboard"];
 
-	      msgs ms( username, "whiteboard" );
+	      msgs ms( username, whiteboard );
 	      int id = atoi ( request.POST["messageId"].c_str() );
 
 	      if ( ms.hasMessage( id ) )  
-		ms.remove( id, 0 ); 
-	      
-	      output << "notice=Deleting post " << id << ".\n";
+		{
+		  ms.remove( id, 0 ); 
+		  output << "notice=Deleting post " << id << ".\n";
+		}
+	      else
+		output << "error=No such post " << id << ".\n";
 
 	    }
 

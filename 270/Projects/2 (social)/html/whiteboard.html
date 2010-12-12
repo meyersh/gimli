@@ -12,6 +12,8 @@
   // get object (by id)
   function go(id)
   {
+    if (document.getElementById(id) == null)
+      alert("Null go request for id=" + id);
     return document.getElementById(id);
   }
 
@@ -31,7 +33,11 @@
   {
     if (!username)
       username = go('username').innerHTML;
-    sendData("action=getWhiteboard\nusername=" + username + "\n",
+    profile = go('whiteboard').innerHTML;
+    dataStr = "action=getWhiteboard\n" +
+              "username=" + username + '\n' +
+              "whiteboard=" + profile + '\n';
+    sendData(dataStr,
              "https://gimli.morningside.edu/~meyersh/270/social/home.cgi", "POST");
   }
              
@@ -80,6 +86,8 @@
           document.getElementById('sessionkey').value = val;
         if ( key == "username" )
           go('username').innerHTML = val;
+        if ( key == "whiteboard" )
+          go('whiteboard').innerHTML = val;
      }
   }
 
@@ -94,6 +102,7 @@
   {
     var id = obj.parentNode.id;
     sendData("action=deleteWhiteboardMessage\n" +
+             "whiteboard=" + go('whiteboard').innerHTML + "\n" +
              "username=" + go('username').innerHTML + "\n" +
              "messageId=" + id + "\n",
              "https://gimli.morningside.edu/~meyersh/270/social/home.cgi", "POST");
@@ -115,6 +124,7 @@
     go("responseText"+ messageId).value = "";
     var toUsername = go("username").innerHTML;
     sendData("action=writeWhiteboard\n" +
+             "whiteboard=" + go('whiteboard').innerHTML + '\n' +
              "inResponseTo=" + messageId + "\n" +
              "toUsername=" + toUsername + "\n" + 
              "body=" + body + "\n", 
@@ -147,7 +157,7 @@
     <div id="header">
         <div id="branding">
         
-	  <h1 id="site-name"><span id="username"></span>'s <i>Private</i> Whiteboard</h1>
+	  <h1 id="site-name"><span id="username"></span>'s <i><span id="whiteboard"></i></span></h1>
 
         </div>
         
@@ -165,6 +175,10 @@
         
 
 <div id="content-main">
+[ <a href="#" onClick="go('whiteboard').innerHTML='publicWhiteboard';
+		       showProfile( go('username').innerHTML );">view publicWhiteboard</a> ]
+[ <a href="#" onClick="go('whiteboard').innerHTML='privateWhiteboard';
+		       showProfile( go('username').innerHTML );">view privateWhiteboard</a> ]
 [ <a href="#" onClick="window.close()">close</a> ]
 <h3>Messages:</h3>
 <div id="0">

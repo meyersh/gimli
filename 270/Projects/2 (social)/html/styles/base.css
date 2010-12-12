@@ -356,8 +356,10 @@ input, textarea, select {
 textarea {
     vertical-align: top !important;
 }
-
-input[type=text], input[type=password], textarea, select, .vTextField {
+input select {
+    border: 1px solid #ccc;
+}
+input[type=text], input[type=password], textarea, .vTextField {
     border: 1px solid #ccc;
     width:150px;
 }
