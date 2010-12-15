@@ -105,21 +105,22 @@ class Alu
   B_SUB_A = 0b111111
   DEC_B = 0b110110
   NEG_A = 0b111011
-  A_AND_B = 0b001100
-  A_OR_B = 0b011100
+  AND = 0b001100
+  OR = 0b011100
   ZERO = 0b010000
   ONE =  0b110010
   NEG_1 = 0b110010
 end
   
 class Microinstruction
-  attr_accessor :opcode, :symbol, :next_instr, :jmp, :alu_shift, :alu_control, :zone_rd, :reg_rd, :prm_mem, :mad_src, :mdb_src, :b_src, :a_src
+  attr_accessor :opcode, :micro_addr, :symbol, :next_instr, :jmp, :alu_shift, :alu_control, :zone_rd, :reg_rd, :prm_mem, :mad_src, :mdb_src, :b_src, :a_src
 
   def initialize(params)
 
     # Set default parameters to something sane(?)
     params = {
       :opcode => 0,
+      :micro_addr => 0,
       :symbol => nil,
       :next_instr => 0, 
       :jmp => 0, 
@@ -136,6 +137,7 @@ class Microinstruction
 
     # Set all of our attributes:
     @opcode = params[:opcode]
+    @micro_addr = params[:micro_addr]
     @symbol = params[:symbol]
     @next_instr = params[:next_instr] & 1023 # Mask out any more than 10 bits
     @jmp = params[:jmp]
@@ -170,14 +172,30 @@ end
 instructions = []
 
 instructions.push Microinstruction.new(
-                                       :symbol => "JUMP",
-                                       :a_src => Src::PC,
-                                       :alu_control => Alu::INC_A,
-                                       :reg_rd => Reg::PC::Access
+                                       :symbol => "MAIN",
+                                       :micro_addr => 0b0000000000,
+                                       :next_instr => 0b0000000001,
+                                       :a_src => Src::ONE,
+                                       :mad_src => Src::ZERO,
+                                       :alu_control => Alu::A,
+                                       :reg_rd => Reg::IR::Access | Reg::IR::Select | Reg::PC::Access
 )
 
 instructions.push Microinstruction.new(
-                         :symbol => "LOAD_IMM1",
+                                       :symbol => "DISPATCH",
+                                       :micro_addr => 0b0000000001,
+                                       :next_instr => 0b0000000001,
+                                       :a_src => Src::PC,
+                                       :alu_control => Alu::INC_A,
+                                       :mad_src => Src::PC,
+                                       :reg_rd => Reg::IR::Access | Reg::IR::Select | Reg::PC::Access,
+                                       :jmp => Jam::C
+)
+
+
+instructions.push Microinstruction.new(
+                         :symbol => "LOAD_IMMEDIATE",
+                         :micro_addr => 0b0000010000,
                          :next_instr => 0b0000000001,
                          :alu_control => Alu::A,
                          :mdb_src => Src::IR,
@@ -188,6 +206,7 @@ instructions.push Microinstruction.new(
 instructions.push Microinstruction.new(
                                        :symbol => "ADD",
                                        :opcode => 0b10000100,
+                                       :micro_addr => 0b0100001000,
                                        :next_instr => 0b0000000001,
                                        :alu_control => Alu::ADD,
                                        :a_src => Src::ZONE0,
@@ -195,11 +214,267 @@ instructions.push Microinstruction.new(
                                        :zone_rd => Zone::ZONE2
 )
 
+instructions.push Microinstruction.new(
+                         :symbol => "LOAD_DIRECT",
+                         :next_instr => 0b0000000001,
+                         :micro_addr => 0b00000100000,
+                         :alu_control => Alu::A,
+                         :mad_src => Src::IR,
+                         :reg_rd => Reg::IR::Access,
+                         :zone_rd => Src::ZONE3,
+                         :prm_mem => access
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => "STORE_DIRECT",
+                                       :next_instr => 0b0000000001,
+                                       :micro_addr => 0b0000110000,
+                                       :alu_control => Alu::A,
+                                       :mad_src => Src::IR,
+                                       :reg_rd => Reg::IR::Access,
+                                       :zone_rd => Src::ZONE3,
+                                       :prm_mem => access | rw
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => "SUB",
+                                       :opcode => 0b10000101,
+                                       :micro_addr => 0b0100001010,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::B_SUB_A,
+                                       :a_src => Src::ZONE0,
+                                       :b_src => Src::ZONE1,
+                                       :zone_rd => Zone::ZONE2
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => "AND",
+                                       :opcode => 0b10001100,
+                                       :micro_addr => 0b0100001100,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::AND,
+                                       :a_src => Src::ZONE0,
+                                       :b_src => Src::ZONE1,
+                                       :zone_rd => Zone::ZONE2
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => "OR",
+                                       :opcode => 0b10001110,
+                                       :micro_addr => 0b0100001110,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::OR,
+                                       :a_src => Src::ZONE0,
+                                       :b_src => Src::ZONE1,
+                                       :zone_rd => Zone::ZONE2
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => "NOT",
+                                       :opcode => 0b100010000,
+                                       :micro_addr => 0b0100010000,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::NOT_A,
+                                       :a_src => Src::ZONE1,
+                                       :zone_rd => Zone::ZONE2
+)
+instructions.push Microinstruction.new(
+                                       :symbol => "NEG",
+                                       :opcode => 0b100010010,
+                                       :micro_addr => 0b0100010010,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::NEG_A,
+                                       :a_src => Src::ZONE1,
+                                       :zone_rd => Zone::ZONE2
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => "NOP",
+                                       :opcode => 0b1111110,
+                                       :micro_addr => 0b0111111100,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::A,
+                                       :a_src => Src::ZERO,
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => "HALT",
+                                       :opcode => 0b11111111,
+                                       :micro_addr => 0b0111111110,
+                                       :next_instr => 0b1111111111,
+                                       :alu_control => Alu::A,
+                                       :a_src => Src::ZERO
+)
+
+##
+# CMPLT
+##
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmplt1',
+                                       :micro_addr => 0b0100010100,
+                                       :opcode => 0b10001010,
+                                       :next_instr => 0b0100010100,
+                                       :alu_control => Alu::B_SUB_A,
+                                       :b_src => Src::ZONE1,
+                                       :a_src => Src::ZONE0,
+                                       :jmp => Jam::N
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmplt-true',
+                                       :micro_addr => 0b1100010101,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::ONE,
+                                       :zone_rd => Zone::ZONE2
+                                       )
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmplt-false',
+                                       :micro_addr => 0b0100010101,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::ZERO,
+                                       :zone_rd => Zone::ZONE2
+)
+
+##
+# CMPGT
+##
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmpgt1',
+                                       :micro_addr => 0b0100010110,
+                                       :opcode => 0b10001010,
+                                       :next_instr => 0b0100010100,
+                                       :alu_control => Alu::B_SUB_A,
+                                       :b_src => Src::ZONE1,
+                                       :a_src => Src::ZONE0,
+                                       :jmp => Jam::P
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmpgt-true',
+                                       :micro_addr => 0b1100010111,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::ONE,
+                                       :zone_rd => Zone::ZONE2
+                                       )
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmpgt-false',
+                                       :micro_addr => 0b0100010111,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::ZERO,
+                                       :zone_rd => Zone::ZONE2
+)
+
+## 
+# CMPEQ
+##
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmpeq1',
+                                       :micro_addr => 0b0100011000,
+                                       :opcode => 0b10001100,
+                                       :next_instr => 0b0100011001,
+                                       :alu_control => Alu::B_SUB_A,
+                                       :b_src => Src::ZONE1,
+                                       :a_src => Src::ZONE0,
+                                       :jmp => Jam::Z
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmpeq-true',
+                                       :micro_addr => 0b1100011001,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::ONE,
+                                       :zone_rd => Zone::ZONE2
+                                       )
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmpeq-false',
+                                       :micro_addr => 0b0100011001,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::ZERO,
+                                       :zone_rd => Zone::ZONE2
+)
+
+##
+# CMPNEQ
+##
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmpneq',
+                                       :micro_addr => 0b0100011010,
+                                       :opcode => 0b10001101,
+                                       :next_instr => 0b0100011011,
+                                       :alu_control => Alu::B_SUB_A,
+                                       :b_src => Src::ZONE1,
+                                       :a_src => Src::ZONE0,
+                                       :jmp => Jam::N | Jam::P
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmpneq-true',
+                                       :micro_addr => 0b1100011011,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::ONE,
+                                       :zone_rd => Zone::ZONE2
+                                       )
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cmpneq-false',
+                                       :micro_addr => 0b0100011011,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::ZERO,
+                                       :zone_rd => Zone::ZONE2
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'JUMP_DIRECT',
+                                       :opcode => 0b00100,
+                                       :micro_addr => 0b0001000000,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::A,
+                                       :mad_src => Src::IR,
+                                       :reg_rd => Reg::IR::Select | Reg::PC::Access,
+                                       :prm_mem => access
+)
+                                       
+##
+# CONDITIONAL JUMP REGISTER LT
+##
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'CJRLT1',
+                                       :micro_addr => 0b0100011100,
+                                       :opcode => 0b10001110,
+                                       :next_instr => 0b0100011100,
+                                       :alu_control => Alu::B_SUB_A,
+                                       :b_src => Src::ZONE1,
+                                       :a_src => Src::ZONE0,
+                                       :jmp => Jam::N
+)
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cjrlt-true',
+                                       :micro_addr => 0b1100011101,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::ONE,
+                                       :jmp => Jam::C,
+                                       :reg_rd => Reg::PC::Access | Reg::PC::Select | Reg::IR::Access | Reg::IR::Select,
+                                       :zone_rd => Zone::ZONE2
+                                       )
+
+instructions.push Microinstruction.new(
+                                       :symbol => 'cjrlt-false',
+                                       :micro_addr => 0b0100011101,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::ZERO,
+)
+
+
 instructions.each do |mi|
-  puts mi.symbol << ":"
-  puts "%8s    %s" % ["Opcode", "Machine instruction"]
-  puts "%08b => %s" % [ mi.opcode, mi.to_s ]
-  puts "Hex => " << mi.hex
-  puts
+  puts "%010b:%s" % [ mi.micro_addr, mi.hex ] 
 end
 
