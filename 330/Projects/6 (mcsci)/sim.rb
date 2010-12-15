@@ -174,7 +174,7 @@ instructions = []
 instructions.push Microinstruction.new(
                                        :symbol => "MAIN",
                                        :micro_addr => 0b0000000000,
-                                       :next_instr => 0b0000000001,
+                                       :next_instr => 0b0000000011,
                                        :a_src => Src::ONE,
                                        :mad_src => Src::ZERO,
                                        :alu_control => Alu::A,
@@ -183,7 +183,7 @@ instructions.push Microinstruction.new(
 
 instructions.push Microinstruction.new(
                                        :symbol => "DISPATCH",
-                                       :micro_addr => 0b0000000001,
+                                       :micro_addr => 0b0000000000,
                                        :next_instr => 0b0000000001,
                                        :a_src => Src::PC,
                                        :alu_control => Alu::INC_A,
@@ -192,15 +192,25 @@ instructions.push Microinstruction.new(
                                        :jmp => Jam::C
 )
 
+instructions.push Microinstruction.new(
+                                       :symbol => "JUMP",
+                                       :micro_addr => 0b0000000010,
+                                       :next_inst => 0b0000000000,
+                                       :alu_control => Alu::A,
+                                       :mad_src => Src::PC,
+                                       :reg_rd => Reg::IR::Access | Reg::IR::Select,
+                                       :jmp => Jam::C
+)
+
 
 instructions.push Microinstruction.new(
-                         :symbol => "LOAD_IMMEDIATE",
-                         :micro_addr => 0b0000010000,
-                         :next_instr => 0b0000000001,
-                         :alu_control => Alu::A,
-                         :mdb_src => Src::IR,
-                         :reg_rd => Reg::IR::Access,
-                         :zone_rd => Src::ZONE3
+                                       :symbol => "LOAD_IMMEDIATE",
+                                       :micro_addr => 0b0000010000,
+                                       :next_instr => 0b0000000001,
+                                       :alu_control => Alu::A,
+                                       :mdb_src => Src::IR,
+                                       :reg_rd => Reg::IR::Access,
+                                       :zone_rd => Src::ZONE3
 )
 
 instructions.push Microinstruction.new(
@@ -215,14 +225,14 @@ instructions.push Microinstruction.new(
 )
 
 instructions.push Microinstruction.new(
-                         :symbol => "LOAD_DIRECT",
-                         :next_instr => 0b0000000001,
-                         :micro_addr => 0b00000100000,
-                         :alu_control => Alu::A,
-                         :mad_src => Src::IR,
-                         :reg_rd => Reg::IR::Access,
-                         :zone_rd => Src::ZONE3,
-                         :prm_mem => access
+                                       :symbol => "LOAD_DIRECT",
+                                       :next_instr => 0b0000000001,
+                                       :micro_addr => 0b00000100000,
+                                       :alu_control => Alu::A,
+                                       :mad_src => Src::IR,
+                                       :reg_rd => Reg::IR::Access,
+                                       :zone_rd => Src::ZONE3,
+                                       :prm_mem => access
 )
 
 instructions.push Microinstruction.new(
