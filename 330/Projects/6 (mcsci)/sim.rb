@@ -13,10 +13,10 @@ class Src
   REG7 = 0b0111
   IR = 0b1110
   PC = 0b1111
-  ZONE0 = 0b1000
-  ZONE1 = 0b1001
-  ZONE2 = 0b1010
-  ZONE3 = 0b1011
+  ZONE0 = 0b0001
+  ZONE1 = 0b0010
+  ZONE2 = 0b0100
+  ZONE3 = 0b1000
   ZERO = 0b1100
   ONE = 0b1101
 end
@@ -171,45 +171,52 @@ end
 
 instructions = []
 
+
 instructions.push Microinstruction.new(
                                        :symbol => "MAIN",
                                        :micro_addr => 0b0000000000,
-                                       :next_instr => 0b0000000011,
+                                       :next_instr => 0b0000000001,
                                        :a_src => Src::ONE,
                                        :mad_src => Src::ZERO,
                                        :alu_control => Alu::A,
-                                       :reg_rd => Reg::IR::Access | Reg::IR::Select | Reg::PC::Access
+                                       :reg_rd => Reg::IR::Access | Reg::IR::Select | Reg::PC::Access,
+                                       :jmp => Jam::C,
+                                       :prm_mem => access
 )
 
 instructions.push Microinstruction.new(
                                        :symbol => "DISPATCH",
-                                       :micro_addr => 0b0000000000,
-                                       :next_instr => 0b0000000001,
+                                       :micro_addr => 0b0000000001,
+                                       :next_instr => 0b0000000000,
                                        :a_src => Src::PC,
                                        :alu_control => Alu::INC_A,
                                        :mad_src => Src::PC,
                                        :reg_rd => Reg::IR::Access | Reg::IR::Select | Reg::PC::Access,
-                                       :jmp => Jam::C
+                                       :jmp => Jam::C,
+                                       :prm_mem => access
 )
 
 instructions.push Microinstruction.new(
                                        :symbol => "JUMP",
                                        :micro_addr => 0b0000000010,
-                                       :next_inst => 0b0000000000,
+                                       :next_instr => 0b0000000000,
                                        :alu_control => Alu::A,
                                        :mad_src => Src::PC,
                                        :reg_rd => Reg::IR::Access | Reg::IR::Select,
                                        :jmp => Jam::C
 )
 
+#
+## (LOAD IMMEDIATE) Place value into Z3 Register.
+#
 
 instructions.push Microinstruction.new(
                                        :symbol => "LOAD_IMMEDIATE",
+                                       :opcode => 0b00001,
                                        :micro_addr => 0b0000010000,
                                        :next_instr => 0b0000000001,
                                        :alu_control => Alu::A,
-                                       :mdb_src => Src::IR,
-                                       :reg_rd => Reg::IR::Access,
+                                       :a_src => Src::IR,
                                        :zone_rd => Src::ZONE3
 )
 
@@ -237,6 +244,7 @@ instructions.push Microinstruction.new(
 
 instructions.push Microinstruction.new(
                                        :symbol => "STORE_DIRECT",
+                                       :opcode => 0b00011,
                                        :next_instr => 0b0000000001,
                                        :micro_addr => 0b0000110000,
                                        :alu_control => Alu::A,
@@ -300,7 +308,7 @@ instructions.push Microinstruction.new(
 
 instructions.push Microinstruction.new(
                                        :symbol => "NOP",
-                                       :opcode => 0b1111110,
+                                       :opcode => 0b11111110,
                                        :micro_addr => 0b0111111100,
                                        :next_instr => 0b0000000001,
                                        :alu_control => Alu::A,
@@ -485,6 +493,6 @@ instructions.push Microinstruction.new(
 
 
 instructions.each do |mi|
-  puts "%010b:%s" % [ mi.micro_addr, mi.hex ] 
+  puts "b%010b:%s" % [ mi.micro_addr, mi.hex ] 
 end
 
