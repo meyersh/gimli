@@ -27,7 +27,7 @@ bool isalpha(string str)
 /* Returns true if ALL characters are alphabetical only. */
 {
    for (int i = 0; i < str.size(); i++)
-      if (!isalpha(str[i]))
+      if (!isalpha(str[i]) && str[i] != ' ')
 	 return false;
 
    return true;
@@ -51,7 +51,7 @@ int read_cities_file(ifstream &file, vector<string> &cities,
    string snum_cities;    // string for num_cities line (1'st line in file)
    int num_cities = 0;    // integer we actually use for this after Q/A.
 
-   file >> snum_cities;
+   getline(file, snum_cities);
 
    /* Check that the number of cities is, in fact, a numeral. */
    if (isdigit(snum_cities))
@@ -74,7 +74,7 @@ int read_cities_file(ifstream &file, vector<string> &cities,
 	 return INVALID_FILE;
 
       /* load in a city */
-      file >> cur_city;
+      std::getline(file, cur_city);
 
       /* ERROR CHECK cur_city */
       if (!isalpha(cur_city))
@@ -215,7 +215,8 @@ string get_city_from_user(string city_id, const vector<string> &cities)
       {
       /* Prompt and wait on input */
       cout << "CITY " << city_id << "> ";
-      cin >> city;
+      //      cin >> city;
+      std::getline(cin, city);
 
       /* handle QUIT */
       if (city == "$")
