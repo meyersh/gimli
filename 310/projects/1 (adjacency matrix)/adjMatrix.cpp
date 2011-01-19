@@ -1,6 +1,12 @@
+/*******************************************************************************
+ * adjMatrix.hpp
+ * CREATED BY: Shaun Meyer, Jan-2011
+ *             
+*******************************************************************************/
 #include "adjMatrix.hpp"
 
 void adjMatrix::free_matrix()
+/* Free the memory in use by the matrix member. */
 {
    if (matrix) 
       {
@@ -11,24 +17,23 @@ void adjMatrix::free_matrix()
 }
 
 void adjMatrix::create_matrix(int size)
+/* Dynamically allocate the requisite memory for a matrix of `size`. */
 {
-   /* 
-    * for now: if matrix already exists,
+   /* for now: if matrix already exists,
     * whack it and create the requested
-    * matrix (empty)
-    */
+    * matrix (empty) */
    if (matrix)
       free_matrix();
    
-   /* 
-    * Cool, now make the new matrix and
-    * set the size
-    */
+   /* Cool, now make the new matrix and
+    * set the size */
    matrix = new int[size*size];
    matrix_size = size;
 }
 
 void adjMatrix::resize_matrix(int new_size)
+/* Resize the matrix to the new size and copy over all data. 
+ * Currently only works with enlarging. */
 { 
    /* remember old matrix */
    int * old_matrix = matrix;
@@ -50,6 +55,7 @@ void adjMatrix::resize_matrix(int new_size)
 }
 
 int& adjMatrix :: edge(int vertex_x, int vertex_y)
+/* Get and Set a given edge between two nodes. */
 {
    return matrix[matrix_size*vertex_x + vertex_y];
 }
