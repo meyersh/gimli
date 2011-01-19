@@ -81,7 +81,9 @@ int read_cities_file(ifstream &file, vector<string> &cities, adjMatrix &city_mat
 	      cout << "Invalid distance at " << distance << endl;
 	      return INVALID_DISTANCE;
 	    }
-	  city_matrix.edge(x, y) = city_matrix.edge(y, x) = atoi(distance.c_str());
+	  city_matrix.edge(x, y) 
+	    = city_matrix.edge(y, x) 
+	    = atoi(distance.c_str());
 	}
     }
   
@@ -146,6 +148,51 @@ void print_usage(bool about_file=false)
 
 }
 
+void print_cities(const vector<string> &cities)
+{
+  int width = 0; /* printed characters counter. Keep this under 80. */
+  for (int i = 0; i < cities.size(); i++)
+    {
+      width += cities[i].size() + 1; // city size + space
+      if (width > 80) 
+	{
+	  cout << endl;
+	  width = 0;
+	}
+      else
+	cout << cities[i] << " ";
+    }
+  cout << endl;
+}
+
+string get_city_from_user(string city_id, const vector<string> &cities)
+{
+  string city = "";
+  while (city == "")
+    {
+      cout << "CITY " << city_id << "> ";
+      cin >> city;
+      if (city == "$")
+	{
+	  cout << "Goodbye!\n";
+	  exit(0);
+	}
+      else if (city == "#")
+	{
+	  print_cities(cities);
+	  city="";
+	  continue;
+	}
+      else if (get_city_index(city, cities) < 0) 
+	{
+	  cout << "City '" << city << "' not found!\n";
+	  city = "";
+	  continue;
+	}
+    }
+  return city;
+}
+
 int main(int argc, char **argv)
 {
   vector<string> cities;
@@ -176,43 +223,21 @@ int main(int argc, char **argv)
     }
 
   cout << "Loaded " << a.size() << " cities." << endl;
+  cout << "\n$ to quit, # to list cities." << endl;
+
   string citya, cityb;
 
   while (1)
     {
-      cout << "CITY A> ";
-      cin >> citya;
-      if (citya == "$")
-	{
-	  cout << "Goodbye!\n"; 
-	  return 0;
-	}
-      
-      cout << "CITY B> ";
-      cin >> cityb;
-      if (cityb == "$")
-	{
-	  cout << "Goodbye!\n";
-	  return 0;
-	}
-      
-      if (get_city_index(cityb, cities) < 0)
-	{
-	  cout << "City '" << citya << "' not found!\n";
-	  continue;
-	}
-      else if (get_city_index(cityb, cities) < 0) 
-	{
-	  cout << "City '" << cityb << "' not found!\n";
-	  continue;
-	}
-      else
-	{
-	  cout << "Distance between " << str_to_proper(citya) << " and " << str_to_proper(cityb) << ":\n";
-	  cout << a.edge(
-			 get_city_index(citya, cities),
-			 get_city_index(cityb, cities)) << endl;
-	}
+      citya = get_city_from_user("A", cities);
+      cityb = get_city_from_user("B", cities);
+
+      cout << "( " << str_to_proper(citya) << " ) ---- " 
+	   << a.edge(
+		     get_city_index(citya, cities),
+		     get_city_index(cityb, cities)) << " ---- ( "
+	   << str_to_proper(cityb) << " )" << endl;
+
     }
   return 0;
 }
