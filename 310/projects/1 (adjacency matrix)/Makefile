@@ -1,8 +1,8 @@
-dest.x: adjMatrix.o dest.o
-	g++ adjMatrix.o dest.o -o dest.x
+dest.x: adjMatrix.o dist.o
+	g++ adjMatrix.o dist.o -o dist.x
 
 clean:
 	rm *.o
 
 install:
-	cp dest.x ~/exec/dest.x
+	cp dist.x ~/exec/dist.x

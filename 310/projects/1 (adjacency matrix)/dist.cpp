@@ -7,10 +7,10 @@
 #define MAX_CITIES 1024
 
 enum {
-  OK,
-  INVALID_CITY, 
-  INVALID_DISTANCE,
-  INVALID_FILE
+   OK,
+   INVALID_CITY, 
+   INVALID_DISTANCE,
+   INVALID_FILE
 };
 
 using namespace std;
@@ -18,19 +18,19 @@ using namespace std;
 bool isalpha(string str)
 /* Check a string. Returns true if ALL characters are alphabetical only. */
 {
-  for (int i = 0; i < str.size(); i++)
-    if (!isalpha(str[i]))
-      return false;
+   for (int i = 0; i < str.size(); i++)
+      if (!isalpha(str[i]))
+	 return false;
 
-  return true;
+   return true;
 }
 
 bool isdigit(string str)
 {
-  for (int i = 0; i < str.size(); i++)
-    if (!isdigit(str[i]))
-      return false;
-  return true;
+   for (int i = 0; i < str.size(); i++)
+      if (!isdigit(str[i]))
+	 return false;
+   return true;
 }
 
 
@@ -55,7 +55,7 @@ int read_cities_file(ifstream &file, vector<string> &cities,
   if (num_cities > MAX_CITIES)
     return INVALID_FILE;
 
-  /* read city names */
+   /* read city names */
   string cur_city;        // current city (this is user input!)
 
   /* For as many cities as specified, attempt to read them in */
@@ -63,21 +63,21 @@ int read_cities_file(ifstream &file, vector<string> &cities,
     {
       /* check for EOF or other file conditions */
       if (!file.good())
-	return INVALID_FILE;
+	 return INVALID_FILE;
 
       /* load in a city */
       file >> cur_city;
 
       /* ERROR CHECK cur_city */
       if (!isalpha(cur_city))
-	{
-	  cout << "Invalid city: " << cur_city << endl;
-	  return INVALID_CITY;
-	}
+	 {
+	 cout << "Invalid city: " << cur_city << endl;
+	 return INVALID_CITY;
+	 }
       
       /* It's cool, add it to the list and continue. */
       cities.push_back(cur_city);
-    }
+      }
 
   /* We read city distances as a string for error checking */
   string distance;
@@ -102,8 +102,8 @@ int read_cities_file(ifstream &file, vector<string> &cities,
 	  /* check the distance for sanity. */
 	  if (!isdigit(distance))
 	    {
-	      cout << "Invalid distance at " << distance << endl;
-	      return INVALID_DISTANCE;
+	    cout << "Invalid distance at " << distance << endl;
+	    return INVALID_DISTANCE;
 	    }
 
 	  /* Distance seems sane. Add it to the appropriate edge(s) */
@@ -113,26 +113,26 @@ int read_cities_file(ifstream &file, vector<string> &cities,
 	}
     }
   
-return 0;
+   return 0;
 }
 
 string str_to_upper(const string str)
 /* Convert a given string to UPPERCASE. */
 {
-  string ret = "";
-  for (int i = 0; i < str.size(); i++)
-    ret += std::toupper(str[i]);
-  return ret;
+   string ret = "";
+   for (int i = 0; i < str.size(); i++)
+      ret += std::toupper(str[i]);
+   return ret;
 }
 
 string str_to_proper(const string str)
 /* Convert a given string to be all lowercase except the 1st character. */
 {
-  string ret;
-  ret  += std::toupper(str[0]);
-  for (int i = 1; i < str.size(); i++)
-    ret += std::tolower(str[i]);
-  return ret;
+   string ret;
+   ret  += std::toupper(str[0]);
+   for (int i = 1; i < str.size(); i++)
+      ret += std::tolower(str[i]);
+   return ret;
 }
 
 int get_city_index(string cityname, const vector<string> &cities)
@@ -140,42 +140,42 @@ int get_city_index(string cityname, const vector<string> &cities)
  * returns -1 if not found.
  * Additionally, all searches are case-insensitive. */
 {
-  string needle = str_to_upper(cityname.c_str());
-  string haystack;
-  for (int i = 0; i < cities.size(); i++)
-    {
-      haystack = str_to_upper(cities[i].c_str());
-      if (needle == haystack)
-	return i;
-    }
-  return -1;
+   string needle = str_to_upper(cityname.c_str());
+   string haystack;
+   for (int i = 0; i < cities.size(); i++)
+      {
+	 haystack = str_to_upper(cities[i].c_str());
+	 if (needle == haystack)
+	    return i;
+      }
+   return -1;
 }
 
 void print_usage(bool about_file=false)
 {
-  cout << "Shaun's dist.x program, initial version." << endl
-       << "USAGE: dest.x <cities.txt>" << endl;
+   cout << "Shaun's dist.x program, initial version." << endl
+	<< "USAGE: dest.x <cities.txt>" << endl;
   
-  cout << endl 
-       << "About cities file." << endl
-       << "This program expects all cities files to begin with an" << endl
-       << "integer detailing the length of the file. If this integer" << endl
-       << "is not present or is overly large the file is declared invalid." << endl
-       << endl 
-       << "If there are fewer cities than indicated, or an invalid city name" << endl
-       << "is encountered, the file is flagged as such and reading is aborted." << endl
-       << "If there are fewer distances than expected, or of an invalid format" << endl
-       << "reading is also aborted." << endl
-       << endl 
-       << "Example format:" << endl
-       << "3" << endl
-       << "Appleton" << endl
-       << "Oshkosh" << endl
-       << "Menasha" << endl
-       << "30" << endl
-       << "4 38" << endl
-       << "<EOF>" << endl
-       << endl;
+   cout << endl 
+	<< "About cities file." << endl
+	<< "This program expects all cities files to begin with an" << endl
+	<< "integer detailing the length of the file. If this integer" << endl
+	<< "is not present or is overly large the file is declared invalid." << endl
+	<< endl 
+	<< "If there are fewer cities than indicated, or an invalid city name" << endl
+	<< "is encountered, the file is flagged as such and reading is aborted." << endl
+	<< "If there are fewer distances than expected, or of an invalid format" << endl
+	<< "reading is also aborted." << endl
+	<< endl 
+	<< "Example format:" << endl
+	<< "3" << endl
+	<< "Appleton" << endl
+	<< "Oshkosh" << endl
+	<< "Menasha" << endl
+	<< "30" << endl
+	<< "4 38" << endl
+	<< "<EOF>" << endl
+	<< endl;
 
 }
 
@@ -249,15 +249,15 @@ int main(int argc, char **argv)
       print_usage();
       return 0;
     }
-  else
-    {
-      cities_file.open(argv[1]);
-      if (!cities_file.good())
-	{
-	  cout << "Can't seem to open that file at '" << argv[1] << "'.\n";
-	  return 1;
-	}
-    }
+   else
+      {
+	 cities_file.open(argv[1]);
+	 if (!cities_file.good())
+	    {
+	       cout << "Can't seem to open that file at '" << argv[1] << "'.\n";
+	       return 1;
+	    }
+      }
   
 
   /* We were able to open the file, read it in or die loudly. */
