@@ -1,5 +1,5 @@
-dest.x: adjMatrix.o dist.o
-	g++ adjMatrix.o dist.o -o dist.x
+dist.x: adjmatrix.o dist.o
+	g++ adjmatrix.o dist.o -o dist.x
 
 clean:
 	rm *.o

@@ -1,18 +1,18 @@
 /*******************************************************************************
- * adjMatrix.hpp
+ * adjmatrix.hpp
  * CREATED BY: Shaun Meyer, Jan-2011
  *             
-*******************************************************************************/
-#include "adjMatrix.hpp"
+ *******************************************************************************/
+#include "adjmatrix.hpp"
 
 void adjMatrix::free_matrix()
 /* Free the memory in use by the matrix member. */
 {
    if (matrix) 
       {
-	 delete [] matrix;
-	 matrix_size = 0;
-	 matrix = NULL;
+      delete [] matrix;
+      matrix_size = 0;
+      matrix = NULL;
       }
 }
 

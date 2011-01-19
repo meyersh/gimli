@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include "adjMatrix.hpp"
+#include "adjmatrix.hpp"
 
 #define MAX_CITIES 1024       // Number of cities we will accept from the file.
 
