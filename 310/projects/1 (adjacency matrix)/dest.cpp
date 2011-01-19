@@ -197,15 +197,15 @@ int main(int argc, char **argv)
 {
   vector<string> cities;
   ifstream cities_file;
-  //  cities_file.open("cities.txt");
   adjMatrix a(2);
 
+  /* get cities list from command-line, if something's weird 
+   * just print the usage and die. */
   if (argc != 2)
     {
       print_usage();
       return 0;
     }
-  
   else
     {
       cities_file.open(argv[1]);
@@ -215,15 +215,18 @@ int main(int argc, char **argv)
 	  return 1;
 	}
     }
+  
 
+  /* We were able to open the file, read it in or die loudly. */
   if (read_cities_file(cities_file, cities, a))
     {
       cout << "An error occured loading the file.\n";
       return 0;
     }
 
-  cout << "Loaded " << a.size() << " cities." << endl;
-  cout << "\n$ to quit, # to list cities." << endl;
+  /* Print some stats before main input loop. */
+  cout << "Loaded " << a.size() << " cities." << endl
+       << "\n$ to quit, # to list cities." << endl;
 
   string citya, cityb;
 
@@ -233,11 +236,11 @@ int main(int argc, char **argv)
       cityb = get_city_from_user("B", cities);
 
       cout << "( " << str_to_proper(citya) << " ) ---- " 
-	   << a.edge(
-		     get_city_index(citya, cities),
-		     get_city_index(cityb, cities)) << " ---- ( "
-	   << str_to_proper(cityb) << " )" << endl;
-
+	   << a.edge(get_city_index(citya, cities),
+		     get_city_index(cityb, cities)) 
+	   << " ---- ( " << str_to_proper(cityb) << " )" << endl;
     }
+  
+  /* All done! Lets go home. */
   return 0;
 }
