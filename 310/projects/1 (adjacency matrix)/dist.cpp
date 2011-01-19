@@ -248,7 +248,7 @@ int main(int argc, char **argv)
 {
    vector<string> cities; // An ordered list of cities.
    ifstream cities_file;  // input file object
-   adjMatrix a(2);        // adjacency matrix of all city distances.
+   adjMatrix edges(2);    // adjacency matrix of all city distances.
 
    /* get cities list from command-line, if something's weird 
     * just print the usage and die. */
@@ -269,14 +269,14 @@ int main(int argc, char **argv)
   
 
    /* We were able to open the file, read it in or die loudly. */
-   if (read_cities_file(cities_file, cities, a))
+   if (read_cities_file(cities_file, cities, edges))
       {
       cout << "An error occured loading the file.\n";
       return 0;
       }
 
    /* Print some stats before main input loop. */
-   cout << "\nLoaded " << a.size() << " cities." << endl
+   cout << "\nLoaded " << edges.size() << " cities." << endl
 	<< "$ to quit, # to list cities." << endl;
 
    string citya, cityb;
@@ -288,7 +288,7 @@ int main(int argc, char **argv)
       cityb = get_city_from_user("B", cities);
 
       cout << "( " << str_to_proper(citya) << " ) ---- " 
-	   << a.edge(get_city_index(citya, cities),
+	   << edges.edge(get_city_index(citya, cities),
 		     get_city_index(cityb, cities)) 
 	   << " ---- ( " << str_to_proper(cityb) << " )" << endl;
       }
