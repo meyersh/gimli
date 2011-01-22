@@ -1,8 +1,10 @@
-dist.x: adjmatrix.o dist.o
-	g++ adjmatrix.o dist.o -o dist.x
+LIBS=adjmatrix/adjmatrix.o
+
+dist.x: $(LIBS) dist.o
+	g++ $(LIBS) dist.o -o dist.x
 
 clean:
-	rm *.o
+	find . -name "*.o" -delete
 
 install:
 	cp dist.x ~/exec/dist.x
