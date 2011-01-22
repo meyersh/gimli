@@ -42,12 +42,23 @@ void adjMatrix::resize_matrix(int new_size)
    /* make new matrix */
    matrix = NULL; // Don't delete []! We're still using that data.
    create_matrix(new_size);
-   
+
+   /* Determine our bounds */
+   int boundary;
+
+   if (new_size == old_size)
+       return;
+   else if (new_size > old_size)
+     boundary = old_size;
+   else if (new_size < old_size)
+     boundary = new_size;
+
+     
    /* Copy all the datas over */
-   for (int x = 0; x < old_size; x++)
-      for (int y = 0; y < old_size; y++)
-	 edge(x, y) = old_matrix[old_size*x + y];
-   
+   for (int x = 0; x < boundary; x++)
+     for (int y = 0; y < boundary; y++)
+       edge(x, y) = old_matrix[old_size*x + y];
+
    /* Finally, free the old data */
    delete [] old_matrix;
    
