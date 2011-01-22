@@ -68,5 +68,10 @@ void adjMatrix::resize_matrix(int new_size)
 int& adjMatrix :: edge(int vertex_x, int vertex_y)
 /* Get and Set a given edge between two nodes. */
 {
+  if (vertex_x > matrix_size || vertex_y > matrix_size)
+    throw "OutOfUpperBounds";
+  else if (vertex_x < 0 || vertex_y < 0)
+    throw "OutOfLowerBounds";
+
    return matrix[matrix_size*vertex_x + vertex_y];
 }
