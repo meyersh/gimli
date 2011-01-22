@@ -3,6 +3,7 @@
  * CREATED BY: Shaun Meyer, Jan-2011
  *             
  *******************************************************************************/
+#include <stdexcept>
 #include "adjmatrix.hpp"
 
 void adjMatrix::free_matrix()
@@ -68,10 +69,10 @@ void adjMatrix::resize_matrix(int new_size)
 int& adjMatrix :: edge(int vertex_x, int vertex_y)
 /* Get and Set a given edge between two nodes. */
 {
-  if (vertex_x > matrix_size || vertex_y > matrix_size)
-    throw "OutOfUpperBounds";
-  else if (vertex_x < 0 || vertex_y < 0)
-    throw "OutOfLowerBounds";
+  if (vertex_x > matrix_size || vertex_x < 0)
+    throw std::out_of_range("vertex_x");
+  else if (vertex_y > matrix_size || vertex_y < 0)
+    throw std::out_of_range("vertex_y");
 
    return matrix[matrix_size*vertex_x + vertex_y];
 }
