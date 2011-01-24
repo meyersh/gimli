@@ -1,0 +1,1 @@
+triary-driver: triary.hpp triary-driver.cpp
