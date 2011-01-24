@@ -27,6 +27,9 @@ int main()
       cout << "out_of_range: " << e.what() << endl;
     }
 
+  // finally, try don't catch:
+  a.edge(11,-1) = 1;
+
   cout << "Goodbye!" << endl;
 
 }

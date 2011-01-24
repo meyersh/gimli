@@ -1,5 +1,13 @@
 #include "triary.hpp"
 
+/*
+ * This is SUPER frustrating!
+ * http://www.parashift.com/c++-faq-lite/templates.html#faq-35.12
+ *
+ * The solution may be to use inline functions?
+ * http://www.parashift.com/c++-faq-lite/inline-functions.html
+ */
+
 template<class V>
 V& triary<V>::access(int row, int col)
 /* Unified getter+setter function for the triangle array */

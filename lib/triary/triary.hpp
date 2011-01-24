@@ -13,13 +13,12 @@ private:
   
 public:
 
-
-
+  int rows() {return num_rows;}
   int t(int row)  {return row*(row+1)/2;}
-  V & access(int row, int col);
+  V& access(int row, int col);
 
   void resize(int rows);
-  void free_array() {delete [] triangle_array;}
+  void free_array() {delete [] triangle_array; triangle_array=NULL}
   void create_array(int size) 
   {
     triangle_array = new V[t(size)];
@@ -29,6 +28,6 @@ public:
   triary(int rows) {num_rows = rows; create_array(rows);}
   ~triary() {free_array();}
 
-}
+};
 
 #endif
