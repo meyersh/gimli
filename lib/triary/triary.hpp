@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * CREATED BY: Shaun Meyer, Jan-2011
+ ******************************************************************************/
+
 #ifndef __TRIARY_HPP__
 #define __TRIARY_HPP__
 
@@ -8,12 +12,15 @@ template<class V>
 class triary
 {
 private:
-  V *triangle_array;
-  V main_diagonal_element;
-  int num_rows;
-  bool has_main_diagonal;
-public:
+   V *triangle_array,        /* Dynamically allocated V pointer to linear array. */
+      main_diagonal_element; /* value: n,n where n==n if 
+				has_main_diagonal is false. */
 
+   int num_rows;             // number of rows in triangle
+
+   bool has_main_diagonal;   // Are we storing values for the main diagonal?
+
+public:
   int rows() {return num_rows;}
 
   int t(int row)  
@@ -84,7 +91,7 @@ void triary<V>::resize(int rows)
 {
   /* remember the old triangle */
   int old_size = num_rows;
-  V old_array = triangle_array;
+  V *old_array = triangle_array;
   
   /* Make a new triangle */
   triangle_array = new V[t(rows)];
@@ -102,6 +109,5 @@ void triary<V>::resize(int rows)
   delete [] old_array;
   num_rows = rows;
 }
-
 
 #endif
