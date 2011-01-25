@@ -1,7 +1,7 @@
 /*******************************************************************************
  *
- * dist.cpp 
- * for S1.P1 in CSCI 310
+ * distTriang.cpp 
+ * for S2.E1 in CSCI 310
  * CREATED BY: Shaun Meyer, Jan-2011
  *
  *******************************************************************************/
@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include "adjmatrix/adjmatrix.hpp"
+#include "triary/triary.hpp"
 
 #define MAX_CITIES 1024       // Number of cities we will accept from the file.
 
@@ -43,7 +43,7 @@ bool isdigit(string str)
 }
 
 int read_cities_file(ifstream &file, vector<string> &cities, 
-		     adjMatrix &city_matrix)
+		     triary<int> &city_matrix)
 /* Read a given ifstream object to populate cities vector and city_matrix 
    adjMatrix. Dies for a number of interesting errors, returning values
    defined in enum{} above. */
@@ -92,7 +92,7 @@ int read_cities_file(ifstream &file, vector<string> &cities,
 
    /* My adjMatrix class is resizable. We initialize it to 
     * a 2x2 and resize it here given the num_cities input */
-   city_matrix.resize_matrix(num_cities);
+   city_matrix.resize(num_cities);
 
    /* Attempt to load all distances. There will be num_cities rows
       and each row will have one n*row columns in it. */
@@ -115,8 +115,8 @@ int read_cities_file(ifstream &file, vector<string> &cities,
 	    }
 
 	 /* Distance seems sane. Add it to the appropriate edge(s) */
-	 city_matrix.edge(x, y) 
-	    = city_matrix.edge(y, x) 
+	 city_matrix.access(x, y) 
+	    = city_matrix.access(y, x) 
 	    = atoi(distance.c_str());
 	 }
       }
@@ -249,7 +249,7 @@ int main(int argc, char **argv)
 {
    vector<string> cities; // An ordered list of cities.
    ifstream cities_file;  // input file object
-   adjMatrix edges(2);    // adjacency matrix of all city distances.
+   triary<int> edges(2);    // adjacency matrix of all city distances.
 
    /* get cities list from command-line, if something's weird 
     * just print the usage and die. */
@@ -277,7 +277,7 @@ int main(int argc, char **argv)
       }
 
    /* Print some stats before main input loop. */
-   cout << "\nLoaded " << edges.size() << " cities." << endl
+   cout << "\nLoaded " << edges.rows() << " cities." << endl
 	<< "$ to quit, # to list cities." << endl;
 
    string citya, cityb;
@@ -289,7 +289,7 @@ int main(int argc, char **argv)
       cityb = get_city_from_user("B", cities);
 
       cout << "( " << str_to_proper(citya) << " ) ---- " 
-	   << edges.edge(get_city_index(citya, cities),
+	   << edges.access(get_city_index(citya, cities),
 		     get_city_index(cityb, cities)) 
 	   << " ---- ( " << str_to_proper(cityb) << " )" << endl;
       }

@@ -1,10 +1,8 @@
-LIBS=adjmatrix/adjmatrix.o
-
-dist.x: $(LIBS) dist.o
-	g++ $(LIBS) dist.o -o dist.x
+all: distTriang.o
+	g++ distTriang.o -o distTriang.x
 
 clean:
 	find . -name "*.o" -delete
 
 install:
-	cp dist.x ~/exec/dist.x
+	cp distTriang.x ~/exec/distTriang.x
