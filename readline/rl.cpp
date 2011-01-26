@@ -36,7 +36,7 @@ int main()
 	  if (!h)
 	    continue;
 	  for (int i = 0; h[i]; i++)
-	    cout << h[i] << endl;
+	    cout << h[i]->line << endl;
 	
 	}
 
