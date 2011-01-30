@@ -20,6 +20,5 @@ int main()
       item = my_queue.pop();
       cout << item->value << endl;
       }
-
    return 0;
 }

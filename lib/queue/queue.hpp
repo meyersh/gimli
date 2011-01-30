@@ -44,8 +44,16 @@ public:
    {
       queue_ptr new_item( new queueItem<V> );
       new_item->value = item;
-      new_item->next = back_of_queue;
-      back_of_queue = new_item;
+
+      /* Skip this if we're the only item in queue. */
+      if (back_of_queue)
+     	back_of_queue->next = new_item; 
+
+      /* If this is the first item in queue, it's the front */
+      if (!front_of_queue)
+	front_of_queue = new_item;
+
+      back_of_queue = new_item; // new item is dead last now.
       queue_size++;
    }
 
