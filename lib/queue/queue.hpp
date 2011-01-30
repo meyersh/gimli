@@ -1,61 +1,63 @@
 /*******************************************************************************
- * stack container (renders a linked-list stack)
+ * queue container (renders a linked-list queue)
  * Shaun Meyer, Jan 2011
  ******************************************************************************/
 
 #include "boost/shared_ptr.hpp"
 
 /*
- * Each item in the stack looks like this:
+ * Each item in the queue looks like this:
  */
 
 template<class V>
-struct stackItem {
+struct queueItem {
    V value;
-   boost::shared_ptr< stackItem<V> > next;
+   boost::shared_ptr< queueItem<V> > next;
 };
 
 /* 
- * Meanwhile, a stack contains items (stackItems, ironically)
+ * Meanwhile, a queue contains items (queueItems, ironically)
  */
 
 template<class V>
-class stack {
+class queue {
 public:
-   typedef boost::shared_ptr< stackItem<V> > stack_ptr;
+   typedef boost::shared_ptr< queueItem<V> > queue_ptr;
 
 private:
 
-   stack_ptr  top_of_stack;
-   int        stack_size;
+  queue_ptr  front_of_queue,
+             back_of_queue;
+
+  int        queue_size;
    
 public:
 
-   stack() { stack_size = 0;}
-   unsigned int size() {return stack_size;}
+   queue() { queue_size = 0;}
+   unsigned int size() {return queue_size;}
 
    /*
     * push()
     */
    void push(V item)
-   /* Push an item onto the stack. */
+   /* Push an item onto the queue. */
    {
-      stack_ptr new_item( new stackItem<V> );
+      queue_ptr new_item( new queueItem<V> );
       new_item->value = item;
-      new_item->next = top_of_stack;
-      top_of_stack = new_item;
-      stack_size++;
+      new_item->next = back_of_queue;
+      back_of_queue = new_item;
+      queue_size++;
    }
 
    /* 
     * pop()
     */
-   stack_ptr pop()
-   /* Pop an item off the top of the stack. */
+   queue_ptr pop()
+   /* Pop an item off the front of the queue. */
    {
-      stack_ptr old_tos = top_of_stack; // old top-of-stack.
-      top_of_stack = top_of_stack->next;
-      stack_size--;
+      queue_ptr old_tos = front_of_queue; // old front-of-queue.
+      front_of_queue = front_of_queue->next;
+      queue_size--;
       return old_tos;
    }
    
@@ -63,9 +65,9 @@ public:
     * nth()
     */
    V &nth(unsigned int item_index)
-   /* Return a reference to the nth item of the stack */
+   /* Return a reference to the nth item of the queue */
    {
-      return top_of_stack->value;
+      return front_of_queue->value;
    }
 };
 

@@ -1,23 +1,23 @@
 #include <iostream>
-#include "stack.hpp"
+#include "queue.hpp"
 
 using namespace std;
 
 int main()
 {
    
-   stack<char> my_stack; 
-   stack<char>::stack_ptr item;
+   queue<char> my_queue; 
+   stack<char>::queue_ptr item;
 
-   my_stack.push('N');
-   my_stack.push('U');
-   my_stack.push('A');
-   my_stack.push('H');
-   my_stack.push('S');
+   my_queue.push('N');
+   my_queue.push('U');
+   my_queue.push('A');
+   my_queue.push('H');
+   my_queue.push('S');
 
-   while (my_stack.size())
+   while (my_queue.size())
       {
-      item = my_stack.pop();
+      item = my_queue.pop();
       cout << item->value << endl;
       }
 
