@@ -7,7 +7,7 @@ int main()
 {
    
    queue<char> my_queue; 
-   stack<char>::queue_ptr item;
+   queue<char>::queue_ptr item;
 
    my_queue.push('N');
    my_queue.push('U');
