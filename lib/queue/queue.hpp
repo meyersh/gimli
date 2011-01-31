@@ -69,6 +69,15 @@ public:
       return old_tos;
    }
    
+
+  /* 
+   * front()
+   */
+  V &front()
+  /* Return the value of the front_of_stack without removing it. */
+  {
+    return front_of_queue->value;
+  }
    /* 
     * nth()
     */

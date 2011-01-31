@@ -58,6 +58,15 @@ public:
       stack_size--;
       return old_tos;
    }
+
+  /*
+   * top()
+   */
+  V &top()
+  /* Return the top-of-stack value without popping it off. */
+  {
+    return top_of_stack->value;
+  }
    
    /* 
     * nth()
