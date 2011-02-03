@@ -8,17 +8,16 @@
 template<class V>
 struct Item
 {
-   V                     value;
+   V                            value;
 
    boost::shared_ptr< Item<V> > next;
 };
 
-
 class stkQ_container
 {
 public:
-  virtual void push(std::string &) = 0;
-  virtual void push(int &) = 0;
+  virtual void push(const std::string &);
+  virtual void push(const int &);
 };
 
 
