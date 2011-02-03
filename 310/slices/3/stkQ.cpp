@@ -1,5 +1,6 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
+#include <string>
 
 /*
  * linked-listed based stacks and queue's hold these:
@@ -13,8 +14,16 @@ struct Item
 };
 
 
+class stkQ_container
+{
+public:
+  virtual void push(std::string &) = 0;
+  virtual void push(int &) = 0;
+};
+
+
 template<class V>
-class stackL 
+class stackL : public stkQ_container
 {
 private:
    typedef boost::shared_ptr< Item<V> > item_ptr;
@@ -90,7 +99,7 @@ public:
 };
 
 template<class V>
-class stackV 
+class stackV : public stkQ_container 
 {
 private:
    std::vector<V> stack_vector;
@@ -129,7 +138,7 @@ public:
 };
 
 template<class V>
-class queueL 
+class queueL : public stkQ_container 
 {
 private:
    typedef boost::shared_ptr< Item<V> > item_ptr;
@@ -202,7 +211,7 @@ public:
 };
 
 template<class V>
-class queueV 
+class queueV : public stkQ_container 
 {
 private:
    std::vector<V> queue_vector;
