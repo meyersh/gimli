@@ -16,44 +16,65 @@ using namespace std;
  */
 int precedence(char opcode);
 void do_op();
-
-stack<int> numbers; 
-stack<char> ops;  /* 1 0, etc */
-string postfix_out; // postfix output
 pair<char, int> get_identifier(string);
+
+/*
+ * globals
+ */
+stack<int>    numbers; 
+stack<char>   ops;              // ~ & |, etc 
+string        postfix_out;      // postfix version of our equation
+unsigned int  open_parens = 0;  // number of un-closed parens
 
 int main()
 {
+  /* Fetch std input for equation + identifiers */
   string line;
   std::getline(cin, line);
+
   if (line.size() == 0)
     return 0;
 
   /* I expect my input to be one line, comma-separated, beginning with the
-   * equation and then followed by 1-26 fields (A=1 or B=0, etc)
-   */
+   * equation and then followed by 1-26 fields (A=1 or B=0, etc)  */
 
   vector<string> form_input = split(line, ",");
-  print_vector(form_input);
-
   map<char, int> variables; // this will hold our CHAR->INT mapping.
 
+  /* process each identifier field and place results into a map.
+   * we silently ignore too many fields or improperly formatted
+   * fields. */
   for (int i = 1; i < form_input.size(); i++)
     {
+
+      if (i > 26)
+	break; 
+
       try {variables.insert(get_identifier(form_input[i]));}
       catch (exception) {continue;}
+
     }
 
   cout << "Assigned identifiers:\n";
   print_map(variables);
-   
-  unsigned int open_parens = 0; // number of un-closed parens.
 
-
-  /* lets parse / calculate our equation! */
-   
   for (int i = 0; i < form_input[0].size(); i++)
+    /* For each token in our equation:
+     * - Skip past spaces
+     * - Maintain two (global) stacks: numbers + ops.
+     * Basic algorithm:
+     * - If we encounter an (, remember it. When the ) 
+     *   is found, do the operands until we find the ( again.
+     *   should it not be there, we've got mis-matched parens.
+     * - If we encounter an opcode, push it unless it's less than 
+     *   the precedence of the last opcode. Should that happen, we
+     *   perform the opcodes until we have better precedence. 
+     * - If we encounter a character, it's an identifier. Look up
+     *   and store its value in the numbers stack.
+     * - At the end, process all un-processed opcodes.
+     */
     {
+
       char token = form_input[0][i];
       
       /* 
@@ -64,36 +85,34 @@ int main()
       
       if (token == '(')
 	{
-	  open_parens++; // we're looking for closing...
+	  open_parens++; // Keep an eye out for closing parens...
 	  ops.push(token);
 	}
+      
       else if (token == '&' 
 	       || token == '|'
 	       || token == '~')
 	{
-	  if (ops.size() == 0 ||
-	      precedence(token) > precedence(ops.top()))
-	    {
-	      ops.push(token);
-	    }
-	  else
-	    {
-	      do_op();
-	      ops.push(token);
-	    }
+	  while (ops.size() && precedence(token) < precedence(ops.top()))
+	    do_op();
+
+	  ops.push(token);
 	}
+      
       else if (isalpha(token))
 	{
 	  numbers.push(variables[toupper(token)]);
 	  postfix_out += toupper(token);
 	}
+      
       else if (token == ')')
 	{
-	  while (ops.size() != 0 && ops.top() != '(')
+	  /* process all ops until we find the opening paren
+	   * or die trying. Throw a runtime_error if we have
+	   * ops without enough numbers. */
+	  while (ops.size() && ops.top() != '(')
 	    {
-	      try {
-		do_op(); ///
-	      }
+	      try {do_op();}
 	      catch (exception) {
 		cout << "TOP: '" << ops.top() << "'\n";
 		cout << "ops.size(): " << ops.size() << endl;
@@ -101,12 +120,11 @@ int main()
 	      }
 	    }
 
-	  if (ops.size())
-	    {
-	      ops.pop(); /* get that '(' off 
-				 of there. */
+	  /* based on the above while() loop, there must be 
+	   * a ( on top of the ops stack. If the stack is 
+	   * empty, we have mis-matched parens. */
+	  if (ops.size() && ops.pop() == '(') 
 	      open_parens--;
-	    }
 	  else
 	    throw runtime_error("Mis-matched parens.");
 	}
@@ -117,13 +135,13 @@ int main()
 	throw runtime_error("Unhandled problem (invalid equation!)");
 
        if (i == form_input[0].size()-1)
-	/* We're done: do the remaining OPS. */
+	/* We're at the end of the equation; do the remaining OPS. */
 	{
 	  if (open_parens)
 	    throw runtime_error("Unclosed parens.");
 	  else
 	    while (ops.size())
-	      do_op(); /* this gets tickled when doing '~' ??? */
+	      do_op(); 
 	}
 
     }
