@@ -28,6 +28,9 @@ unsigned int  open_parens = 0;  // number of un-closed parens
 
 int main()
 {
+  /* We're a web-app now! */
+  cout << "Content-Type: text/plain\n\n";
+
   /* Fetch std input for equation + identifiers */
   string line;
   std::getline(cin, line);
@@ -55,8 +58,8 @@ int main()
 
     }
 
-  cout << "Assigned identifiers:\n";
-  print_map(variables);
+  //cout << "Assigned identifiers:\n";
+  //print_map(variables);
 
   for (int i = 0; i < form_input[0].size(); i++)
     /* For each token in our equation:
@@ -146,10 +149,10 @@ int main()
 
     }
 
-  cout << "Numbers remaining: " << numbers.size() << endl;
-  cout << "Ops remainin: " << ops.size() << endl;
-  cout << "RESULT: " << numbers.top() << endl;
-  cout << "POSTFIX: " << postfix_out << endl;
+  cout << "remaining_numbers=" << numbers.size() << endl;
+  cout << "remaining_ops=" << ops.size() << endl;
+  cout << "result=" << numbers.top() << endl;
+  cout << "postfix=" << postfix_out << endl;
 
   return 0;
 }
@@ -196,9 +199,10 @@ void do_op()
   else if (opcode == '~')
     numbers.push(!op2);
 
+#ifdef DEBUG
   cout << "Doing: " << op1 << " " << 
     opcode << " " << op2 << endl;
-
+#endif
   
 }
 

@@ -3,4 +3,4 @@ boolean.cgi: boolean.cpp shaun.hpp
 	g++ -I$(INC) boolean.cpp -o boolean.cgi
 
 install:
-	echo Not yet.
+	cp boolean.cgi ~/public_html/310/boolean/boolean.cgi
