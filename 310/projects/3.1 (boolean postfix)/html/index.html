@@ -21,12 +21,14 @@ function submit_form()
    for (i = 0; i<alphabet.length; i++)
      data_str += "," + alphabet[i] + "=" + document.getElementById( alphabet[i] ).value;
 
-  alert(data_str);
+  sendData(data_str, 'boolean.cgi', 'POST');
 }
 </script>
 
 </head>
 <body>
+<h3>Ultra Boolean Infix->Postfix+Evaluator</h3>
+Shaun Meyer - Feb 2011
 <table border=1>
 <tr>
   <td>
@@ -137,11 +139,17 @@ function submit_form()
       <option value=1>Z=1</option>
     </select><br/>
   </td>
-  <td>
+  <td width=45%>
     <input type="text" id="equation"/>
     <input type="button" value="Evaluate" onclick="submit_form()"/>
+    <br/><input type="text" id="postfix"/>
+    <br/><input type="text" id="result"/>
+  </td>
+  <td width=400px>
+    <p><div id="responseSpot" style="height:300px;width=400px;overflow:auto;"></div>
   </td>
 </tr>
 </table>
+
 </body>
 </html>
