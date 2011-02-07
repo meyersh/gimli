@@ -16,10 +16,10 @@ function submit_form()
                             'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 
                             'U', 'V', 'X', 'Y', 'Z');
 
-   var data_str = document.getElementById('equation');
+   var data_str = document.getElementById('equation').value;
 
    for (i = 0; i<alphabet.length; i++)
-     alert(data_str += "," + alphabet[i] + "=" + document.getElementById( alphabet[i] ).value);
+     data_str += "," + alphabet[i] + "=" + document.getElementById( alphabet[i] ).value;
 
   alert(data_str);
 }
