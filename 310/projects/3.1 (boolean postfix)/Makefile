@@ -4,3 +4,6 @@ boolean.cgi: boolean.cpp shaun.hpp
 
 install:
 	cp boolean.cgi ~/public_html/310/boolean/boolean.cgi
+
+clean:
+	rm *~ boolean.cgi *.o
