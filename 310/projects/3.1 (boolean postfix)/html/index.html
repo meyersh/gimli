@@ -4,6 +4,50 @@
 <style>
   select {font-family:fixed;
           margin:3px; left-padding:2px; right-padding:2px;}
+
+.errornote {
+    font-size: 12px !important;
+    display: block;
+    padding: 4px 5px 4px 25px;
+    margin: 0 0 3px 0;
+    border: 1px solid red;
+    color: red;
+    background: #ffc url(/~meyersh/270/social/img/admin/icon_error.gif) 5px .3em no-repeat;
+}
+
+ul.errorlist {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.errorlist li {
+    font-size: 12px !important;
+    display: block;
+    padding: 4px 5px 4px 25px;
+    margin: 0 0 3px 0;
+    border: 1px solid red;
+    color: white;
+    background: red url(/~meyersh/270/social/img/admin/icon_alert.gif) 5px .3em no-repeat;
+}
+
+td ul.errorlist {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+td ul.errorlist li {
+    margin: 0 !important;
+}
+
+.errors {
+    background: #ffc;
+}
+
+.errors input, .errors select {
+    border: 1px solid red;
+}
+
+
 </style>
 
 <!-- get our ajax lib... -->
@@ -139,11 +183,34 @@ Shaun Meyer - Feb 2011
       <option value=1>Z=1</option>
     </select><br/>
   </td>
-  <td width=45%>
-    <input type="text" id="equation"/>
-    <input type="button" value="Evaluate" onclick="submit_form()"/>
-    <br/><input type="text" id="postfix"/>
-    <br/><input type="text" id="result"/>
+  <td width=400px valign=top>
+    <p>Welcome to the ulta boolean infix->postfix evaluator. Usage is simple, plug in your equation in the equation box.<p>
+
+    <p>No numbers are allowed, if you need variables feel free to set an identifier. I've been using T=1 and F=0 since these are boolean you won't need more than 2.</p>
+    <table border=1>
+      <tr>
+	<td>
+	  Formula:
+	</td>
+
+	<td>
+	  <input type="text" id="equation"/>
+	</td>
+      <tr>
+	<td colspan=2 align=center>
+	  <input type="button" value="Evaluate" onclick="submit_form()" style="width:100%"/>
+	</td>
+      </tr>
+	
+      </tr>
+      <tr>
+	<td>Postfix:</td><td><input type="text" id="postfix"/></td>
+      </tr>
+      <tr>
+	<td>Final result:</td><td><input type="text" id="result"/></td>
+      </tr>
+    </table>
+    <div id="error"></div>
   </td>
   <td width=400px>
     <p><div id="responseSpot" style="height:300px;width=400px;overflow:auto;"></div>
