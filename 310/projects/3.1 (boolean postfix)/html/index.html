@@ -4,9 +4,29 @@
 <style>
   select {font-family:fixed;}
 </style>
+
+<!-- get our ajax lib... -->
+<script type="text/javascript" src="~/meyersh/lib/ajax.js"></script>
+
+<!-- a few local additions -->
+<script>
+function submit_form()
+{  var alphabet = new Array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
+                            'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 
+                            'U', 'V', X', 'Y', 'Z');
+
+   var data_str = document.getElementById('equation');
+
+   for (i = 0; i<alphabet.size(); i++)
+     data_str += alphabet[i] + "=" + document.getElementById( alphabet[i] ).value;
+
+  alert(data_str);
+}
+</script>
+
 </head>
 <body>
-<form action="index.html" method="post">
+<form action="index.html">
 <table border=1>
 <tr>
   <td>
@@ -118,8 +138,8 @@
     </select><br/>
   </td>
   <td>
-    <input type="text"/>
-    <input type="submit" value="Evaluate"/>
+    <input type="text" id="equation"/>
+    <input type="submit" value="Evaluate" onclick="submit_form()"/>
   </td>
 </tr>
 </table>
