@@ -1,3 +1,8 @@
+/**********
+ * A few utility functions I was getting sick of re-writing / cutting + pasting.
+ * Shaun Meyer, Feb 2011
+ *********/
+
 #ifndef __SHAUN_HPP__
 #define __SHAUN_HPP__
 

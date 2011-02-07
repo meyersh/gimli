@@ -1,5 +1,12 @@
-// Ah, boolean postfix.
-// Ah, webapps.
+/*******************************************************************************
+ * boolean.cpp for S3.P1 in CSCI-310
+ * by Shaun Meyer (Feb, 2011)
+ * 
+ * Takes an infix boolean equation and processes it with postfix, returning
+ * the postfix equation on the way out.
+ * 
+ * Uses exceptions for error catching and a simplified stack class.
+ ******************************************************************************/
 
 #include <iostream>
 #include <vector>

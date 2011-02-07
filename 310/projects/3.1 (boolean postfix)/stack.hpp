@@ -65,9 +65,9 @@ public:
       return popptr()->value;
    }
    
-  /*
-   * top()
-   */
+   /*
+    * top()
+    */
    stack_ptr &topptr()
    /* Return the top-of-stack value without popping it off. */
    {
