@@ -68,13 +68,19 @@ public:
     delete bp;
   }
 
-  const bool operator[](const int index) const
+  bool const operator[](int index) const
   /* It doesn't get any conster than this. */
   {
     unsigned char mask = 0x80; // 1000 0000
     mask >>= index % word_size;
     
     return (ary[index/word_size] & mask) == 1;
+  }
+
+  proxy& operator[](int index)
+  {
+    bp->set_index(index);
+    return *bp;
   }
 
   const bool showBit(const int index) const
@@ -85,11 +91,6 @@ public:
     return (ary[index/word_size] & mask) == 1;
   }
 
-  proxy& operator[](const int index)
-  {
-    bp->set_index(index);
-    return *bp;
-  }
 };
 
 class unweightedDirected
