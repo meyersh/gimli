@@ -7,3 +7,4 @@ std::ostream& operator<<(std::ostream& output, const bitarray::proxy& p)
    output << p.parent->showBit(p.index);
    return output;  // for multiple << operators.
 }
+
