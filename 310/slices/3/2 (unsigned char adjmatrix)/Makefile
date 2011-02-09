@@ -9,11 +9,11 @@ CXXFLAGS += $(CPPFLAGS)
 #adjmatrix: adjMatrix.cpp adjMatrix.hpp
 #	g++ -g -c $(INC) adjMatrix.cpp -o adjMatrix
 
-btest: adjMatrix.o btest.cpp
-	$(CXX) $(CXXFLAGS) adjMatrix.o btest.cpp -o btest
+btest: adjMatrix.o bitarray.o btest.cpp
+	$(CXX) $(CXXFLAGS) bitarray.o adjMatrix.o btest.cpp -o btest
 
-bitTest: adjMatrix.o bitTest.o
-	$(CXX)	adjMatrix.o bitTest.o -o bitTest
+bitTest: adjMatrix.o bitarray.o bitTest.o 
+	$(CXX)	bitarray.o adjMatrix.o bitTest.o -o bitTest
 
 install:
 	cp sqtest ~/exec/

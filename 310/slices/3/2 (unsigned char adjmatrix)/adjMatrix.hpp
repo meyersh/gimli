@@ -1,5 +1,5 @@
 #ifndef __ADJMATRIX__BINARY__HPP
-#define __ADJMATRIX__BINARY_HPP
+#define __ADJMATRIX__BINARY__HPP
 
 #include <iostream>
 #include "bitarray.hpp"

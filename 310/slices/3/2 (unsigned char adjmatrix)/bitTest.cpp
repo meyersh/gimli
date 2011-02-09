@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <unistd.h>
+
 #include "adjMatrix.hpp"
 #include "shaun.hpp"
 
@@ -15,6 +16,9 @@ void print_help(string, string);
 unweightedGraph &read_graph_file(char *filename, bool is_symmetrical);
 void slprint(string, unsigned int delay=25000);
 
+/*
+ * Showtime.
+ */
 int main(int argc, char **argv)
 {
 
