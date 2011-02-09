@@ -7,7 +7,6 @@ using namespace std;
 
 int main()
 {
-   /*
      bitarray ba(BA_SIZE);
      
      for (int i = 0; i < BA_SIZE; i++)
@@ -20,14 +19,11 @@ int main()
      
      for (int i = 0; i < BA_SIZE; i++)
      {
-     bool foo = ba[i];
+     bool foo = ba[i]; // test `operator bool()`
      cout << i << "(bool): " << foo << " ... "
      << i << "(cout): " << ba[i] << endl;
      }
      
-   */
-
-
    unweightedUndirected graph(5);
 
    cout << "Populating graph a bit...\n";
