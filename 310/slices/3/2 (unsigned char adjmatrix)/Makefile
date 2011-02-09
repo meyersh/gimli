@@ -2,9 +2,9 @@ CPPFLAGS += -I/usr/local/include
 CXXFLAGS += -g 
 CXXFLAGS += $(CPPFLAGS)
 
-.SUFFIXES: .o .cpp
-.cpp.o:
-	$(CXX) $(CXXFLAGS) -c $> -o $@
+#.SUFFIXES: .o .cpp
+#.cpp.o:
+#	$(CXX) $(CXXFLAGS) -c $> -o $@
 
 #adjmatrix: adjMatrix.cpp adjMatrix.hpp
 #	g++ -g -c $(INC) adjMatrix.cpp -o adjMatrix
