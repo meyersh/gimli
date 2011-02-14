@@ -37,6 +37,7 @@ int main(int argc, char **argv)
    unweightedGraph *cur_graph = NULL;
 
    slprint("\n\nWelcome to the graphic grapher!\n");
+   slprint("Type HELP for instructions.\n");
 
    /* Prep for command line loop */
    string prompt(" OK > "),
@@ -60,7 +61,13 @@ int main(int argc, char **argv)
 	     {
 	       slprint("bitTest uses a context base system, commands affect the\n");
 	       slprint("current context, which is indicated by the prompt.\n");
-	       slprint("   COMMANDS:\n CLEAR, DIRECTED, UNDIRECTED, SET, CLEAR, ");
+	       slprint("  To enter a context, type either `DIRECTED` or `UNDIRECTED`\n");
+	       slprint("(don't worry, you can switch back and forth whenever you please.)\n");
+	       slprint("  From within a graph-context you may manipulate and display the\n");
+	       slprint("graph data.\n");
+	       slprint("  Typing a command alone without any parameters, or incorrect parameters\n");
+	       slprint("will cause the program to print a description for the given command.\n");
+	       slprint("   COMMANDS:\n PRINT, DIRECTED, UNDIRECTED, SET, CLEAR, ");
 	       slprint("QUIT.\n");
 	     }
 	   else if (cmd[0] == "DIRECTED")
@@ -74,7 +81,15 @@ int main(int argc, char **argv)
 	     prompt = " UNDIRECTED > ";
 	     }
 	   else if (cmd[0] == "PRINT")
-	     cur_graph->print();
+	     {
+	       if (cur_graph)
+		 cur_graph->print();
+	       else
+		 {
+		   slprint("(You need to select a DIRECTED or UNDIRECTED graph first.)\n");
+		   continue;
+		 }
+	     }
 	   else if (cmd[0] == "SET" || cmd[0] == "CLEAR")
 	     {
 	       if (cur_graph)
@@ -85,7 +100,7 @@ int main(int argc, char **argv)
 		 }
 	       else 
 		 {
-		   slprint("A DIRECTED or UNDIRECTED graph must first be selected.\n");
+		   slprint("(You need to select a DIRECTED or UNDIRECTED graph first.)\n");
 		   continue;
 		 }
 	       
@@ -101,7 +116,7 @@ int main(int argc, char **argv)
 
 	       if (!cur_graph)
 		 {
-		   slprint("A DIRECTED or UNDIRECTED graph must first be selected.\n");
+		   slprint("(You need to select a DIRECTED or UNDIRECTED graph first.)\n");
 		   continue;
 		 }
 	       if (cmd.size() > 1 && uppercase(cmd[1]) == "ALL")
