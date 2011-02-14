@@ -1,0 +1,2 @@
+adjmatrix svn+ssh://gimli.morningside.edu/home/meyersh/svn/src/lib/adjmatrix
+queue svn+ssh://gimli.morningside.edu/home/meyersh/svn/src/lib/queue
