@@ -157,7 +157,7 @@ int main()
 		  do_op(); 
 	    }
 	 }
-      if (numbers.size() > 1)
+      if (numbers.size() != 1)
 	 throw runtime_error("Too few operands, invalid infix equation.");
       } catch (runtime_error e) { print_error(e.what()); }
 
