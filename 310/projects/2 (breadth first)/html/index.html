@@ -1,0 +1,60 @@
+    <html>
+    <head>
+    <title>GraphicGrapher (Path finder)<title>
+    </head>
+    <script>
+function checkbox(obj) 
+{
+    x = obj.value.split(',')[0];
+    y = obj.value.split(',')[1];
+    recip = document.getElementById(y + ',' + x)
+
+    recip.checked = obj.checked;
+
+}
+
+window.matrix_size = 0;
+function draw_matrix(size)
+{
+    if (size > 50)
+	size = 50;
+    if (size < 2)
+	size = 2;
+    window.matrix_size = size;
+    html = ""
+    div = document.getElementById('table-out');
+    html = "<table border='1'>";
+    for (x = -1; x < size; x++)
+    {
+	html += "<tr>";
+	for (y = -1; y < size; y++)
+	{
+	    if (y < 0) {
+		html += "<td>" + x + "</td>\n";
+		continue;
+	    }
+	    if (x < 0)
+	    {
+		html += "<td>" + y + "</td>\n";
+		continue;
+	    }
+	    coords = x + "," + y;
+	    html += "<td><input type='checkbox' value='" + coords + "' id = '" + coords + "' onclick='checkbox(this);'></input></td>\n";
+	}
+	html += "</tr>";
+    }
+    html += "</table>";
+    div.innerHTML = html;
+}
+
+</script>
+
+<body>
+<input type="button" value="matrix++" onclick='draw_matrix(window.matrix_size+1)'>
+<input type="button" value="matrix--" onclick='draw_matrix(window.matrix_size-1)'>
+<div id="table-out"></div>
+
+
+</body>
+<script>draw_matrix(5);</script>
+</html>
