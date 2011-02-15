@@ -1,8 +1,14 @@
+/******************************************************************************
+ * adjMatrix.cpp - unweighted Directed / Undirected graph matrix class
+ * CREATED BY: Shaun Meyer 
+ * CREATED   : 11 Feb 2011
+ ******************************************************************************/
+
 #include "adjMatrix.hpp"
 
-/*
+/****************************************************************
  * Begin unweightedDirected adjacency matrix member functions:
- */
+ ***************************************************************/
 
 void unweightedDirected::create (int sz)
 /* if the pointer is not NULL, it first gracefully deallocates the 

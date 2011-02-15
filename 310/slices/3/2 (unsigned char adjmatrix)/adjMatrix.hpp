@@ -1,3 +1,8 @@
+/******************************************************************************
+ * adjMatrix (binary) header file
+ * CREATED BY: Shaun Meyer
+ * CREATED   : 11 Feb 2011
+ ******************************************************************************/
 #ifndef __ADJMATRIX__BINARY__HPP
 #define __ADJMATRIX__BINARY__HPP
 
@@ -5,20 +10,22 @@
 #include "bitarray.hpp"
 
 /*
- * Abstract base class for unweighted graphs (they both have to
+ * Abstract base class for unweighted graphs (they both must
  * have these functions and this will make some usage cleaner.
+ * by allowing us to create a pointer to the base class which
+ * can then be pointed at either UNdirected or Directed graphs.
  */
 
 class unweightedGraph
 {
 public:
-   virtual void create (int sz) = 0;
-   virtual void setBit(int r, int c) = 0; 
+   virtual void create (int sz)        = 0;
+   virtual void setBit(int r, int c)   = 0; 
    virtual void clearBit(int r, int c) = 0; 
-   virtual void setAll() = 0;
-   virtual void clearAll() = 0;
+   virtual void setAll()               = 0;
+   virtual void clearAll()             = 0;
    virtual int  checkBit(int r, int c) = 0;
-   virtual void print() = 0;
+   virtual void print()                = 0;
 };
 
 

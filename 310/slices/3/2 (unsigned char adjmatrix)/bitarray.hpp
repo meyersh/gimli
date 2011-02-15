@@ -1,3 +1,25 @@
+/******************************************************************************
+ * bitarray class definition
+ * CREATED BY: Shaun Meyer
+ * CREATED   : 11 Feb 2011
+ *
+ * I'm proud of this. Of course, it was written, debugged, and in use when
+ * Randy allowed std::bitset to be used. Whatever.
+ *
+ * In a nutshell, it creates a wrapper around a dynamic array of unsigned char
+ * on which we bitfiddle to simulate an "array" of individual bits. 
+ * 
+ * To make the subscript [] operators work for setting, we must return a proxy 
+ * object which overloads the operator= so we can use this interface as:
+ * 
+ * bitarray ba(25); // allocate at least 25 bits worth of storage.
+ * ba[2] = 5; // returns proxy object which will use the opreator= to set the 
+ *            // appropriate bit.
+ *
+ * TODO: byte-sized elements are hardcoded in several places. Ideally, we 
+ * could free this to allow us to also use unsigned word-length elements.
+ *****************************************************************************/
+
 #ifndef __BITARRAY_HPP__
 #define __BITARRAY_HPP__ 
 
@@ -12,6 +34,9 @@ private:
       num_words; // number of words in ary
 
 public:
+   /****************************************
+    * bitarray::proxy class definition
+    ***************************************/
    class proxy 
    {  friend std::ostream& operator<<(std::ostream &output, const proxy &p);
 
@@ -47,9 +72,9 @@ public:
     
    };
 
-   /*
+   /****************************************
     * END OF PROXY DEFINITION 
-    */
+    ***************************************/
 
    friend class proxy;
 
@@ -58,6 +83,8 @@ private:
 
 public:
    bitarray() 
+   /* Default constructor for no parameters, this is useless since
+    * resizing is not (yet?) implemented. */
    {
       bp = new proxy(*this, 0);
       num_words = 0;

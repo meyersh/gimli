@@ -1,3 +1,8 @@
+/*******************************************************************************
+ * btest - a simple bitarray test unit.
+ * CREATED BY: Shaun Meyer
+ * CREATED   : 11 Feb 2011
+ ******************************************************************************/
 #include <iostream>
 #include "adjMatrix.hpp"
 
@@ -30,8 +35,6 @@ int main()
    for (int i = 0; i < 5; i++)
       {
       graph.setBit(i, i);
-      graph.print();
-      cout << endl;
       }
 
    graph.print();

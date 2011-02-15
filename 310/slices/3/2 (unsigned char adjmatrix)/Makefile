@@ -1,3 +1,8 @@
+###############################################################################
+# Makefile
+# Shaun Meyer, Feb 2011
+###############################################################################
+
 CPPFLAGS += -I/usr/local/include
 CXXFLAGS += -g 
 CXXFLAGS += $(CPPFLAGS)
@@ -9,14 +14,14 @@ CXXFLAGS += $(CPPFLAGS)
 #adjmatrix: adjMatrix.cpp adjMatrix.hpp
 #	g++ -g -c $(INC) adjMatrix.cpp -o adjMatrix
 
-btest: adjMatrix.o bitarray.o btest.cpp
-	$(CXX) $(CXXFLAGS) bitarray.o adjMatrix.o btest.cpp -o btest
-
 bitTest: adjMatrix.o bitarray.o bitTest.o 
 	$(CXX)	bitarray.o adjMatrix.o bitTest.o -o bitTest
+
+btest: adjMatrix.o bitarray.o btest.cpp
+	$(CXX) $(CXXFLAGS) bitarray.o adjMatrix.o btest.cpp -o btest
 
 install:
 	cp sqtest ~/exec/
 
 clean:
-	rm *.o btest 
+	rm *.o btest bitTest
