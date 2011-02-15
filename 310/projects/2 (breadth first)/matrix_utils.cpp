@@ -134,7 +134,7 @@ vector<int> bfs_get_path(adjMatrix &matrix, int start_node, int end_node)
    return ret;
 }
 
-int print_matrix_as_dot(const char *filename)
+int print_matrix_as_dot(const char *filename, bool is_directed)
 {
    std::string name; // place holder for our name;
    adjMatrix &matrix = load_matrix(filename, name);
@@ -145,7 +145,7 @@ int print_matrix_as_dot(const char *filename)
 	 {
 	 if (matrix.edge(x,y))
 	    {
-	    cout << "  " <<  x << " -- " << y << ";" << endl;
+	    cout << "  " <<  x << (is_directed ? " -> " : " -- ") << y << ";" << endl;
 	    }
 	 }
       }

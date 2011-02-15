@@ -51,6 +51,7 @@ void print_vector(const std::vector<V> &vec)
 
 template<class K, class V>
 void print_map(const std::map<K,V> &con)
+/* iterate through a map, printing the contents with std::cout */
 {
    typename std::map<K, V>::const_iterator it;
 

@@ -51,7 +51,7 @@ public:
     * pop()
     */
    stack_ptr popptr()
-   /* Pop an item off the top of the stack. */
+   /* Pop an item off the top of the stack and return stackItem pointer. */
    {
       stack_ptr old_tos = top_of_stack; // old top-of-stack.
       top_of_stack = top_of_stack->next;
@@ -60,7 +60,7 @@ public:
    }
 
    V pop()
-   /* Pop an item off the top of the stack. */
+   /* Pop an item off the top of the stack and return its value. */
    {
       return popptr()->value;
    }
@@ -85,7 +85,7 @@ public:
     * nth()
     */
    V &nth(unsigned int item_index)
-   /* Return a reference to the nth item of the stack */
+   /* Return a reference to the nth item of the stack (not implemented) */
    {
       return top_of_stack->value;
    }
