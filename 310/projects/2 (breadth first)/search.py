@@ -17,7 +17,8 @@ end_node = 3
 q = []
 
 def enqueue(item):
-    q.insert(0, item)
+    #    q.insert(0, item)
+    q.append(item)
 
 def dequeue():
     return q.pop()
