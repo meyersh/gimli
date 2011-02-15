@@ -57,16 +57,19 @@ public:
       queue_size++;
    }
 
-   /* 
-    * pop()
-    */
-   queue_ptr pop()
-   /* Pop an item off the front of the queue. */
+   queue_ptr popptr()
+   /* Pop an item off the front of the queue and return the queue_ptr. */
    {
       queue_ptr old_tos = front_of_queue; // old front-of-queue.
       front_of_queue = front_of_queue->next;
       queue_size--;
       return old_tos;
+   }
+
+   V pop()
+   /* Pop an item off the front of the queue and return the value. */
+   {
+      return popptr()->value;
    }
    
 
