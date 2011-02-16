@@ -1,4 +1,4 @@
-all: bfs-driver sysutils-driver dot.cgi
+all: bfs-driver sysutils-driver dot.cgi load_graph.cgi
 
 adjmatrix.o:
 	g++ -c adjmatrix/adjmatrix.cpp
@@ -20,3 +20,6 @@ load_graph.cgi: load_graph_cgi.cpp adjmatrix.o matrix_utils.o shaun.o
 
 clean:
 	rm *.o sysutils-driver dot.cgi bfs-driver
+
+install: all
+	cp *.cgi ~/public_html/310/bfs/
