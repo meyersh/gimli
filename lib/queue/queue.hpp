@@ -1,3 +1,6 @@
+#ifndef __QUEUE__HPP__
+#define __QUEUE__HPP__
+
 /*******************************************************************************
  * queue container (renders a linked-list queue)
  * Shaun Meyer, Jan 2011
@@ -91,3 +94,4 @@ public:
    }
 };
 
+#endif
