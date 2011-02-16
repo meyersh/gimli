@@ -179,9 +179,14 @@ function parseData(data)
 			else if ( key == "output" )
 			    document.getElementById('splitstring').innerHTML += val + "<br>";
 			else if ( key == "checked" )
+			{
 			    document.getElementById(val).checked = true;
+			}
 			else if ( key == "graphsize")
-			    window.matrix_size = int(val);
+			{
+			    window.matrix_size = parseInt(val);
+			    draw_matrix(window.matrix_size);
+			}
 			if (document.getElementById(key) != null)
 			    {
 				document.getElementById(key).innerHTML = val;
