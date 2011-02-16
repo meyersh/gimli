@@ -24,7 +24,7 @@
  * Constants
  */
 
-#define GRAPH_PATH "/home/meyersh/public/graphs"
+#define GRAPH_PATH "/home/meyersh/public/graphs/"
 
 /*
  * Prototypes
