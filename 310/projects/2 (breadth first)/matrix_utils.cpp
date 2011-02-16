@@ -21,7 +21,7 @@ adjMatrix &load_matrix(const char *filename, std::string &name)
    graph_file.open(filename);
 
    if (!graph_file)
-      throw runtime_error(std::string("Cannot open file! '" + filename + "'"));
+      throw runtime_error(std::string("Cannot open file! '") + std::string(filename) + "'"));
 
    std::string line;
    
@@ -60,7 +60,7 @@ int save_matrix(const char* filename, adjMatrix &matrix, std::string name)
    graph_file.open(filename);
 
    if (!graph_file)
-      throw runtime_error(std::string("Cannot open file for saving! '" + filename + "'"));
+      throw runtime_error(std::string("Cannot open file for saving! '") + std::string(filename) + "'"));
    
    graph_file << matrix.size() << "," << name << endl;
 
