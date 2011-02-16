@@ -9,6 +9,9 @@ using namespace std;
 
 int main()
 {
+
+   cout << "Content-Type: text/plain\n\n";
+   
    vector<string> files = lsdir(GRAPH_PATH);
 
    if (files.size() > 2)
