@@ -187,6 +187,10 @@ function parseData(data)
 			    window.matrix_size = parseInt(val);
 			    draw_matrix(window.matrix_size);
 			}
+			else if ( key == "graphs" )
+			{
+			    list_graphs(val);
+			}
 			if (document.getElementById(key) != null)
 			    {
 				document.getElementById(key).innerHTML = val;

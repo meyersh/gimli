@@ -33,13 +33,44 @@ function draw_matrix(size)
 		continue;
 	    }
 	    coords = x + "," + y;
-	    html += "<td><input type='checkbox' value='" + coords + "' id = '" + coords + "' onclick='checkbox(this);'></input></td>\n";
+	    html += "<td><input type='checkbox' value='" + coords + "' id = '" + coords 
+		    + "' onclick='checkbox(this);' disabled></input></td>\n";
 	}
 	html += "</tr>";
     }
     html += "</table>";
     div.innerHTML = html;
 }
+
+function add_option(selectbox, text, value)
+{
+    var optn = document.createElement("OPTION");
+    optn.text = text;
+    optn.value = value;
+    selectbox.options.add(optn);
+}
+
+function list_graphs(graph_csv)
+{
+    graphs = graph_csv.split(",");
+    for (i = 0; i < graphs.length; i++)
+    {
+	add_option(document.getElementById('graph_list'), graphs[i], graphs[i]);
+    }
+
+    // set the start & end boxes to the correct nmber of options.
+    document.getElementById('end_node').length = document.getElementById('start_node').length = 0;
+    add_option(document.getElementById('end_node'), "End Node", "DEFAULT");
+    add_option(document.getElementById('start_node'), "Start Node", "DEFAULT");
+
+    for (i = 0; i < window.matrix_size; i++)
+    {
+	add_option(document.getElementById('end_node'), i, i);
+	add_option(document.getElementById('start_node'), i, i);
+    }
+}
+
+
 </script>
 
     <script src="ajax.js" language="javascript"></script>
@@ -94,7 +125,39 @@ function save_graph()
 
 function load_graph()
 {
-    sendData(document.getElementById("graphname").value, "load_graph.cgi", "POST");
+    graph = document.getElementById('graph_list').value;
+    if (graph == "CREATE")
+	window.location ="index.html";
+    else if (graph != "DEFAULT")
+	sendData(graph, "load_graph.cgi", "POST");
+}
+
+function generate_path()
+{
+    graph = document.getElementById('graph_list').value;
+    start = document.getElementById('start_node').value;
+    end   = document.getElementById('end_node').value;
+
+    if (graph == "DEFAULT") {
+	raiseError("You must select a graph first.");
+	return 0;
+    }
+    else if (start == "DEFAULT") {
+	raiseError("You must select a start node first.");
+	return 0;
+    }
+    else if (end == "DEFAULT") {
+	raiseError("You must select an end node first.");
+	return 0;
+    }
+
+    request = "";
+    request += "GRAPH=" + graph + "\n" + 
+	"END=" + end + "\n" +
+	"START=" + start + "\n";
+    
+    sendData(request, "graph.cgi", "POST");
+   
 }
 
 </script>
@@ -102,7 +165,7 @@ function load_graph()
 <body>
 <div id="header">
   <div id="branding">
-    <h1 id="site-name">GraphicGrapher Matrix Editor</h1>
+    <h1 id="site-name">GraphicGrapher Matrix Path-Finder</h1>
   </div>
 </div>
 <div id="help">
@@ -125,14 +188,21 @@ against your freshly edited graph.
 
 </div>
 <div id="header">
-<label>Graph name: </label><input type="text" id='graphname' onkeyup='sanitize_graph_name();'/>
-<input type="button" value="matrix++" onclick='draw_matrix(window.matrix_size+1)'/>
-<input type="button" value="matrix--" onclick='draw_matrix(window.matrix_size-1)'/>
-<label>Directed?</label><input type="checkbox" value="directed" id="directed" 
-                               onchange='draw_matrix(window.matrix_size);'/>
-<input type="button" value="Save graph" onclick='save_graph();'/>
+<select id='graph_list' onchange="load_graph();"/>
+<option value="DEFAULT">Choose a graph!</option>
+<option value="CREATE">Create or edit a graph</option>
+</select>
+
+<select id='start_node'/>
+<option value="DEFAULT">START NODE</option>
+</select>
+
+<select id='end_node'/>
+<option value="DEFAULT">END NODE</option>
+</select>
+
 <input type="button" value="(Re)load graph" onclick='load_graph();'/>
-<input type="button" value="Lets do some paths!" onclick='window.location="paths.html";'>
+<input type="button" value="Generate shortest path" onclick='generate_path();'>
 </div>
 <p/>
 
@@ -144,6 +214,9 @@ against your freshly edited graph.
 <p/>
 <div id="responseSpot"></div>
 
-<script>draw_matrix(5);</script>
+<script>
+draw_matrix(5);
+sendData("", "list_graphs.cgi", "POST");
+</script>
 </body>
 </html>
