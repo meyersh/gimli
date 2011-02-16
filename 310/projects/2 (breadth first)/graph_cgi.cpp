@@ -58,6 +58,7 @@ int main()
       vector<int> path = bfs(graph, start, end); 
       if (path.size())
 	 {
+	 cout << "notice=";
 	 /* We found a path, lets print it out real friendly (and in the correct
 	  * order [backwards, in this case */
 	 for (int i = path.size()-1; i > -1; i--)
