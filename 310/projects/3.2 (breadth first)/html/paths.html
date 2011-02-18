@@ -147,7 +147,7 @@ function load_graph()
 
 }
 
-function generate_path(type)
+function generate_path()
 {
     graph = document.getElementById('graph_list').value;
     start = document.getElementById('start_node').value;
@@ -169,8 +169,7 @@ function generate_path(type)
     request = "";
     request += "GRAPH=" + graph + "\n" + 
 	"END=" + end + "\n" +
-	"START=" + start + "\n" +
-	"TYPE=" + type + "\n";
+	"START=" + start + "\n";
     
     sendData(request, "graph.cgi", "POST");
    
@@ -206,8 +205,7 @@ function generate_path(type)
 </select>
 
 <input type="button" value="(Re)load graph" onclick='load_graph();'/>
-<input type="button" value="Generate shortest path" onclick='generate_path("BREADTHFIRST");'>
-<input type="button" value="Generate any old path" onclick='generate_path("DEPTHFIRST");'>
+<input type="button" value="Generate shortest path" onclick='generate_path();'>
 </div>
 <p/>
 
