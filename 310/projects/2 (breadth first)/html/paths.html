@@ -53,10 +53,19 @@ function add_option(selectbox, text, value)
 function list_graphs(graph_csv)
 {
     graphs = graph_csv.split(",");
+    document.getElementById('graph_list').length=0;
+    add_option(document.getElementById('graph_list'), "Choose a graph!", "DEFAULT");
+    add_option(document.getElementById('graph_list'), "Create or edit a graph!", "CREATE");
+
     for (i = 0; i < graphs.length; i++)
     {
 	add_option(document.getElementById('graph_list'), graphs[i], graphs[i]);
     }
+}
+
+function update_graph_size()
+/* Update the start_node and end_node size boxes. */
+{
 
     // set the start & end boxes to the correct nmber of options.
     document.getElementById('end_node').length = document.getElementById('start_node').length = 0;
@@ -129,7 +138,13 @@ function load_graph()
     if (graph == "CREATE")
 	window.location ="index.html";
     else if (graph != "DEFAULT")
+    {
+	/* if this is un-commented, the graph list is refreshed on every 
+	 * "choose a graph" onChange event. */
+	//sendData("", "list_graphs.cgi", "POST");
 	sendData(graph, "load_graph.cgi", "POST");
+    }
+
 }
 
 function generate_path()
@@ -170,22 +185,10 @@ function generate_path()
 </div>
 <div id="help">
 <h3>Usage Instructions:</h3>
-<p/>Graph name is important, it is your primary tie to your graph. You may type in 
-anything you please (and it will be sanitized for the systems' purposes). 
-
-<p/>If you want to LOAD a graph up, and you know the name from earlier, try typing 
-in the name and clicking the "(Re)load graph" button. Otherwise, you can create
-a new graph, call it whatever you want and choose "Save graph".
-
-<p/>Note: Any graph already existing by a given name will be REMOVED and the latest
-graph will REPLACE IT COMPLETELY.
-
-<p/>Ticking <i>"directed"</i> will UNLINK reciprocal cells. To garantee sanity, the graph will 
-be reset whenever this option is changed.
-
-<p/>When you're done here just click away on <i>"Lets do some paths!"</i> to generate some paths
-against your freshly edited graph.
-
+<p/>You may choose a pre-created graph from the dropdown list. 
+<p/>Following this, you may select any start & end node.
+<p/>Choose any of the applicable buttons to show some paths. 
+<p>If the graph file has been edited (by someone else, maybe?) you may Re(load) it.
 </div>
 <div id="header">
 <select id='graph_list' onchange="load_graph();"/>

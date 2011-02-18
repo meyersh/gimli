@@ -40,6 +40,29 @@ function draw_matrix(size)
     html += "</table>";
     div.innerHTML = html;
 }
+
+function add_option(selectbox, text, value)
+{
+    var optn = document.createElement("OPTION");
+    optn.text = text;
+    optn.value = value;
+    selectbox.options.add(optn);
+}
+
+function list_graphs(graph_csv)
+{
+    graphs = graph_csv.split(",");
+    document.getElementById('graph_list').length=0;
+    add_option(document.getElementById('graph_list'), "Choose a graph!", "DEFAULT");
+    add_option(document.getElementById('graph_list'), "Create or edit a graph!", "CREATE");
+
+    for (i = 0; i < graphs.length; i++)
+    {
+	add_option(document.getElementById('graph_list'), graphs[i], graphs[i]);
+    }
+}
+
+
 </script>
 
     <script src="ajax.js" language="javascript"></script>
@@ -94,7 +117,26 @@ function save_graph()
 
 function load_graph()
 {
-    sendData(document.getElementById("graphname").value, "load_graph.cgi", "POST");
+    graphlist = document.getElementById("graph_list");
+
+    if (graphlist.value == "DEFAULT")
+	graph = document.getElementById("graphname").value;
+    
+    else if (graphlist.value == "CREATE")
+    {
+	document.getElementById("graphname").value = "";
+	return 0;
+    }
+
+    else 
+	graph = graphlist.value;
+    
+    sendData(graph, "load_graph.cgi", "POST");
+}
+
+function update_graph_size()
+{
+// this function is called whenever graphsize is detected, changed or no.
 }
 
 </script>
@@ -126,6 +168,10 @@ against your freshly edited graph.
 </div>
 <div id="header">
 <label>Graph name: </label><input type="text" id='graphname' onkeyup='sanitize_graph_name();'/>
+<select id='graph_list' onchange="load_graph();"/>
+<option value="DEFAULT">Choose a graph!</option>
+<option value="CREATE">Create or edit a graph</option>
+</select>
 <input type="button" value="matrix++" onclick='draw_matrix(window.matrix_size+1)'/>
 <input type="button" value="matrix--" onclick='draw_matrix(window.matrix_size-1)'/>
 <label>Directed?</label><input type="checkbox" value="directed" id="directed" 
@@ -144,6 +190,9 @@ against your freshly edited graph.
 <p/>
 <div id="responseSpot"></div>
 
-<script>draw_matrix(5);</script>
+<script>
+draw_matrix(5);
+sendData("", "list_graphs.cgi", "POST");
+</script>
 </body>
 </html>
