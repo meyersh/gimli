@@ -1,3 +1,7 @@
+#ifndef __STACKORQUEUE__HPP__
+#define __STACKORQUEUE__HPP__
+
+
 /*******************************************************************************
  * stackorqueue container class (renders a linked-list stack)
  * Shaun Meyer, Jan 2011
@@ -198,3 +202,4 @@ public:
    }
 };
 
+#endif
