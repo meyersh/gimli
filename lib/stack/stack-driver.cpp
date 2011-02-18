@@ -17,8 +17,8 @@ int main()
 
    while (my_stack.size())
       {
-      item = my_stack.pop();
-      cout << item->value << endl;
+      //item = my_stack.pop();
+      cout << my_stack.pop()->value << endl;
       }
 
    return 0;
