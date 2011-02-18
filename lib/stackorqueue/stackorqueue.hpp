@@ -16,17 +16,19 @@ struct stackorqueueItem {
 };
 
 /*
- * abstract base class which both draw from
+ * abstract base class which both queue+stack draw from
+ * which allows us to spawn one container pointer/reference
+ * of stackorqueue type which can be filled with a stack (or
+ * a queue) and act like that kind of thing.
  */
 
 template<class V>
 class stackorqueue {
 public:
-   void push()=0;
-   V pop()=0;
-   V &top()=0;
-   unsigned int size()=0;
-
+   virtual void         push(V) = 0;
+   virtual V             pop()  = 0;
+   virtual V            &top()  = 0;
+   virtual unsigned int size()  = 0;
 };
 
 
@@ -35,14 +37,14 @@ public:
  */
 
 template<class V>
-class stack : public stackorqueue
+class stack : public stackorqueue<V>
 {
 public:
-   typedef boost::shared_ptr< stackItem<V> > stackorqueue_ptr;
+   typedef boost::shared_ptr< stackorqueueItem<V> > stack_ptr;
 
 private:
 
-   stackorqueue_ptr  top_of_stack;
+   stack_ptr  top_of_stack;
    int        stack_size;
    
 public:
@@ -56,7 +58,7 @@ public:
    void push(V item)
    /* Push an item onto the stack. */
    {
-      stack_ptr new_item( new stackItem<V> );
+      stack_ptr new_item( new stackorqueueItem<V> );
       new_item->value = item;
       new_item->next = top_of_stack;
       top_of_stack = new_item;
@@ -64,16 +66,26 @@ public:
    }
 
    /* 
-    * pop()
+    * popptr()
     */
-   stackorqueue_ptr pop()
-   /* Pop an item off the top of the stack. */
+   stack_ptr popptr()
+   /* Pop an item off the top of the stack and return its pointer. */
    {
       stack_ptr old_tos = top_of_stack; // old top-of-stack.
       top_of_stack = top_of_stack->next;
       stack_size--;
       return old_tos;
    }
+
+   /*
+    * pop()
+    */
+   V pop()
+   /* Pop an item off the stack, returning its value */
+   {
+      return popptr()->value;
+   }
+
 
   /*
    * top()
@@ -104,15 +116,15 @@ public:
  */
 
 template<class V>
-class queue : public stackorqueue
+class queue : public stackorqueue<V>
 {
 public:
-   typedef boost::shared_ptr< queueItem<V> > stackorqueue_ptr;
+   typedef boost::shared_ptr< stackorqueueItem<V> > queue_ptr;
 
 private:
 
-  stackorqueue_ptr  front_of_queue,
-                    back_of_queue;
+  queue_ptr  front_of_queue,
+             back_of_queue;
 
   int        queue_size;
    
@@ -127,7 +139,7 @@ public:
    void push(V item)
    /* Push an item onto the queue. */
    {
-      stackorqueue_ptr new_item( new stackorqueueItem<V> );
+      queue_ptr new_item( new stackorqueueItem<V> );
       new_item->value = item;
 
       /* Skip this if we're the only item in queue. */
@@ -142,7 +154,7 @@ public:
       queue_size++;
    }
 
-   stackorqueue_ptr popptr()
+   queue_ptr popptr()
    /* Pop an item off the front of the queue and return the queue_ptr. */
    {
       queue_ptr old_tos = front_of_queue; // old front-of-queue.

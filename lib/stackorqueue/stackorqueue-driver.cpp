@@ -1,24 +1,43 @@
 #include <iostream>
+#include <vector>
+#include <string>
 #include "stackorqueue.hpp"
 
 using namespace std;
 
-int main()
+int main(int argc, char **argv)
 {
-   
-   queue<char> my_queue; 
-   queue<char>::queue_ptr item;
+   stackorqueue<char> *my_container;
 
-   my_queue.push('N');
-   my_queue.push('U');
-   my_queue.push('A');
-   my_queue.push('H');
-   my_queue.push('S');
-
-   while (my_queue.size())
+   vector<string> args(argv, argv+ argc);
+   if (args.size() == 2)
       {
-      item = my_queue.pop();
-      cout << item->value << endl;
+      if (args[1] == "queue")
+	 my_container = new queue<char>;
+      else if (args[1] == "stack")
+	 my_container = new stack<char>;
+      else 
+	 exit(1);
       }
+   else 
+      exit(1);
+
+   
+   my_container->push('N');
+   my_container->push('U');
+   my_container->push('A');
+   my_container->push('H');
+   my_container->push('S');
+
+   cout << "Size: " << my_container->size() << endl;
+
+   while (my_container->size())
+      {
+      char item = my_container->pop();
+      cout << item << endl;
+      }
+
+   delete my_container;
+
    return 0;
 }
