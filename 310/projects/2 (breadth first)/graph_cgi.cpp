@@ -61,7 +61,7 @@ int main()
       if (start < 0 || start > graph.size() || end < 0 || end > graph.size())
 	 throw runtime_error("start or end nodes out_of_range.");
 
-      vector<int> path = bfs(graph, start, end); 
+      vector<int> path = bfs(graph, start, end, breadth_first); 
       if (path.size())
 	 {
 	 if (breadth_first)
