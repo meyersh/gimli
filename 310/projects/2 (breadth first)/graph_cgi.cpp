@@ -64,7 +64,7 @@ int main()
       vector<int> path = bfs(graph, start, end); 
       if (path.size())
 	 {
-	 if (breadth_first_mode)
+	 if (breadth_first)
 	    cout << "notice=The shortest path found is: ";
 	 else
 	    cout << "notice=Detected the following path: ";
