@@ -143,6 +143,9 @@ function load_graph()
 	 * "choose a graph" onChange event. */
 	//sendData("", "list_graphs.cgi", "POST");
 	sendData(graph, "load_graph.cgi", "POST");
+	document.getElementById("dotimage").src="webdot.cgi?GRAPH="+graph;
+	document.getElementById("dotimage").style.height="250px";
+	document.getElementById("dotimage").style.width="250px";
     }
 
 }
@@ -173,7 +176,7 @@ function generate_path(type)
 	"TYPE=" + type + "\n";
     
     sendData(request, "graph.cgi", "POST");
-   
+
 }
 
 </script>
@@ -186,10 +189,12 @@ function generate_path(type)
 </div>
 <div id="help">
 <h3>Usage Instructions:</h3>
-<p/>You may choose a pre-created graph from the dropdown list. 
-<p/>Following this, you may select any start & end node.
-<p/>Choose any of the applicable buttons to show some paths. 
-<p>If the graph file has been edited (by someone else, maybe?) you may Re(load) it.
+<ul>
+<li>You may choose a pre-created graph from the dropdown list. </li>
+<li>Following this, you may select any start & end node.</li>
+<li>Choose any of the applicable buttons to show some paths. </li>
+<li>If the graph file has been edited (by someone else, maybe?) you may Re(load) it.</li>
+</ul>
 </div>
 <div id="header">
 <select id='graph_list' onchange="load_graph();"/>
@@ -215,6 +220,10 @@ function generate_path(type)
 <p/>
 <div id="error"></div>
 <div id="notice"></div>
+<p/>
+<div id="dotcontainer" style="float:right">
+<img src="white.gif" id="dotimage"/>
+</div>
 <p/>
 <div id="table-out"></div>
 <p/>
