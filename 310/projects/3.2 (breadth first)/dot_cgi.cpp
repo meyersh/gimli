@@ -43,7 +43,7 @@ int main()
 
    if (query_strings.size() == 2)
       {
-      PATH += "/" + query_strings[1];
+	PATH += "/" + graphname;
       try 
 	 { 
 	 print_matrix_as_dot(PATH.c_str()); 
