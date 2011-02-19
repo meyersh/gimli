@@ -18,14 +18,12 @@ int main()
       return 0;
 
    /* Split up the query string and check for GRAPH= variable. */
-   vector<string> urlbase = split(string(querystrings), "?");
-   if (urlbase.size() != 2)
+   vector<string> query_strings = split(querystrings, "&");
+   if (query_strings.size() == 0)
      {
-       cout << "No query strings specified." << endl;
+       cout << "No query strings specified.\n";
        return 0;
      }
-
-   vector<string> query_strings = split(urlbase[1], "&");
 
    string graphname = "";
    for (int i = 0; i < query_strings.size(); i++)
