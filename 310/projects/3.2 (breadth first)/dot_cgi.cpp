@@ -39,19 +39,16 @@ int main()
    if (graphname == "")
      return 0;
 
-   string PATH = GRAPH_PATH;
+   string PATH = GRAPH_PATH + graphname;
 
-   if (query_strings.size() == 2)
-      {
-	PATH += "/" + graphname;
-      try 
-	 { 
-	 print_matrix_as_dot(PATH.c_str()); 
-	 }
-      catch (const char e)
-	 { 
-	 cout << e << endl; 
-	 }
-      }
-
+   try 
+     { 
+       print_matrix_as_dot(PATH.c_str()); 
+     }
+   catch (const char e)
+     { 
+       cout << e << endl; 
+     }
 }
+
+
