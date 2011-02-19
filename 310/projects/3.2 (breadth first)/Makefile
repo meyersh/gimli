@@ -1,4 +1,4 @@
-all: bfs-driver sysutils-driver dot.cgi load_graph.cgi save_graph.cgi graph.cgi list_graphs.cgi
+all: bfs-driver sysutils-driver dot.cgi load_graph.cgi save_graph.cgi graph.cgi list_graphs.cgi dot_cli
 
 adjmatrix.o:
 	g++ -c adjmatrix/adjmatrix.cpp
@@ -14,6 +14,9 @@ sysutils-driver: shaun.o sysutils.o sysutils-driver.cpp
 
 dot.cgi: shaun.o dot_cgi.cpp adjmatrix.o matrix_utils.o
 	g++ -I/usr/local/include shaun.o adjmatrix.o matrix_utils.o dot_cgi.cpp -o dot.cgi
+
+dot_cli: shaun.o dot_cli.cpp adjmatrix.o matrix_utils.o
+	g++ -I/usr/local/include shaun.o adjmatrix.o matrix_utils.o dot_cli.cpp -o dot_cli
 
 load_graph.cgi: load_graph_cgi.cpp adjmatrix.o matrix_utils.o shaun.o
 	g++ -I/usr/local/include shaun.o adjmatrix.o matrix_utils.o load_graph_cgi.cpp -o load_graph.cgi
