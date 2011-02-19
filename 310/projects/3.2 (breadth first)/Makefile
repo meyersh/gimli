@@ -31,7 +31,7 @@ list_graphs.cgi: list_graphs_cgi.cpp sysutils.o shaun.o
 	g++ -I/usr/local/include shaun.o sysutils.o list_graphs_cgi.cpp -o list_graphs.cgi
 
 clean:
-	rm *.o sysutils-driver *.cgi bfs-driver
+	rm dot.cgi load_graph.cgi save_graph.cgi graph.cgi list_graphs.cgi sysutils-driver *.cgi bfs-driver
 
 install: all
 	cp *.cgi ~/public_html/310/bfs/
