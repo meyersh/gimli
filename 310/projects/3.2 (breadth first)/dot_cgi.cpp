@@ -1,10 +1,9 @@
 #include <cstdlib>
-
-#include "matrix_utils.hpp"
 #include <iostream>
 #include <vector>
 #include <string>
 
+#include "matrix_utils.hpp"
 #include "shaun.hpp"
 
 using namespace std;
@@ -21,7 +20,10 @@ int main()
    /* Split up the query string and check for GRAPH= variable. */
    vector<string> urlbase = split(string(querystrings), "?");
    if (urlbase.size() != 2)
-     return 0;
+     {
+       cout << "No query strings specified." << endl;
+       return 0;
+     }
 
    vector<string> query_strings = split(urlbase[1], "&");
 
@@ -31,13 +33,16 @@ int main()
        vector<string> keyval = split(query_strings[i], "=");
        if (keyval.size() != 2)
 	 continue;
-
+       
        if (keyval[0] == "GRAPH")
 	 graphname = keyval[1];
      }
 
    if (graphname == "")
-     return 0;
+     {
+       cout << "No graph specified." << endl;
+       return 0;
+     }
 
    string PATH = GRAPH_PATH + graphname;
 
