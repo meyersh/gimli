@@ -1,3 +1,14 @@
+/******************************************************************************
+ * list_graphs_cgi.cpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * Return a list of the graphs in our GRAPH_PATH directory.
+ *****************************************************************************/
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -14,8 +25,11 @@ int main()
    
    vector<string> files = lsdir(GRAPH_PATH);
 
+   // ignore an empty directory. ("." and ".." don't count.)
    if (files.size() > 2)
       cout << "graphs=";
+   else
+     return 0;
 
    for (int i = 0; i < files.size(); i++)
       {

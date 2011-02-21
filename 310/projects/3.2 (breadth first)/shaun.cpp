@@ -1,12 +1,20 @@
-/**********
- * A few utility functions I was getting sick of re-writing / cutting + pasting.
- * Shaun Meyer, Feb 2011
- *********/
-
+/******************************************************************************
+ * shaun.cpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * A few utility functions I was getting sick of re-writing / 
+ * cutting + pasting.
+ *****************************************************************************/
 #include "shaun.hpp"
 
-std::vector<std::string> split(const std::string line, const std::string split_pattern)
-/* Split a string on `split_pattern` and return a vector containing the result. */
+std::vector<std::string> split(const std::string line, 
+			       const std::string split_pattern)
+/* DESCR: Split a string `line` on `split_pattern` 
+ * RETURNS: a vector containing the result. */
 {
    std::vector<std::string> ret;
    int start,
@@ -36,7 +44,7 @@ std::vector<std::string> split(const std::string line, const std::string split_p
 }
 
 std::string uppercase(const std::string line)
-/* Returns a given string in UPPERCASE */
+/* DESCR: Return a given string in UPPERCASE */
 {
    std::string ret;
    for (int i = 0; i < line.size(); i++)

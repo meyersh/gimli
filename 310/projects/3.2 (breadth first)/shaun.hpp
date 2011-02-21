@@ -1,3 +1,15 @@
+/******************************************************************************
+ * shaun.cpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * A few utility functions I was getting sick of re-writing / 
+ * cutting + pasting.
+ *****************************************************************************/
+
 #ifndef __SHAUN_HPP__
 #define __SHAUN_HPP__
 
@@ -6,7 +18,8 @@
 #include <iostream>
 #include <map>
 
-std::vector<std::string> split(const std::string line, const std::string split_pattern=",");
+std::vector<std::string> split(const std::string line, 
+			       const std::string split_pattern=",");
 std::string uppercase(const std::string line);
 
 template<class V> 

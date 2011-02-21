@@ -1,8 +1,15 @@
-/* 
+/******************************************************************************
+ * graph_cgi.cpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
  * Given a set of options, a starting and ending point, and a 
- * graph name we shall attempt to return the path we came
- * up with for the calling javascript.
- */
+ * graph name we shall attempt to return the path we produced
+ * for our calling javascript.
+ *****************************************************************************/
 
 #include <iostream>
 #include <stdexcept>
@@ -14,7 +21,11 @@
 
 using namespace std;
 
-vector<int> bfs(adjMatrix &matrix, int start_node, int end_node, bool breadth_first_mode=true);
+/* 
+ * Prototypes
+ */
+vector<int> bfs(adjMatrix &matrix, int start_node, int end_node,
+		bool breadth_first_mode=true);
 
 int main()
 {
@@ -25,7 +36,7 @@ int main()
       GRAPH=(graphname)
       START=(int)
       END=(int)
-      TYPE=BREADTHFIRST // optional
+      TYPE=[BREADTHFIRST|DEPTHFIRST] // optional
 
    */
 
@@ -92,10 +103,13 @@ int main()
    
 }
 
-vector<int> bfs(adjMatrix &matrix, int start_node, int end_node, bool breadth_first_mode)
-/* Do a breadth-first search of a given matrix and return the path
- * in a vector of ints. We don't bother to reverse the path so just
- * call us with start_node and end_node reversed and life will go on. */
+vector<int> bfs(adjMatrix &matrix, int start_node, int end_node, 
+		bool breadth_first_mode)
+/* DESC: Do a breadth-first search of a given matrix
+ * PARAMS: adjMatrix, start & end nodes (ints) and bool representing
+ *         the search type.
+ * RETURNS: the path in a vector of ints. We don't bother to reverse 
+ * the path here. */
 {
    stackorqueue<int> *q;
 

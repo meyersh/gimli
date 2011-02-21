@@ -1,6 +1,22 @@
+/******************************************************************************
+ * sysutils.cpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * Some functions to return directory contents and get the timestamp of a file.
+ *****************************************************************************/
+
 #include "sysutils.hpp"
 
 std::vector<std::string> lsdir(const char *path)
+/*
+ * DESCR: Looks up the files in a given directory.
+ * PARAMS: A directory path.
+ * RETURNS: A vector<string> containing all files.
+ */
 {
    DIR *dp;
    struct dirent *dirp;
@@ -18,6 +34,11 @@ std::vector<std::string> lsdir(const char *path)
 }
 
 int timestamp(const char *filename)
+/*
+ * DESCR: Look up the timestamp of a given file
+ * PARAMS: A filepath
+ * RETURNS: The time_t (int) epoch date of the files' mtime.
+ */
 {
    struct stat file_stat;
    stat(filename, &file_stat);
@@ -30,7 +51,7 @@ int timestamp(const std::string &filename)
 }
 
 int delete_oldest_file_in_directory(const std::string &path, time_t min_age)
-/* Delete the oldest file in a directory, comparing the time against NOW.
+/* DESCR: Delete the oldest file in a directory, comparing the time against NOW.
  * if time_t is set to something like (say) five minutes ago, it will delete the
  * oldest files that are 5 minutes old or more. Returns 1 if a file was deleted,
  * 0 if none were. */

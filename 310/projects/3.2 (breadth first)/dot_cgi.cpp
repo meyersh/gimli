@@ -1,3 +1,16 @@
+/******************************************************************************
+ * dot_cgi.cpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * A tentative (and currently unused) example wrapper to return a 
+ * dot representation of a graph when I was still expecting to do this
+ * over http. This is now replaced by webdot.cgi & dot_cli.
+ *****************************************************************************/
+
 #include <cstdlib>
 #include <iostream>
 #include <vector>

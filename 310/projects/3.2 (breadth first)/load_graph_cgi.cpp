@@ -1,3 +1,15 @@
+/******************************************************************************
+ * load_graph_cgi.cpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * This file loads a specified graph and formats it for the javascript 
+ * which calls us.
+ *****************************************************************************/
+
 #include <iostream>
 #include "adjmatrix/adjmatrix.hpp"
 #include "matrix_utils.hpp"

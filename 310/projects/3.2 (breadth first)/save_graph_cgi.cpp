@@ -1,3 +1,15 @@
+/******************************************************************************
+ * save_graph_cgi.cpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * This provides the necessary inteface to allow us to save graphs we've
+ * created/edited from the website.
+ *****************************************************************************/
+
 #include <iostream>
 #include <fstream>
 #include "adjmatrix/adjmatrix.hpp"

@@ -1,7 +1,11 @@
 /******************************************************************************
- * BFS- BREADTH FIRST SEARCH functions
- * Written by: Shaun Meyer, Feb 2011
+ * matrix_utils.cpp
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
  * 
+ * DESCRIPTION:
  * Calculate a path in a graph between two points using the breadth first 
  * algorithm. This has the happy side effect of giving us the shortest path
  * while it's at it.
@@ -21,7 +25,8 @@ adjMatrix &load_matrix(const char *filename, std::string &name)
    graph_file.open(filename);
 
    if (!graph_file)
-      throw runtime_error(std::string("Cannot open file! '") + std::string(filename) + "'");
+      throw runtime_error(std::string("Cannot open file! '") + 
+			  std::string(filename) + "'");
 
    std::string line;
    
@@ -54,32 +59,33 @@ adjMatrix &load_matrix(const char *filename, std::string &name)
 }
 
 int save_matrix(const char* filename, adjMatrix &matrix, std::string name)
-/* Save a matrix to a file */
+/* DESCR: Save a matrix to a file 
+ * PARAMS: filename, adjMatrix, stringname (filename == name, this is legacy)
+ * RETURNS: 0 (could be void, we throw for errors.)
+*/
 {
    ofstream graph_file;
    graph_file.open(filename);
 
    if (!graph_file)
-      throw runtime_error(std::string("Cannot open file for saving! '") + std::string(filename) + "'");
+      throw runtime_error(std::string("Cannot open file for saving! '") + 
+			  std::string(filename) + "'");
    
    graph_file << matrix.size() << "," << name << endl;
 
    for (int x = 0; x < matrix.size(); x++)
-      {
       for (int y = 0; y < matrix.size(); y++)
-	 {
 	 if (matrix.edge(x,y))
 	    graph_file << x << "," << y << endl;
-	 }
-      }
+
    graph_file << endl;
    graph_file.close();
 }
 
 vector<int> bfs_get_path(adjMatrix &matrix, int start_node, int end_node)
-/* Given a matrix and using the bfs algorithm, compute a path from start_node
- * to end_node and return the path in a vector. Note: This path will be 
- * backwards, so it is advisable to swap the start_node and end_node arguments 
+/* DESCR: Given a matrix and using the bfs algorithm, compute a path from start_node
+ * to end_node.
+ * RETURNS: A vector<int> of our path. (Backwards)
  */
 {
    queue<int> q;
@@ -135,20 +141,22 @@ vector<int> bfs_get_path(adjMatrix &matrix, int start_node, int end_node)
 }
 
 int print_matrix_as_dot(const char *filename, bool is_directed)
+/* DESCR: Given a matrix, return its contents as a dot graph.
+ * PARAMS: filename & directional status
+ * RETURNS: 0 (Throws for errors, may as well be void.)
+ */
 {
    std::string name; // place holder for our name;
    adjMatrix &matrix = load_matrix(filename, name);
+
    cout << "graph " << name << " {" << endl;
+
    for (int x = 0; x < matrix.size(); x++)
-      {
       for (int y = 0; y < matrix.size(); y++)
-	 {
 	 if (matrix.edge(x,y))
-	    {
-	    cout << "  " <<  x << (is_directed ? " -> " : " -- ") << y << ";" << endl;
-	    }
-	 }
-      }
+	    cout << "  " <<  x << (is_directed ? " -> " : " -- ") << y << ";" 
+		 << endl;
+
    cout << "}" << endl;
    return 0;
 }

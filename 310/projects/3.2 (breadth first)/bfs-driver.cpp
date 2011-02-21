@@ -1,3 +1,14 @@
+/******************************************************************************
+ * bfs-driver.cpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * Some quick test code for this project.
+ *****************************************************************************/
+
 #include "matrix_utils.hpp"
 
 int main()

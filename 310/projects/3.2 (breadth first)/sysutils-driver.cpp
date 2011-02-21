@@ -1,4 +1,13 @@
-
+/******************************************************************************
+ * sysutils-driver.cpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * A testing interface for my sysutils library.
+ *****************************************************************************/
 
 #include <iostream>
 #include "sysutils.hpp"
