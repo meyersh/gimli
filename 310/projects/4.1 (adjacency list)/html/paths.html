@@ -1,0 +1,237 @@
+    <html>
+    <head>
+    <title>GraphicGrapher (Path finder)</title>
+    <link rel="stylesheet" type="text/css" href="styles/base.css" />
+    <link rel="stylesheet" type="text/css" href="styles/login.css" />
+
+    </head>
+
+<script>
+window.matrix_size = 0;
+function draw_matrix(size)
+{
+    if (size > 50)
+	size = 50;
+    if (size < 2)
+	size = 2;
+    window.matrix_size = size;
+    html = ""
+    div = document.getElementById('table-out');
+    html = "<table border='1'>";
+    for (x = -1; x < size; x++)
+    {
+	html += "<tr>";
+	for (y = -1; y < size; y++)
+	{
+	    if (y < 0) {
+		html += "<td>" + x + "</td>\n";
+		continue;
+	    }
+	    if (x < 0)
+	    {
+		html += "<td>" + y + "</td>\n";
+		continue;
+	    }
+	    coords = x + "," + y;
+	    html += "<td><input type='checkbox' value='" + coords + "' id = '" + coords 
+		    + "' onclick='checkbox(this);' disabled></input></td>\n";
+	}
+	html += "</tr>";
+    }
+    html += "</table>";
+    div.innerHTML = html;
+}
+
+function add_option(selectbox, text, value)
+{
+    var optn = document.createElement("OPTION");
+    optn.text = text;
+    optn.value = value;
+    selectbox.options.add(optn);
+}
+
+function list_graphs(graph_csv)
+{
+    graphs = graph_csv.split(",");
+    document.getElementById('graph_list').length=0;
+    add_option(document.getElementById('graph_list'), "Choose a graph!", "DEFAULT");
+    add_option(document.getElementById('graph_list'), "Create or edit a graph!", "CREATE");
+
+    for (i = 0; i < graphs.length; i++)
+    {
+	add_option(document.getElementById('graph_list'), graphs[i], graphs[i]);
+    }
+}
+
+function update_graph_size()
+/* Update the start_node and end_node size boxes. */
+{
+
+    // set the start & end boxes to the correct nmber of options.
+    document.getElementById('end_node').length = document.getElementById('start_node').length = 0;
+    add_option(document.getElementById('end_node'), "End Node", "DEFAULT");
+    add_option(document.getElementById('start_node'), "Start Node", "DEFAULT");
+
+    for (i = 0; i < window.matrix_size; i++)
+    {
+	add_option(document.getElementById('end_node'), i, i);
+	add_option(document.getElementById('start_node'), i, i);
+    }
+}
+
+
+</script>
+
+    <script src="ajax.js" language="javascript"></script>
+
+    <script>
+function sanitize_graph_name()
+{
+    obj = document.getElementById('graphname');
+    contents = obj.value.toUpperCase();
+    obj.value = contents.replace(/[^A-Z]/g, ""); // remove all non-alpha characters
+}
+
+function checkbox(obj) 
+{
+    
+    if (!document.getElementById("directed").checked)
+    {
+       x = obj.value.split(',')[0];
+       y = obj.value.split(',')[1];
+       recip = document.getElementById(y + ',' + x)
+       recip.checked = obj.checked;
+    }
+
+}
+
+
+
+function save_graph()
+{
+    sanitize_graph_name(); // make sure they didn't try anything sneaky!
+    if (document.getElementById('graphname').value == "")
+    {
+	alert("Graph is unnamed!");
+	return 0;
+    }
+    graph_output = "";
+    graph_output += window.matrix_size + "," + document.getElementById('graphname').value + '\n';
+    for (x = 0; x < window.matrix_size; x++)
+    {
+	for (y = 0; y < window.matrix_size; y++)
+	{
+	    node_coords = x + "," + y;
+	    if (document.getElementById(node_coords).checked)
+	    {
+		graph_output += node_coords + "\n";
+	    }
+	}
+    }
+    
+    sendData(graph_output, "save_graph.cgi", "POST");
+}
+
+function load_graph()
+{
+    graph = document.getElementById('graph_list').value;
+    if (graph == "CREATE")
+	window.location ="index.html";
+    else if (graph != "DEFAULT")
+    {
+	/* if this is un-commented, the graph list is refreshed on every 
+	 * "choose a graph" onChange event. */
+	//sendData("", "list_graphs.cgi", "POST");
+	sendData(graph, "load_graph.cgi", "POST");
+	document.getElementById("dotimage").src="webdot.cgi?GRAPH="+graph;
+	document.getElementById("dotimage").style.height="250px";
+	document.getElementById("dotimage").style.width="250px";
+    }
+
+}
+
+function generate_path(type)
+{
+    graph = document.getElementById('graph_list').value;
+    start = document.getElementById('start_node').value;
+    end   = document.getElementById('end_node').value;
+
+    if (graph == "DEFAULT") {
+	raiseError("You must select a graph first.");
+	return 0;
+    }
+    else if (start == "DEFAULT") {
+	raiseError("You must select a start node first.");
+	return 0;
+    }
+    else if (end == "DEFAULT") {
+	raiseError("You must select an end node first.");
+	return 0;
+    }
+
+    request = "";
+    request += "GRAPH=" + graph + "\n" + 
+	"END=" + end + "\n" +
+	"START=" + start + "\n" + 
+	"TYPE=" + type + "\n";
+    
+    sendData(request, "graph.cgi", "POST");
+
+}
+
+</script>
+
+<body>
+<div id="header">
+  <div id="branding">
+    <h1 id="site-name">GraphicGrapher Matrix Path-Finder</h1>
+  </div>
+</div>
+<div id="help">
+<h3>Usage Instructions:</h3>
+<ul>
+<li>You may choose a pre-created graph from the dropdown list. </li>
+<li>Following this, you may select any start & end node.</li>
+<li>Choose any of the applicable buttons to show some paths. </li>
+<li>If the graph file has been edited (by someone else, maybe?) you may Re(load) it.</li>
+</ul>
+</div>
+<div id="header">
+<select id='graph_list' onchange="load_graph();"/>
+<option value="DEFAULT">Choose a graph!</option>
+<option value="CREATE">Create or edit a graph</option>
+</select>
+
+<select id='start_node'/>
+<option value="DEFAULT">START NODE</option>
+</select>
+
+<select id='end_node'/>
+<option value="DEFAULT">END NODE</option>
+</select>
+
+<input type="button" value="(Re)load graph" onclick='load_graph();'/>
+<input type="button" value="Generate shortest path" onclick='generate_path("BREADTHFIRST");'>
+<input type="button" value="Generate any old path" onclick='generate_path("DEPTHFIRST");'>
+
+</div>
+<p/>
+
+<p/>
+<div id="error"></div>
+<div id="notice"></div>
+<p/>
+<div id="dotcontainer" style="float:right">
+<img src="white.gif" id="dotimage"/>
+</div>
+<p/>
+<div id="table-out"></div>
+<p/>
+<div id="responseSpot"></div>
+
+<script>
+draw_matrix(5);
+sendData("", "list_graphs.cgi", "POST");
+</script>
+</body>
+</html>
