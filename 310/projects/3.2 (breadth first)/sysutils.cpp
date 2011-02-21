@@ -73,7 +73,7 @@ int delete_oldest_file_in_directory(const std::string &path, time_t min_age)
    
    if (oldest_file_name != "")
       {
-	//unlink( std::string(path + oldest_file_name).c_str() );
+	unlink( std::string(path + oldest_file_name).c_str() );
 	std::cout << "error=deleting " << oldest_file_name << ".\n";
 	return 1;
       }

@@ -63,10 +63,11 @@ int main()
    
    try
       {
-	if (lsdir(GRAPH_PATH).size() > 22)
+	if (lsdir(GRAPH_PATH).size() > MAX_GRAPHS_ON_DISK + 2)
 	  {
 	    delete_oldest_file_in_directory(GRAPH_PATH);
-	    cout << "notice=Deleted a graph to maintain max-of-20.\n";
+	    cout << "notice=Deleted a graph to maintain max-of-" 
+		 << MAX_GRAPHS_ON_DISK+2 << ".\n";
 	  }
 	    save_matrix(filename.c_str(), *tmp_matrix, name);
 	    delete tmp_matrix;
