@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Breadth first search prototype
+# Breadth-first search prototype
 #
 # Shaun Meyer, Feb 2011
 #
@@ -17,6 +17,8 @@ end_node = 3
 q = []
 
 def enqueue(item):
+    # Turns out, if you sub a stack for a queue, you get a 
+    # depth-first search!
     #    q.insert(0, item)
     q.append(item)
 

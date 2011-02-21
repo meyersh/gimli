@@ -41,7 +41,7 @@ int main(int argc, char **argv)
    string PATH = GRAPH_PATH + graphname;
 
    try { 
-     print_matrix_as_dot(PATH.c_str()); 
+     print_matrix_as_dot(PATH.c_str(), true); 
    } catch (const char e) { 
      cout << e << endl; 
    }
