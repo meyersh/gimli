@@ -40,6 +40,10 @@ int              save_matrix(const char *filename, adjMatrix &matrix,
 std::vector<int> bfs_get_path(adjMatrix &matrix, int start_node, int end_node);
 std::vector<int> dfs_get_path(adjMatrix &matrix, int start_node, int end_node);
 
+std::vector<int> bfs(adjMatrix &matrix, int start_node, int end_node,
+		     bool breadth_first_mode=true);
+
+
 int         print_matrix_as_dot(const char *filename, bool is_directed=false);
 
 #endif

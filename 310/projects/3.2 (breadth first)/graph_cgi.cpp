@@ -24,8 +24,7 @@ using namespace std;
 /* 
  * Prototypes
  */
-vector<int> bfs(adjMatrix &matrix, int start_node, int end_node,
-		bool breadth_first_mode=true);
+
 
 int main()
 {
@@ -103,69 +102,3 @@ int main()
    
 }
 
-vector<int> bfs(adjMatrix &matrix, int start_node, int end_node, 
-		bool breadth_first_mode)
-/* DESC: Do a breadth-first search of a given matrix
- * PARAMS: adjMatrix, start & end nodes (ints) and bool representing
- *         the search type.
- * RETURNS: the path in a vector of ints. We don't bother to reverse 
- * the path here. */
-{
-   stackorqueue<int> *q;
-
-   if (breadth_first_mode)
-      q = new queue<int>;
-   else
-      q = new stack<int>;
-
-   q->push(start_node);
-   int current_node = start_node;
-
-   vector<int> from_list(matrix.size(), -1),  // where are we from?
-      visited(matrix.size(), 0); // have we visited this node before?
-
-   bool path_found = true;
-
-   while (current_node != end_node)
-      {
-      current_node = q->pop();
-      for (int edge = 0; edge < matrix.size(); edge++)
-	 {
-	 if (matrix.edge(current_node, edge) == 0)
-	    continue;
-	 if (visited[edge])
-	    continue;
-	 
-	 cout << "node=" << current_node << "," << edge << endl;
-	 from_list[edge] = current_node;
-	 visited[edge] = true;
-	 q->push(edge);
-	 }
-
-      if (!q->size() && current_node != end_node)
-	 /* We've exhausted our search possibilities and still have 
-	  * no full path to show. Abort. */
-	 {
-	 path_found = false;
-	 break;
-	 }
-      }
-
-   /* Now translate our from_list into a vector-path */
-   int i = end_node;
-   vector<int> ret;
-
-   if (!path_found)
-      return ret; // stop here if no path was discovered
-
-   ret.push_back(i);
-
-   while (i != start_node)
-      {
-      ret.push_back(from_list[i]);
-      i = from_list[i];
-      }
-
-   return ret;
-
-}
