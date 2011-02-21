@@ -14,6 +14,7 @@
 #include <fstream>
 #include "adjmatrix/adjmatrix.hpp"
 #include "matrix_utils.hpp"
+#include "sysutils.hpp"
 #include "shaun.hpp"
 
 using namespace std;
@@ -22,6 +23,7 @@ using namespace std;
  * 50*50 + (1 header) lines. Stop reading if we get more than that.
  */
 #define MAX_LINES 50*50
+#define MAX_GRAPHS_ON_DISK 20
 
 int main()
 {
@@ -61,9 +63,14 @@ int main()
    
    try
       {
-      save_matrix(filename.c_str(), *tmp_matrix, name);
-      delete tmp_matrix;
-      }
+	if (lsdir(GRAPH_PATH).size() > 22)
+	  {
+	    delete_oldest_file_in_directory(GRAPH_PATH);
+	    cout << "notice=Deleted a graph to maintain max-of-20.\n";
+	  }
+	    save_matrix(filename.c_str(), *tmp_matrix, name);
+	    delete tmp_matrix;
+	    }
    catch (runtime_error e)
       {
       cout << "error=" << e.what() << endl;

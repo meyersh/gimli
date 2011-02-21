@@ -21,8 +21,8 @@ dot_cli: shaun.o dot_cli.cpp adjmatrix.o matrix_utils.o
 load_graph.cgi: load_graph_cgi.cpp adjmatrix.o matrix_utils.o shaun.o
 	g++ -I/usr/local/include shaun.o adjmatrix.o matrix_utils.o load_graph_cgi.cpp -o load_graph.cgi
 
-save_graph.cgi: save_graph_cgi.cpp adjmatrix.o matrix_utils.o shaun.o
-	g++ -I/usr/local/include shaun.o adjmatrix.o matrix_utils.o save_graph_cgi.cpp -o save_graph.cgi
+save_graph.cgi: save_graph_cgi.cpp adjmatrix.o matrix_utils.o shaun.o sysutils.o
+	g++ -I/usr/local/include sysutils.o shaun.o adjmatrix.o matrix_utils.o save_graph_cgi.cpp -o save_graph.cgi
 
 graph.cgi: graph_cgi.cpp adjmatrix.o matrix_utils.o shaun.o
 	g++ -I/usr/local/include shaun.o adjmatrix.o matrix_utils.o graph_cgi.cpp -o graph.cgi

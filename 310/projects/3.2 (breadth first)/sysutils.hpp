@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
+#include <iostream>
 
 std::vector<std::string> lsdir(const char *path);
 int timestamp(const char *filename);
