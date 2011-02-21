@@ -215,6 +215,8 @@ int print_matrix_as_dot(const char *filename, bool is_directed)
 {
    std::string name; // place holder for our name;
    adjMatrix &matrix = load_matrix(filename, name);
+   if (is_directed)
+     cout << "di";
 
    cout << "graph " << name << " {" << endl;
 
