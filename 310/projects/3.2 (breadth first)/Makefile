@@ -31,7 +31,9 @@ list_graphs.cgi: list_graphs_cgi.cpp sysutils.o shaun.o
 	g++ -I/usr/local/include shaun.o sysutils.o list_graphs_cgi.cpp -o list_graphs.cgi
 
 clean:
-	rm dot.cgi load_graph.cgi save_graph.cgi graph.cgi list_graphs.cgi sysutils-driver bfs-driver dot_cli
+	rm *.o *.cgi sysutils-driver bfs-driver dot_cli
 
 install: all
 	cp *.cgi ~/public_html/310/bfs/
+	cp webdot_cgi.sh ~/public_html/310/bfs/webdot.cgi
+	cp dot_cli ~/bin/
