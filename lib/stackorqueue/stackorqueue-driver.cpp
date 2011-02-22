@@ -1,3 +1,14 @@
+/******************************************************************************
+ * stackorqueue-driver.cpp -
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * A quick test of of stackorqueue.hpp
+ *****************************************************************************/
+
 #include <iostream>
 #include <vector>
 #include <string>

@@ -1,11 +1,20 @@
+/******************************************************************************
+ * stackorqueue.hpp - 
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * stackorqueue container class (renders a linked-list stack)
+ * Basically, we create an abstract base class which can hold either a 
+ * Stack or a Queue. At run time, we decide which is which and can then
+ * program a bit more flexibly. 
+ ******************************************************************************/
+
 #ifndef __STACKORQUEUE__HPP__
 #define __STACKORQUEUE__HPP__
 
-
-/*******************************************************************************
- * stackorqueue container class (renders a linked-list stack)
- * Shaun Meyer, Jan 2011
- ******************************************************************************/
 
 #include "boost/shared_ptr.hpp"
 
@@ -91,14 +100,14 @@ public:
    }
 
 
-  /*
-   * top()
-   */
-  V &top()
-  /* Return the top-of-stack value without popping it off. */
-  {
-    return top_of_stack->value;
-  }
+   /*
+    * top()
+    */
+   V &top()
+   /* Return the top-of-stack value without popping it off. */
+   {
+      return top_of_stack->value;
+   }
    
    /* 
     * nth()
@@ -127,10 +136,10 @@ public:
 
 private:
 
-  queue_ptr  front_of_queue,
-             back_of_queue;
+   queue_ptr  front_of_queue,
+      back_of_queue;
 
-  int        queue_size;
+   int        queue_size;
    
 public:
 
@@ -148,11 +157,11 @@ public:
 
       /* Skip this if we're the only item in queue. */
       if (back_of_queue)
-     	back_of_queue->next = new_item; 
+	 back_of_queue->next = new_item; 
 
       /* If this is the first item in queue, it's the front */
       if (!front_of_queue)
-	front_of_queue = new_item;
+	 front_of_queue = new_item;
 
       back_of_queue = new_item; // new item is dead last now.
       queue_size++;
@@ -174,14 +183,14 @@ public:
    }
    
 
-  /* 
-   * front()
-   */
-  V &front()
-  /* Return the value of the front_of_stack without removing it. */
-  {
-    return front_of_queue->value;
-  }
+   /* 
+    * front()
+    */
+   V &front()
+   /* Return the value of the front_of_stack without removing it. */
+   {
+      return front_of_queue->value;
+   }
 
    /*
     * top()
