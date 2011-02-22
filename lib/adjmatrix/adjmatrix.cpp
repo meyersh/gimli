@@ -1,7 +1,12 @@
 /*******************************************************************************
- * adjmatrix.hpp
- * CREATED BY: Shaun Meyer, Jan-2011
- *             
+ * adjmatrix.cpp -
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * A basic class to maintain an adjacency matrix in memory.
  *******************************************************************************/
 #include <stdexcept>
 #include "adjmatrix.hpp"
@@ -48,17 +53,17 @@ void adjMatrix::resize_matrix(int new_size)
    int boundary;
 
    if (new_size == old_size)
-       return;
+      return;
    else if (new_size > old_size)
-     boundary = old_size;
+      boundary = old_size;
    else if (new_size < old_size)
-     boundary = new_size;
+      boundary = new_size;
 
      
    /* Copy all the datas over */
    for (int x = 0; x < boundary; x++)
-     for (int y = 0; y < boundary; y++)
-       edge(x, y) = old_matrix[old_size*x + y];
+      for (int y = 0; y < boundary; y++)
+	 edge(x, y) = old_matrix[old_size*x + y];
 
    /* Finally, free the old data */
    delete [] old_matrix;
@@ -69,10 +74,10 @@ void adjMatrix::resize_matrix(int new_size)
 int& adjMatrix :: edge(int vertex_x, int vertex_y)
 /* Get and Set a given edge between two nodes. */
 {
-  if (vertex_x > matrix_size || vertex_x < 0)
-    throw std::out_of_range("vertex_x");
-  else if (vertex_y > matrix_size || vertex_y < 0)
-    throw std::out_of_range("vertex_y");
+   if (vertex_x > matrix_size || vertex_x < 0)
+      throw std::out_of_range("vertex_x");
+   else if (vertex_y > matrix_size || vertex_y < 0)
+      throw std::out_of_range("vertex_y");
 
    return matrix[matrix_size*vertex_x + vertex_y];
 }

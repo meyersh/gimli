@@ -1,7 +1,13 @@
 /*******************************************************************************
- * adjMatrix class definition.
- * CREATED BY: Shaun Meyer, Jan-2011
-*******************************************************************************/
+ * adjmatrix.hpp -
+ * Created for CSCI 310 
+ * SUBMITTED BY: Shaun Meyer
+ *   CREATED BY: Shaun Meyer
+ *      CREATED: 16 Feb, 2011
+ * 
+ * DESCRIPTION:
+ * A basic class to maintain an adjacency matrix in memory.
+ *******************************************************************************/
 
 #ifndef __ADJMATRIX_HPP__
 #define __ADJMATRIX_HPP__
