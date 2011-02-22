@@ -59,7 +59,7 @@ int main()
 	 breadth_first = true;
       else if (inpt[0] == "TYPE" && inpt[1] == "DEPTHFIRST")
 	 breadth_first = false;
-	  }
+      }
    
    string graph_path=string(GRAPH_PATH) + graph_name;
    string name;

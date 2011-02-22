@@ -37,10 +37,6 @@ adjMatrix  &load_matrix(const char *filename, std::string &name);
 int              save_matrix(const char *filename, adjMatrix &matrix, 
 			     std::string name="default");
 
-/* these are obsolete now, replaces by bfs()... */
-std::vector<int> bfs_get_path(adjMatrix &matrix, int start_node, int end_node);
-std::vector<int> dfs_get_path(adjMatrix &matrix, int start_node, int end_node);
-
 /* This will also do a dfs, and is horribly named (I know.) */
 std::vector<int> bfs(adjMatrix &matrix, int start_node, int end_node,
 		     bool breadth_first_mode=true);

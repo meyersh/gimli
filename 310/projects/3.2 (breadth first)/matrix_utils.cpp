@@ -62,7 +62,7 @@ int save_matrix(const char* filename, adjMatrix &matrix, std::string name)
 /* DESCR: Save a matrix to a file 
  * PARAMS: filename, adjMatrix, stringname (filename == name, this is legacy)
  * RETURNS: 0 (could be void, we throw for errors.)
-*/
+ */
 {
    ofstream graph_file;
    graph_file.open(filename);
@@ -80,64 +80,6 @@ int save_matrix(const char* filename, adjMatrix &matrix, std::string name)
 
    graph_file << endl;
    graph_file.close();
-}
-
-vector<int> bfs_get_path(adjMatrix &matrix, int start_node, int end_node)
-/* DESCR: Given a matrix and using the bfs algorithm, compute a path from start_node
- * to end_node.
- * RETURNS: A vector<int> of our path. (Backwards)
- */
-{
-   queue<int> q;
-
-   /* priming read pattern */
-   int current_node = -1;
-   q.push(start_node);
-
-   boost::scoped_array<bool>  visited(new bool[matrix.size()]);
-   boost::scoped_array<int> from_list(new int [matrix.size()]);
-
-   /* initialize visited & from_list */
-   for (int i = 0; i < matrix.size(); i++)
-      {
-      visited[i] = false;
-      from_list[i] = -1;
-      }
-
-   /* 
-    * Calculate the breadth-first path 
-    * NOTE: Doesn't look for non-path graphs yet!
-    */
-   while (current_node != end_node)
-      {
-      current_node = q.pop();
-
-      for (int edge = 0; edge < matrix.size(); edge++)
-	 {
-	 if (!matrix.edge(current_node, edge))
-	    continue;
-	 if (visited[edge])
-	    continue;
-
-	 from_list[edge] = current_node;
-	 visited[edge] = true;
-	 q.push(edge);
-	 }
-
-      }
-
-   /*
-    * Now, put together a vector indicating our path!
-    */
-   vector<int> ret;
-   current_node = end_node;
-   while (current_node != start_node)
-      {
-      ret.push_back(current_node);
-      current_node = from_list[current_node];
-      }
-
-   return ret;
 }
 
 vector<int> bfs(adjMatrix &matrix, int start_node, int end_node, 
@@ -216,7 +158,7 @@ int print_matrix_as_dot(const char *filename, bool is_directed)
    std::string name; // place holder for our name;
    adjMatrix &matrix = load_matrix(filename, name);
    if (is_directed)
-     cout << "di";
+      cout << "di";
 
    cout << "graph " << name << " {" << endl;
 

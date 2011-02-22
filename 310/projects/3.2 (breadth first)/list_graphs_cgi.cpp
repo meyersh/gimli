@@ -29,7 +29,7 @@ int main()
    if (files.size() > 2)
       cout << "graphs=";
    else
-     return 0;
+      return 0;
 
    for (int i = 0; i < files.size(); i++)
       {

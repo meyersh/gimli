@@ -33,34 +33,34 @@ int main()
    /* Split up the query string and check for GRAPH= variable. */
    vector<string> query_strings = split(querystrings, "&");
    if (query_strings.size() == 0)
-     {
-       cout << "No query strings specified.\n";
-       return 0;
-     }
+      {
+      cout << "No query strings specified.\n";
+      return 0;
+      }
 
    string graphname = "";
    for (int i = 0; i < query_strings.size(); i++)
-     {
-       vector<string> keyval = split(query_strings[i], "=");
-       if (keyval.size() != 2)
+      {
+      vector<string> keyval = split(query_strings[i], "=");
+      if (keyval.size() != 2)
 	 continue;
        
-       if (keyval[0] == "GRAPH")
+      if (keyval[0] == "GRAPH")
 	 graphname = keyval[1];
-     }
+      }
 
    if (graphname == "")
-     {
-       cout << "No graph specified." << endl;
-       return 0;
-     }
+      {
+      cout << "No graph specified." << endl;
+      return 0;
+      }
 
    string PATH = GRAPH_PATH + graphname;
 
    try { 
-     print_matrix_as_dot(PATH.c_str()); 
+   print_matrix_as_dot(PATH.c_str()); 
    } catch (const char e) { 
-     cout << e << endl; 
+   cout << e << endl; 
    }
 }
 
