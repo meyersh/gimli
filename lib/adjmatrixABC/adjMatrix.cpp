@@ -95,19 +95,30 @@ void unweightedDirectedLST::clearAll()
 int unweightedDirectedLST::checkBit(int r, int c)
 /* return true if node r has neighbor c */
 {
-   unweightedDirectedLST::Item *cur;
-   for (cur = matrix[r]; cur && cur->value == c; cur = cur->next)
-      ;
-
-   if (cur && cur->value == c)
-      /* We found it. Move it to the front of the list and return true. */
+   unweightedDirectedLST::Item *trail;
+   if (matrix[r] && matrix[r]->value == c)
+      /* Do nothing, the first item in the list is our match. */
       {
-      unweightedDirectedLST::Item *mov;
-      mov = 
-      matrix[r] = 
       return true;
       }
-   
+   else
+      {
+      for (trail = matrix[r];
+	   trail && trail->next && trail->next->value != c;
+	   trail = trail->next)
+	 ;
+
+      if (trail && trail->next && trail->next->value == c)
+	 /* We found it. Move it to the front of the list and return true. */
+	 {
+	 unweightedDirectedLST::Item *mov;
+	 mov = trail->next;
+	 trail->next = trail->next->next;
+	 mov->next = matrix[r];
+	 matrix[r] = mov;
+	 return true;
+	 }
+      }
    return false;
 }
 
