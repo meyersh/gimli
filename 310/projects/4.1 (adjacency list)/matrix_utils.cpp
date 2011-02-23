@@ -15,7 +15,7 @@
 
 using namespace std;
 
-adjMatrix &load_matrix(const char *filename, std::string &name)
+unweightedDirectedLST &load_matrix(const char *filename, std::string &name)
 /* given a filename and "name" reference, we'll attempt
  * to load a graph from a file and, as a side-effect,
  * populate the name variable.
@@ -33,7 +33,7 @@ adjMatrix &load_matrix(const char *filename, std::string &name)
    /* We expect the FIRST line of the file to contain the 
     * size of the matrix, comma, the name of the matrix. */
    std::getline(graph_file, line);
-   adjMatrix *loaded_matrix = new adjMatrix(atoi(split(line, ",")[0].c_str()));
+   unweightedDirectedLST *loaded_matrix = new unweightedDirectedLST(atoi(split(line, ",")[0].c_str()));
    name = split(line, ",")[1];
 
    /* from here on out we expect comma-separated "points", 
@@ -50,7 +50,7 @@ adjMatrix &load_matrix(const char *filename, std::string &name)
       int x = atoi( inpt[0].c_str() );
       int y = atoi( inpt[1].c_str() );
 
-      loaded_matrix->edge(x,y) = 1;
+      loaded_matrix->setBit(x,y);
       
       }
 
@@ -58,9 +58,9 @@ adjMatrix &load_matrix(const char *filename, std::string &name)
    return *loaded_matrix;
 }
 
-int save_matrix(const char* filename, adjMatrix &matrix, std::string name)
+int save_matrix(const char* filename, unweightedDirectedLST &matrix, std::string name)
 /* DESCR: Save a matrix to a file 
- * PARAMS: filename, adjMatrix, stringname (filename == name, this is legacy)
+ * PARAMS: filename, unweightedDirectedLST, stringname (filename == name, this is legacy)
  * RETURNS: 0 (could be void, we throw for errors.)
  */
 {
@@ -75,17 +75,17 @@ int save_matrix(const char* filename, adjMatrix &matrix, std::string name)
 
    for (int x = 0; x < matrix.size(); x++)
       for (int y = 0; y < matrix.size(); y++)
-	 if (matrix.edge(x,y))
+	 if (matrix.checkBit(x,y))
 	    graph_file << x << "," << y << endl;
 
    graph_file << endl;
    graph_file.close();
 }
 
-vector<int> bfs(adjMatrix &matrix, int start_node, int end_node, 
+vector<int> bfs(unweightedDirectedLST &matrix, int start_node, int end_node, 
 		bool breadth_first_mode)
 /* DESC: Do a breadth-first search of a given matrix
- * PARAMS: adjMatrix, start & end nodes (ints) and bool representing
+ * PARAMS: unweightedDirectedLST, start & end nodes (ints) and bool representing
  *         the search type.
  * RETURNS: the path in a vector of ints. We don't bother to reverse 
  * the path here. */
@@ -110,7 +110,7 @@ vector<int> bfs(adjMatrix &matrix, int start_node, int end_node,
       current_node = q->pop();
       for (int edge = 0; edge < matrix.size(); edge++)
 	 {
-	 if (matrix.edge(current_node, edge) == 0)
+	 if (!matrix.checkBit(current_node, edge))
 	    continue;
 	 if (visited[edge])
 	    continue;
@@ -156,7 +156,7 @@ int print_matrix_as_dot(const char *filename, bool is_directed)
  */
 {
    std::string name; // place holder for our name;
-   adjMatrix &matrix = load_matrix(filename, name);
+   unweightedDirectedLST &matrix = load_matrix(filename, name);
    if (is_directed)
       cout << "di";
 
@@ -164,7 +164,7 @@ int print_matrix_as_dot(const char *filename, bool is_directed)
 
    for (int x = 0; x < matrix.size(); x++)
       for (int y = 0; y < matrix.size(); y++)
-	 if (matrix.edge(x,y))
+	 if (matrix.checkBit(x,y))
 	    cout << "  " <<  x << (is_directed ? " -> " : " -- ") << y << ";" 
 		 << endl;
 

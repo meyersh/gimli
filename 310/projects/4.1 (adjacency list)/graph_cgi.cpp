@@ -14,7 +14,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-#include "adjmatrix/adjmatrix.hpp"
+#include "adjmatrixABC/adjMatrix.hpp"
 #include "stackorqueue/stackorqueue.hpp"
 #include "matrix_utils.hpp"
 #include "shaun.hpp"
@@ -66,7 +66,7 @@ int main()
    
    try 
       {
-      adjMatrix &graph = load_matrix(graph_path.c_str(), name);
+      unweightedDirectedLST &graph = load_matrix(graph_path.c_str(), name);
 
       if (start < 0 || start > graph.size() || end < 0 || end > graph.size())
 	 throw runtime_error("start or end nodes out_of_range.");

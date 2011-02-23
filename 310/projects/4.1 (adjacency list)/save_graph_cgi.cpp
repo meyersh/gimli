@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "adjmatrixABC/adjmatrix.hpp"
+#include "adjmatrixABC/adjMatrix.hpp"
 #include "matrix_utils.hpp"
 #include "sysutils.hpp"
 #include "shaun.hpp"
@@ -41,7 +41,7 @@ int main()
       return 0;
       }
 
-   adjMatrix *tmp_matrix = new adjMatrix(atoi(split(line, ",")[0].c_str()));
+   unweightedDirectedLST *tmp_matrix = new unweightedDirectedLST(atoi(split(line, ",")[0].c_str()));
    name = split(line, ",")[1];
 
    while(std::getline(cin, line))
@@ -52,10 +52,10 @@ int main()
       int x = atoi( inpt[0].c_str() );
       int y = atoi( inpt[1].c_str() );
 
-      tmp_matrix->edge(x,y) = 1;
+      tmp_matrix->setBit(x,y);
       }
 
-   /* We're all done making our adjMatrix. if everything is OK, we'll 
+   /* We're all done making our unweightedDirectedLST. if everything is OK, we'll 
       write it out. */
    string filename;
    filename += GRAPH_PATH;

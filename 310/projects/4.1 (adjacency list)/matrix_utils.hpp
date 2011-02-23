@@ -18,7 +18,7 @@
 
 #include <boost/scoped_array.hpp>
 
-#include "adjmatrixABC/adjmatrix.hpp"
+#include "adjmatrixABC/adjMatrix.hpp"
 #include "stackorqueue/stackorqueue.hpp"
 #include "shaun.hpp"
 
@@ -32,13 +32,13 @@
  * Prototypes
  */
 
-adjMatrix  &load_matrix(const char *filename, std::string &name);
+unweightedDirectedLST  &load_matrix(const char *filename, std::string &name);
 
-int              save_matrix(const char *filename, adjMatrix &matrix, 
+int              save_matrix(const char *filename, unweightedDirectedLST &matrix, 
 			     std::string name="default");
 
 /* This will also do a dfs, and is horribly named (I know.) */
-std::vector<int> bfs(adjMatrix &matrix, int start_node, int end_node,
+std::vector<int> bfs(unweightedDirectedLST &matrix, int start_node, int end_node,
 		     bool breadth_first_mode=true);
 
 

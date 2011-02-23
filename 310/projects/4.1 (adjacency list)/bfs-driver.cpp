@@ -14,7 +14,7 @@
 int main()
 {
    // lets try some stuff!
-   /*   adjMatrix foo(5);
+   /*   unweightedDirectedLST foo(5);
 	for (int i = 0; i < foo.size(); i++)
 	{
 	foo.edge(i, i) = 1;
