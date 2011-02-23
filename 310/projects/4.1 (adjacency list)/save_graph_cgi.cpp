@@ -63,12 +63,21 @@ int main()
    
    try
       {
+      bool deleted_to_make_room = false;
       if (lsdir(GRAPH_PATH).size() > MAX_GRAPHS_ON_DISK + 2)
 	 {
+	 deleted_to_make_room = true;
 	 delete_oldest_file_in_directory(GRAPH_PATH);
 	 cout << "notice=Deleted a graph to maintain max-of-" 
 	      << MAX_GRAPHS_ON_DISK+2 << ".\n";
 	 }
+
+      if (deleted_to_make_room)
+	 cout << "notice=Deleted a graph to maintain max-of-" 
+	      << MAX_GRAPHS_ON_DISK+2 << ". Graph saved.\n";
+	 else
+	    cout << "notice=Graph saved.\n";
+
       save_matrix(filename.c_str(), *tmp_matrix, name);
       delete tmp_matrix;
       }
