@@ -12,7 +12,7 @@ adjmatrix.o: adjmatrixABC/adjMatrix.cpp bitarray.o
 matrix_utils.o: shaun.o
 	g++ $(BOOST) -c matrix_utils.cpp
 
-bfs-driver:  adjmatrix.o matrix_utils.o bfs-driver.cpp shaun.o
+bfs-driver: $(HELPERS) bfs-driver.cpp
 	g++ $(BOOST) $(HELPERS)  bfs-driver.cpp -o bfs-driver
 
 sysutils-driver: shaun.o sysutils.o sysutils-driver.cpp
