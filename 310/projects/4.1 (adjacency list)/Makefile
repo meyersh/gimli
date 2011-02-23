@@ -40,6 +40,6 @@ clean:
 	rm *.o *.cgi sysutils-driver bfs-driver dot_cli
 
 install: all
-	cp *.cgi ~/public_html/310/bfs/
-	cp webdot_cgi.sh ~/public_html/310/bfs/webdot.cgi
+	cp *.cgi ~/public_html/310/bfslist/
+	cp webdot_cgi.sh ~/public_html/310/bfslist/webdot.cgi
 	cp dot_cli ~/bin/
