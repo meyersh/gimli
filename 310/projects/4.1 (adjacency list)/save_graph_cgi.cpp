@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "adjmatrix/adjmatrix.hpp"
+#include "adjmatrixABC/adjmatrix.hpp"
 #include "matrix_utils.hpp"
 #include "sysutils.hpp"
 #include "shaun.hpp"

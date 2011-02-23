@@ -11,7 +11,7 @@
  *****************************************************************************/
 
 #include <iostream>
-#include "adjmatrix/adjmatrix.hpp"
+#include "adjmatrixABC/adjmatrix.hpp"
 #include "matrix_utils.hpp"
 
 using namespace std;

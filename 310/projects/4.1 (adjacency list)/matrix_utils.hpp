@@ -18,7 +18,7 @@
 
 #include <boost/scoped_array.hpp>
 
-#include "adjmatrix/adjmatrix.hpp"
+#include "adjmatrixABC/adjmatrix.hpp"
 #include "stackorqueue/stackorqueue.hpp"
 #include "shaun.hpp"
 
