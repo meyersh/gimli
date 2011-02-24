@@ -26,6 +26,7 @@ public:
    virtual void clearAll()             = 0;
    virtual int  checkBit(int r, int c) = 0;
    virtual void print()                = 0;
+   virtual unsigned int size()         = 0;
 };
 
 
@@ -59,6 +60,8 @@ public:
    /* should output the array one full row at a time of  0's and 1's.  Note 
       that both, including the triangular array, should be output as a sz x sz 
       array on the screen.  (It's okay if lines too long for the screen wrap.) */
+
+   unsigned int size();
 
    unweightedDirected(int sz) {
       matrix=NULL;
@@ -107,6 +110,8 @@ public:
    /* should output the array one full row at a time of  0's and 1's.  Note 
       that both, including the triangular array, should be output as a sz x sz 
       array on the screen.  (It's okay if lines too long for the screen wrap.) */
+
+   unsigned int size();
 
    unweightedUndirected(int sz) {
       matrix=NULL;

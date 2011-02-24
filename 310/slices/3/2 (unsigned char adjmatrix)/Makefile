@@ -3,7 +3,7 @@
 # Shaun Meyer, Feb 2011
 ###############################################################################
 
-CPPFLAGS += -I/usr/local/include
+CPPFLAGS += -I/usr/local/include 
 CXXFLAGS += -g 
 CXXFLAGS += $(CPPFLAGS)
 
