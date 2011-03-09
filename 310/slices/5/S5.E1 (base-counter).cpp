@@ -26,7 +26,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
+#include <cstdlib> // for atoi()
 using namespace std;
 
 /* Max number of digits we'll accept as valid. */
