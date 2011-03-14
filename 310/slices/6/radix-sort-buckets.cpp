@@ -19,9 +19,15 @@
 #include <string>
 #include <queue>
 
-#define error 1
-
 using namespace std;
+
+/*
+ * Prototypes
+ */
+void sift(vector<queue<unsigned int> > &buckets, 
+	  unsigned int element, unsigned int dig);
+
+
 
 int main(int argc, char **argv)
 {
@@ -90,6 +96,7 @@ int main(int argc, char **argv)
    */
   for (int i = 0; i < data.size(); i++)
     cout << i << ": " << data[i] << endl;
+  cout << endl;
 
   /*
    * Begin sorting.
@@ -99,7 +106,7 @@ int main(int argc, char **argv)
      queue for items with a 0 in the current digit, Element 1 
      will be the queue for items with a 1. */
   vector< queue<int> > buckets(2);
-   
+
   /* Loop for-each bit in an unsigned int (32 or 64) */
   for (int dig = 0; /* 0 is the right-most bit. */
        dig < sizeof(unsigned int)*8; 
@@ -107,44 +114,58 @@ int main(int argc, char **argv)
     {
       /* populate our buckets from the array based
 	 on the value of the bit in `dig` digit. */
-      for (int element = 0;
-	   element < data.size();
-	   element++)
-	{
-	  /* We maintain a queue for every possible
-	   * value at a given bit. The element to be sorted
-	   * in our data vector goes into the queue based on 
-	   * the value in the `dig` bit. 
-	   */
-	  if (data[element] & (1<<dig))
+      if (!dig) // first pass, elements come from `data`
+	for (int element = 0;
+	     element < data.size();
+	     element++)
+	  {
+	    /* We maintain a queue for every possible
+	     * value at a given bit. The element to be sorted
+	     * in our data vector goes into the queue based on 
+	     * the value in the `dig` bit. 
+	     */
+	    if (data[element] & (1<<dig))
 	      buckets[1].push(data[element]);
-	  else
+	    else
 	      buckets[0].push(data[element]);
-	}
-
-      /* Buckets are now populated with all elements. We now
-       * put them all back into the `data` vector, popping all 
-       * of the 0's into the array followed by all of the 1's. 
-       * This will prepare us for the next bit.
-       */
-      for (int element = 0;
-	   element < data.size();
-	   element++)
+	  }
+      else // all other passes, data already in buckets.
 	{
-	  if (buckets[0].size()) 
-	    /* unpack the 0 queue first */
-	    {
-	      data[element] = buckets[0].front();
-	      buckets[0].pop();
-	    }
-	  else
-	    /* the 0 queue is empty, unpack the 1's queue */
-	    {
-	      data[element] = buckets[1].front();
-	      buckets[1].pop();
-	    }
+	  int bucket_a = buckets[0].size();
+	  int bucket_b = buckets[1].size();
+
+	  for (int sz = bucket_a; sz; sz--, buckets[0].pop()) // for a bucket
+	    sift(buckets, buckets[0].front(), dig);
+
+	  for (int sz = bucket_b; sz; sz--, buckets[1].pop())
+	    sift(buckets, buckets[1].front(), dig);
+	    
+	   
 	}
     }
+
+  /* Buckets are now populated with all elements. We now
+   * put them all back into the `data` vector, popping all 
+   * of the 0's into the array followed by all of the 1's. 
+   * This will prepare us for the next bit.
+   */
+  for (int element = 0;
+       element < data.size();
+       element++)
+    {
+      if (buckets[0].size()) 
+	/* unpack the 0 queue first */
+	{
+	  data[element] = buckets[0].front();
+	  buckets[0].pop();
+	}
+      else /* the 0 queue is empty, unpack the 1's queue */
+	{
+	  data[element] = buckets[1].front();
+	  buckets[1].pop();
+	}
+    }
+    
 
   cout << "Sorted:\n";
   for (int i = 0; i < data.size(); i++)
@@ -157,4 +178,13 @@ int main(int argc, char **argv)
 unsigned int nth(unsigned int n)
 {
   return (1 << n);
+}
+
+void sift(vector<queue<unsigned int> > &buckets, 
+	  unsigned int element, unsigned int dig)
+{
+  if (element & (1<<dig))
+    buckets[1].push(element);
+  else
+    buckets[0].push(element);
 }
