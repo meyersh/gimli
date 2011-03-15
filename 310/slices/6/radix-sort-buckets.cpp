@@ -24,8 +24,8 @@ using namespace std;
 /*
  * Prototypes
  */
-void sift(vector<queue<unsigned int> > &buckets, 
-	  unsigned int element, unsigned int dig);
+void sift(vector<queue<int> > &buckets, 
+	  int element, int dig);
 
 
 
@@ -139,7 +139,6 @@ int main(int argc, char **argv)
 
 	  for (int sz = bucket_b; sz; sz--, buckets[1].pop())
 	    sift(buckets, buckets[1].front(), dig);
-	    
 	   
 	}
     }
@@ -180,8 +179,8 @@ unsigned int nth(unsigned int n)
   return (1 << n);
 }
 
-void sift(vector<queue<unsigned int> > &buckets, 
-	  unsigned int element, unsigned int dig)
+void sift(vector<queue<int> > &buckets, 
+	  int element, int dig)
 {
   if (element & (1<<dig))
     buckets[1].push(element);
