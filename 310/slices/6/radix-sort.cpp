@@ -105,13 +105,14 @@ int main(int argc, char **argv)
     * Begin sorting.
     ***************/
 
-   /* buckets[] will hold our sorting. Element 0 is a 
+   /* queue buckets[] will hold our sorting. Element 0 is a 
       queue for items with a 0 in the current digit, Element 1 
       will be the queue for items with a 1. */
 
-   vector< queue<int> > buckets(2);
+   vector< queue<int> > buckets(2); // two element vector.
 
-   unsigned int neg_mask = 1 << (sizeof(unsigned int)*8-1);
+   // This is a 1 in the signbit place, followed by all zeroes.
+   unsigned int signbit_mask = 1 << (sizeof(unsigned int)*8-1);
 
    /* Loop for-each bit in an unsigned int (32 or 64) */
    for (int dig = 0; /* 0 is the right-most bit. */
@@ -124,23 +125,21 @@ int main(int argc, char **argv)
 	   element < data.size();
 	   element++)
 	 {
-	 bool negb = (neg_mask & data[element]) ? 0 : 1;
-
-	 /* negb is some arithmetic tom-foolery. If a number is 
-	    negative, the leading bit is 1, the "bigger" it is
-	    and the further it is from zero. 
-
-	    We check the first bit and remember it as negb (0/1).
-
-	    If the number is negative, the negb bit will be set 1,
-	    if it is positive, negb gets 0. This is used below to 
-	    select between the ones bucket (queue) and the zeros bucket.
+	 /* Integers are maintained by the system in two's complement.
+	    Therefore, the largest binary number is the most negative.
+	    
+	    If we always compare them with the signbit flipped, however,
+	    the binary is in the correct order.
 	 */
 
+	 // flip the signbit.
+	 data[element] = signbit_mask ^ data[element];
+
+	 // put the element in the correct bucket:
 	 if (data[element] & (1<<dig))
-	    buckets[negb].push(data[element]); // "ones" bucket[1]
+	    buckets[1].push(data[element]); // "ones" bucket[1]
 	 else
-	    buckets[!negb].push(data[element]); // "zeros" bucket[0]
+	    buckets[0].push(data[element]); // "zeros" bucket[0]
 
 	 } // end for loop
 
@@ -162,6 +161,10 @@ int main(int argc, char **argv)
 	    data[element] = buckets[1].front();
 	    buckets[1].pop();
 	    }
+	 
+	 /* put the bits right again */
+	 data[element] = signbit_mask ^ data[element];
+	 
 	 }
       }
 
@@ -169,7 +172,7 @@ int main(int argc, char **argv)
    cout << "Sorted:\n";
 #endif 
 
-   /* Print the data vector */
+   /* Print the (now sorted) data vector */
    for (int i = 0; i < data.size(); i++)
       cout << data[i] << endl;
 
