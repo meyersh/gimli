@@ -1,14 +1,17 @@
 /*
-  Create a standalone application that takes one parameter. 
+  radix-sort.cpp
+  CSCI 310 S6.E1
 
-  The parameter is the name of a file that has a bunch of integers in it, one per 
-  line. It should stop reading numbers when it reaches the end of the file or
-  encounters a blank line.
+  CREATED BY  : Shaun Meyer
+  SUBMITTED BY: Shaun Meyer
+  CREATED     : 15 MAR 1011
+  DESCRIPTION : Fulfills two purposes. First, if a filename is specified
+  on the command line the file is read for integers (expected: one per line),
+  the file is sorted using a radix method, and the results are printed.
 
-  Once it reads the numbers in, the program should sort them using a radix sort on
-  the binary representation of the numbers. You may separate negative and non-
-  negative numbers for purposes of sorting and then combine them later. Once they
-  are sorted, they should be output to the screen, one per line.
+  Alternatively, the --random parameter may be passed at the command line
+  and the program will return the specified number of random numbers 
+  (defaults to 5).
 */
 
 #include <iostream>
@@ -19,40 +22,43 @@
 #include <string>
 #include <queue>
 
-#define error 1
+#define DEFAULT_RANDOM_NUMBERS 5
 
-using namespace std;
+using std::vector;
+using std::queue;
+using std::string;
+using std::ifstream;
+using std::cout;
+using std::endl;
 
 int main(int argc, char **argv)
 {
+  /*******************
+   * Process arguments 
+   ******************/
   // place all arguments into a vector<string>
   vector<string> args(argv, argv+argc);
 
-  int numrandom = 10000; // default qty of random numbers to return.
+  int numrandom = DEFAULT_RANDOM_NUMBERS; /* default qty to return. */
 
-  /*
-   * Determine if we're in --random mode or if invalid
-   * credentials have been passed. 
-   */
   if (args.size() == 3 && args[1] == "--random")
-    /* Run to return a quantity of random numbers */
-    {
-      numrandom = atoi(args[2].c_str());
-    }
+    numrandom = atoi(args[2].c_str()); // number-of-numbers was given
+
   else if (args.size() != 2)
-    /* Invalid credentials */
+    /* Invalid args, give error and die */
     {
-      cout << "Usage: " << args[0] << " <file-to-be-sorted> " << endl;
-      cout << "Random generator: " << args[0] << " --random [numbers]\n";
+      cout << "Usage: " << args[0] << " <file-to-be-sorted> " << endl
+	   << "Random generator: " << args[0] 
+	   << " --random [number-of-numbers]\n";
       return 0;
     }
    
-  string filename = args[1];
-  ifstream infile(filename.c_str());
+  /****************
+   * --random mode
+   ***************/
 
-  
   if (args[1] == "--random")
-    /* We're in --random mode; just output random numbers and die */
+    /* Output some random numbers and die */
     {
       srand(time(NULL));
       for (int i = 0; i < numrandom; i++)
@@ -62,21 +68,23 @@ int main(int argc, char **argv)
       return 0;
     }
    
-  /*
+  /********************************************************************
    * We're in regular-mode, go ahead and process input file for sorting
-   */
+   *******************************************************************/
 
+  ifstream infile(args[1].c_str());
   if (!infile)
     {
-      cout << "Can't seem to open " << filename << endl;
+      cout << "Can't seem to open " << args[1] << endl;
       return 0;
     }
 
-  vector<unsigned int> data; /* all integers for sorting */
+  vector<int> data; /* all integers for sorting */
 
-  string line;
+  string line; // this represents one line from the file.
   while (std::getline(infile, line))
     {
+
       if (line == "")
 	break; /* break for empty line as-per spec */
       
@@ -84,49 +92,60 @@ int main(int argc, char **argv)
     }
 
 
-  /*
-   * Debugging: print out the contents of 
-   * our data vector. 
-   */
-  for (int i = 0; i < data.size(); i++)
-    cout << i << ": " << data[i] << endl;
+#ifdef DEBUG
 
-  /*
+  /* show data as read from file */
+  for (int i = 0; i < data.size(); i++)
+    cout << data[i] << endl;
+
+#endif
+
+
+  /****************
    * Begin sorting.
-   */
+   ***************/
 
   /* buckets[] will hold our sorting. Element 0 is a 
      queue for items with a 0 in the current digit, Element 1 
      will be the queue for items with a 1. */
+
   vector< queue<int> > buckets(2);
-   
+
+  unsigned int neg_mask = 1 << (sizeof(unsigned int)*8-1);
+
   /* Loop for-each bit in an unsigned int (32 or 64) */
   for (int dig = 0; /* 0 is the right-most bit. */
        dig < sizeof(unsigned int)*8; 
        dig++)
     {
-      /* populate our buckets from the array based
-	 on the value of the bit in `dig` digit. */
+
+      /* populate queues from array based on `dig` bit */
       for (int element = 0;
 	   element < data.size();
 	   element++)
 	{
-	  /* We maintain a queue for every possible
-	   * value at a given bit. The element to be sorted
-	   * in our data vector goes into the queue based on 
-	   * the value in the `dig` bit. 
-	   */
-	  if (data[element] & (1<<dig))
-	      buckets[1].push(data[element]);
-	  else
-	      buckets[0].push(data[element]);
-	}
+	  bool negb = (neg_mask & data[element]) ? 0 : 1;
 
-      /* Buckets are now populated with all elements. We now
-       * put them all back into the `data` vector, popping all 
-       * of the 0's into the array followed by all of the 1's. 
-       * This will prepare us for the next bit.
-       */
+	  /* negb is some arithmetic tom-foolery. If a number is 
+	     negative, the leading bit is 1, the "bigger" it is
+	     and the further it is from zero. 
+
+	     We check the first bit and remember it as negb (0/1).
+
+	     If the number is negative, the negb bit will be set 1,
+	     if it is positive, negb gets 0. This is used below to 
+	     select between the ones bucket (queue) and the zeros bucket.
+	  */
+
+	  if (data[element] & (1<<dig))
+	    buckets[negb].push(data[element]); // "ones" bucket[1]
+	  else
+	    buckets[!negb].push(data[element]); // "zeros" bucket[0]
+
+	} // end for loop
+
+
+      /* Put all elements from queues back into the data vector. */
       for (int element = 0;
 	   element < data.size();
 	   element++)
@@ -146,15 +165,14 @@ int main(int argc, char **argv)
 	}
     }
 
+#ifdef DEBUG
   cout << "Sorted:\n";
+#endif 
+
+  /* Print the data vector */
   for (int i = 0; i < data.size(); i++)
-    cout << i << ": " << data[i] << endl;
+    cout << data[i] << endl;
 
-  return 0;
+  return 0; // bye!
 
-}
-
-unsigned int nth(unsigned int n)
-{
-  return (1 << n);
 }
