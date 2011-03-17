@@ -103,6 +103,9 @@ std::vector<std::string> split(const std::string line,
 
 string bt_node(Node *root)
 {
+  if (!root)
+    return "";
+
    stringstream ret;
    ret << root << "|" << root->parent << "|" << root->left
        << "|" << root->right << "|" << root->data << endl;
@@ -144,26 +147,55 @@ Node *load_file(string filename)
       return NULL;
 
    string line;
-   map<string, string> nodes; // address->node index
+   map<string, Node*> nodes; // address->node index
 
-   Node *root;
+   Node *root = NULL;
 
    while (std::getline(ifile, line))
-      {
-      vector<string>split_line = split(line, "|");
-      nodes.insert(std::pair<string, string>(split_line[0],split_line[4]));
-      }
+     {
+       /* NODE, PARENT, LEFT, RIGHT, DATA */
+       vector<string>split_line = split(line, "|");
+       
+       if (split_line.size() != 5)
+	 continue; // invalid line
+       
+       Node *newnode = new Node(split_line[4]);
+       
+       nodes.insert(
+		    std::pair<string, Node*>(
+					     split_line[0], newnode)
+		    );
+       
+       /** Figure CHILDREN out **/
+       /* LEFT child */
+       if (map::end == nodes.find(split_line[2]))
+	 nodes.insert(split_line[2], new Node("UNDEFINED CHILD"));
 
-   ifile.seekg(ios::beg);
-
-   while (std::getline(ifile,line))
-      {
-      vector<string>split_line = split(line, "|");
-      if (split_line[1] == "0")
+       else if (nodes[split_line[2]])
 	 {
-	 
+	   newnode->left = nodes[split_line[2]];
+	   newnode->left->parent = newnode;
 	 }
-      }
+       /* RIGHT child */
+       if (map::end == nodes.find(split_line[3]))
+	 {
+	   nodes.insert(split_line[3], new NODE("UNDEFINED CHILD"));
+	   newnode->right = nodes[split_line[3]];
+	   newnode->right->parent = newnode;
+	 }
+
+       /* For this to work in one pass, the parent
+	  must come before the child in the file */
+       if (split_line[1] == "0")
+	 root = nodes[split_line[0]];
+       else
+	 newnode->parent = nodes[split_line[1]]; 
+
+       newnode->left = nodes[split_line[2]];
+       newnode->right = nodes[split_line[3]];
+     }
+
+   return root;
 
 }
 
@@ -174,10 +206,8 @@ int main()
    root->insert_left_child("Hi, I'm the new left child!");
    root->insert_right_child("And I'm the right!");
    
-   cout << root->right->data << endl;
-   cout << root->left->data << endl;
-
+   cout << "Save tree:" << endl;
    cout << binary_tree_save_file(root);
-
-   load_file("data.txt");
+   cout << "Loaded tree:" << endl;
+   cout << binary_tree_save_file(load_file("data.txt")) << endl;
 }
