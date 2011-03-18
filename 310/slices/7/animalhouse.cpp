@@ -29,6 +29,9 @@ DESCRIPTION : Creates a binary tree to play a (learning) game of 20 question
 #include <vector>
 #include <cctype> // for toupper()
 
+#include <pwd.h> // bored. This provides interfaces to user database.
+#include <sys/types.h> // for struct passwd. 
+
 using namespace std;
 
 /* The basic building block of a binary tree... */
@@ -164,6 +167,30 @@ bool isvowel(char inpt)
 	 return true;
    return false;
 
+}
+
+string current_user_name()
+/* PARAMS     : none
+   RETURNS    : string containing the current users first name
+   DESCRIPTION: On compatible systems (ie, gimli), this reads the
+   $USER environment variable from the shell which is set at login
+   to `meyersh' or whatever. It looks up the user db from the UNIX
+   system and loads the pw_gecos entry for this. On many systems this
+   field is just the "Firstname I Lastname" format so we just return the
+   first word from it.  If anything goes wrong, we return "". */
+{
+   char* username = getenv("USER");
+   if (username == NULL)
+      return ""; /* some error has occured */
+
+   passwd* user_info = getpwnam(username);
+  
+   if (user_info == NULL)
+      return ""; /* some error has occured */
+
+   char* fullname = user_info->pw_gecos; // user info field. 
+   return split(fullname, " ")[0];
+   
 }
 
 /*********************
@@ -683,11 +710,13 @@ int main(int argc, char **argv)
 	 }
       cout << prompt;
    
-      }
+      } // end while()
 
    // we're all done, clean up and die.
    deallocate_binary_tree(root);
-   cout << "\nGoodbye!\n";
+   
+   string username = (current_user_name() == "" ? "you" : current_user_name());
+   cout << "\nGoodbye, " << username << "!\n";
 
    return 0;
 }
