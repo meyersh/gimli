@@ -176,7 +176,7 @@ int binary_tree_save_file(string filename, Node *root)
    if (!save_file)
       return -1;
    
-   save_file << print_binary_tree << endl;
+   save_file << print_binary_tree(root) << endl;
    
    save_file.close();
 
@@ -443,8 +443,10 @@ int main(int argc, char **argv)
 	    if (toupper(cmds[0]) == "SAVE")
 	       {
 	       if (filename != "")
-		  cout << binary_tree_save_file(root) << endl;
-	       
+		      if (binary_tree_save_file(filename, root))
+                 cout << "Could not save to '" << filename << "'.\n";
+              else
+                 cout << "File saved to '" << filename << "'.\n";	       
 	       else
 		  cout << "No filename specified. Try SAVE <filename>.\n";
 	       }
