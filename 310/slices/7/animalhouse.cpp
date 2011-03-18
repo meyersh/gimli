@@ -29,6 +29,7 @@ DESCRIPTION : Creates a binary tree to play a (learning) game of 20 question
 #include <vector>
 #include <cctype> // for toupper()
 
+#include <cstdlib> // for getenv()
 #include <pwd.h> // bored. This provides interfaces to user database.
 #include <sys/types.h> // for struct passwd. 
 
