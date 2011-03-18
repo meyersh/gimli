@@ -112,6 +112,16 @@ string toupper(string str)
    return ret;
 }
 
+bool isvowel(char inpt)
+{
+   char vowels[] = {'A', 'E', 'I', 'O', 'U', \0};
+   for (char v = vowels[0]; v != \0; v++)
+      if (v == toupper(inpt))
+	 return true;
+   return false;
+
+}
+
 /*********************
  * MEMORY MANAGEMENT
  ********************/
@@ -138,7 +148,6 @@ Node* deallocate_binary_tree(Node* node)
    node = NULL;
 
    return node;
-
 }
 
 
@@ -305,6 +314,10 @@ Node *load_file(string filename)
    return root;
 }
 
+/**************************************
+ * MAIN - Contains Command-loop logic.
+ **************************************/
+
 int main(int argc, char **argv)
 {
 
@@ -325,15 +338,23 @@ int main(int argc, char **argv)
 	 filename = args[1]; // a valid filename;
       }
 
+   cout << "======================================================\n"
+	<< "Primary Commands: (For use outside the Q&A routine)\n"
+	<< "HELP, QUIT, LOAD, SAVE, GUESS\n" << endl
+	<< "For more specific instructions, Type HELP <COMMAND>\n"
+	<< "======================================================\n";
+
    Node *curnode = root; //a pointer to keep track of where we are. may be null.
 
    string cmd=""; // user input
    string prompt="> "; // user prompt
+   cout << prompt;
 
    enum {NORMAL=0, WHAT_PROP, WHAT_IS_IT, IS_IT_A, RESET};
    unsigned int mode = NORMAL;
 
-   cout << prompt;
+   /* Command loop. Repeat until end of CIN (eof) or a command causes us to 
+      break. */
    while (std::getline(cin, cmd))
       {
       vector<string> cmds = split(cmd, " ");
@@ -351,11 +372,11 @@ int main(int argc, char **argv)
 	 have to insert the new node(s) and set the mode for WHAT_PROP. */
       if (mode == WHAT_IS_IT)
 	 {
-
 	 if (curnode == NULL)
 	    {
 	    root = new Node(cmd);
 	    curnode = root;
+	    cout << "Initial thing added to database. Perhaps you should GUESS again.\n";
 	    mode = NORMAL;
 	    }
 	 else 
@@ -374,6 +395,8 @@ int main(int argc, char **argv)
 	 {
 	 curnode->data = cmd;
 	 mode = RESET;
+	 cout << "I have now learned that property. You may type GUESS again,\n"
+	      << "or HELP for more options.\n";
 	 }
 
       /* IS_IT_A We have to guess, either we're at a leaf node and we're guess 
@@ -385,7 +408,6 @@ int main(int argc, char **argv)
 	 /* We've guessed right */
 	 if (toupper(cmd[0]) == 'Y')
 	    {
-
 	    /* ... and we're at a leaf */
 	    if (curnode->isleaf())
 	       {
@@ -418,7 +440,11 @@ int main(int argc, char **argv)
 	    else // we've no idea it is.
 	       mode = WHAT_IS_IT;
 	    }
-	   
+
+	 /* We wanted Y/N and they gave us neither. */
+	 else 
+	    cout << "Yes or No? Yae or Nae? Yesum or Nosir?\n";
+
 	 }
 
       /* All modes have been handled, now provide processing for system 
@@ -432,10 +458,23 @@ int main(int argc, char **argv)
 	    if (toupper(cmds[0]) == "QUIT")
 	       break;
 
+	    if (toupper(cmds[0]) == "HELP")
+	       cout << "Primary Commands: (For use outside the Q&A routine)\n"
+		    << "HELP, QUIT, LOAD, SAVE, GUESS\n" << endl
+		    << "For more specific instructions, Type HELP <COMMAND>\n";
+		    
 	    if (toupper(cmds[0]) == "LOAD")
 	       {
 	       if (filename != "")
-		  cout << "File loaded. (TODO-For real).\n";
+		  {
+		  deallocate_binary_tree(root);
+		  root = load_file(filename);
+
+		  if (root == NULL)
+		     cout << "Error loading '" << filename << "'.\n";
+		  else
+		     cout << "File loaded. (TODO-For real).\n";
+		  }
 	       else
 		  cout << "No filename specified. Try LOAD <filename>.\n";
 	       }
@@ -443,10 +482,10 @@ int main(int argc, char **argv)
 	    if (toupper(cmds[0]) == "SAVE")
 	       {
 	       if (filename != "")
-		      if (binary_tree_save_file(filename, root))
-                 cout << "Could not save to '" << filename << "'.\n";
-              else
-                 cout << "File saved to '" << filename << "'.\n";	       
+		  if (binary_tree_save_file(filename, root))
+		     cout << "Could not save to '" << filename << "'.\n";
+		  else
+		     cout << "File saved to '" << filename << "'.\n";	       
 	       else
 		  cout << "No filename specified. Try SAVE <filename>.\n";
 	       }
@@ -489,10 +528,35 @@ int main(int argc, char **argv)
 	       {
 	       deallocate_binary_tree(root);
 	       root = load_file(cmds[1]);
+
 	       if (root == NULL)
 		  cout << "Failed to load '" << cmds[1] << "'." << endl;
 	       else
 		  cout << "Successfully loaded '" << cmds[1] << "'." << endl;
+	       }
+
+	    if (toupper(cmds[0]) == "HELP")
+	       {
+	       if (toupper(cmds[1]) == "GUESS")
+		  cout << "The GUESS command starts the guessing routine which\n"
+		       << "continues until a leaf node is reached and the user\n"
+		       << "describes the new object/property.\n";
+	       else if (toupper(cmds[1]) == "LOAD")
+		  cout << "The LOAD command attempts to load the binary tree from a file.\n"
+		       << "If the program was called from the command-line with a file\n"
+		       << "specified, this is the default location.\n"
+		       << "  In the absence of a default, or at any time, a file may be\n"
+		       << "specified by typing the filename after the LOAD command:\n"
+		       << "LOAD <FILENAME>\n";
+	       else if (toupper(cmds[1]) == "SAVE")
+		  cout << "The SAVE command attempts to save the binary tree to a file.\n"
+		       << "If the program was called from the command-line with a file\n"
+		       << "specified, this is the default location.\n"
+		       << "  In the absence of a default, or at any time, a file may be\n"
+		       << "specified by typing the filename after the SAVE command:\n"
+		       << "SAVE <FILENAME>\n";
+	       else
+		  cout << "Sorry, help is not available on that topic.\n";
 	       }
 	    }
 	 }
@@ -504,11 +568,11 @@ int main(int argc, char **argv)
 	    prompt = "What is it?> ";
 	    break;
 	 case IS_IT_A:
-	    prompt = "Y/N? > ";
+	    prompt = "Y/N?> ";
 	    break;
 	 case WHAT_PROP:
 	    prompt = "What property distinguishes it from a[n] " 
-	       + curnode->left->data + "? >";
+	       + curnode->left->data + "?> ";
 	    break;
 	 default:
 	    prompt = "> ";
