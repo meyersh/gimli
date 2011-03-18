@@ -435,7 +435,7 @@ int main(int argc, char **argv)
 	    if (toupper(cmds[0]) == "LOAD")
 	       {
 	       if (filename != "")
-		  cout << "File loaded. (TODO).\n";
+		  cout << "File loaded. (TODO-For real).\n";
 	       else
 		  cout << "No filename specified. Try LOAD <filename>.\n";
 	       }
