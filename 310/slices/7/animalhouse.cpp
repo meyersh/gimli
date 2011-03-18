@@ -27,12 +27,19 @@ public:
    Node *parent, *right, *left;
    
    Node(string str="")
+   /* PARAMS     : String for `data` member. Defaults to "".
+      RETURNS    : void
+      DESCRIPTION: Initializes all pointers to null and sets data string */
    {
       parent = right = left = NULL;
       data = str;
    }
    
    void insert_right_child(Node *child)
+   /* PARAMS     : Pointer to a Node.
+      RETURNS    : void
+      DESCRIPTION: Takes a pointer to a node and inserts it here. If this
+      position already has a child, the child is shifted down and right. */
    {
       child->parent = this;
       child->right = this->right;
@@ -40,6 +47,11 @@ public:
    }
 
    void insert_right_child(string data)
+   /* PARAMS     : data-member string.
+      RETURNS    : void
+      DESCRIPTION: Takes a data-member string for a node, creates the node 
+      and inserts it at this position. If a child already exists, it is shifted
+      down and right. */
    {
       Node *newnode = new Node;
       newnode->data = data;
@@ -47,6 +59,10 @@ public:
    }
    
    void insert_left_child(Node *child)
+   /* PARAMS     : Pointer to a Node.
+      RETURNS    : void
+      DESCRIPTION: Takes a pointer to a node and inserts it here. If this
+      position already has a child, the child is shifted down and left. */
    {
       child->parent = this;
       child->left = this->left;
@@ -54,6 +70,11 @@ public:
    }
 
    void insert_left_child(string data)
+   /* PARAMS     : data-member string.
+      RETURNS    : void
+      DESCRIPTION: Takes a data-member string for a node, creates the node 
+      and inserts it at this position. If a child already exists, it is shifted
+      down and right. */
    {
       Node *newnode = new Node;
       newnode->data = data;
@@ -61,6 +82,9 @@ public:
    }
 
    bool isleaf()
+   /* PARAMS     : none
+      RETURNS    : boolean
+      DESCRIPTION: Returns true if this node is a leaf node, false otherwise. */
    {
       return !(left || right);
    }
@@ -73,7 +97,10 @@ public:
 
 std::vector<std::string> split(const std::string line, 
 			       const std::string split_pattern=",")
-/* Split a string on `split_pattern` and return a vector containing the result. */
+/* PARAMS     : string thing, string separator
+   RETURNS    : vector of strings
+   DESCRIPTION: Splits a string into pieces on `split_pattern` and returns a
+   vector of these results. */
 {
    std::vector<std::string> ret;
    int start,
@@ -103,6 +130,9 @@ std::vector<std::string> split(const std::string line,
 }
 
 string toupper(string str)
+/* PARAMS     : string
+   RETURNS    : string
+   DESCRIPTION: Return a string with all characters uppercase. */
 {
    string ret = "";
 
@@ -113,9 +143,12 @@ string toupper(string str)
 }
 
 bool isvowel(char inpt)
+/* PARAMS     : character
+   RETURNS    : boolean
+   DESCRIPTION: Return true if the character is a vowel. */
 {
-   char vowels[] = {'A', 'E', 'I', 'O', 'U', \0};
-   for (char v = vowels[0]; v != \0; v++)
+   char vowels[] = {'A', 'E', 'I', 'O', 'U', NULL};
+   for (char v = vowels[0]; v != NULL; v++)
       if (v == toupper(inpt))
 	 return true;
    return false;
@@ -127,6 +160,9 @@ bool isvowel(char inpt)
  ********************/
 
 void deallocate_map_nodes(map<string, Node*> &nodes)
+/* PARAMS     : map<string, node*> of nodes
+   RETURNS    : void
+   DESCRIPTION: Deallocates all nodes pointed to by the nodes map*/
 {
    for (map<string,Node*>::iterator iter = nodes.begin();
 	iter != nodes.end();
@@ -134,7 +170,11 @@ void deallocate_map_nodes(map<string, Node*> &nodes)
       delete iter->second;
 }
 
-Node* deallocate_binary_tree(Node* node)
+Node* deallocate_binary_tree(Node* &node)
+/* PARAMS     : reference to a Node ptr
+   RETURNS    : A Node ptr
+   DESCRIPTION: Recursively deletes all nodes beginning at `node` and sets
+   all deleted pointers to NULL */
 {
    if (node == NULL)
       return NULL;
@@ -156,18 +196,29 @@ Node* deallocate_binary_tree(Node* node)
  **********************/
 
 string bt_node(Node *root)
+/* PARAMS     : Node pointer
+   RETURNS    : string
+   DESCRIPTION: Given a node pointer, returns a pipe-separated representation 
+   of the node's data suitable for printing or saving. */
 {
    if (!root)
       return "";
 
    stringstream ret;
-   ret << root << "|" << root->parent << "|" << root->left
-       << "|" << root->right << "|" << root->data << endl;
+   ret << root 
+       << "|" << root->parent 
+       << "|" << root->left
+       << "|" << root->right 
+       << "|" << root->data << endl;
    
    return ret.str();
 }
 
 string print_binary_tree(Node *root)
+/* PARAMS     : Node ptr
+   RETURNS    : string
+   DESCRIPTION: Recursively descends into a binary tree calling bt_node to 
+   print all nodes. */
 {
    if (root == NULL)
       return "";
@@ -180,6 +231,9 @@ string print_binary_tree(Node *root)
 }
 
 int binary_tree_save_file(string filename, Node *root)
+/* PARAMS     : string filename, node ptr
+   RETURNS    : int (non-zero for failure, 0 for success)
+   DESCRIPTION: Opens a file, saving the output of print_binary_tree() to it. */
 {
    ofstream save_file(filename.c_str());
    if (!save_file)
@@ -207,6 +261,10 @@ Node *node_from_string(string nodestr)
 
 
 Node *load_file(string filename)
+/* PARAMS     : string filename
+   RETURNS    : pointer to root node or NULL indicating a failure.
+   DESCRIPTION: Attempts to read a file into a binary tree, 
+   creating as it goes. */
 {
 
    ifstream ifile(filename.c_str());
@@ -215,10 +273,11 @@ Node *load_file(string filename)
       return NULL;
 
    string line;
-   map<string, Node*> nodes; // address->node map
+   map<string, Node*> nodes; // NODE_ID -> node* map
 
    Node *root = NULL;
 
+   /* Repeat for every line in ifile */
    while (std::getline(ifile, line))
       {
       // Ignore lines beginning with a # (comments) in the data file.
@@ -231,8 +290,9 @@ Node *load_file(string filename)
       // for legibility below, these are the values in split_line:
       enum {NODE_ID, PARENT_ID, LEFT_ID, RIGHT_ID, DATA, NUM_FIELDS=5};
 
+      /* filter invalid lines */
       if (split_line.size() != NUM_FIELDS)
-	 continue; // invalid line
+	 continue;
       
       /* Create the current node in the nodes map if it's not already there. */
       if (nodes.end() == nodes.find(split_line[NODE_ID]))
@@ -275,8 +335,10 @@ Node *load_file(string filename)
 	  node so we only check for root status.) */
       if (split_line[PARENT_ID] == "0")
 	 root = nodes[split_line[NODE_ID]];
+      } // end while()
 
-      }
+   // we're done with our file stream at this point.
+   ifile.close();
 
    /*******************
     * SANITY CHECKING
@@ -287,13 +349,12 @@ Node *load_file(string filename)
       2. if children, that the children->parent ptr is correct.
 
       if 1 or 2 fail, we deallocate all dynamically allocated memory
-      with deallocate_map_nodes() and reset `root` to NULL.
-   */
-
+      with deallocate_map_nodes() and reset `root` to NULL. */
    for (map<string, Node*>::iterator iter = nodes.begin();
 	iter != nodes.end();
 	iter++)
       {
+      // iter->first is our NODE_ID, iter->second is the Node*.
       Node* curnode = iter->second;
 
       if (curnode->left)
@@ -310,7 +371,7 @@ Node *load_file(string filename)
 	    root = NULL; // Blow up.
 	    }
       }
-      
+     
    return root;
 }
 
@@ -335,7 +396,7 @@ int main(int argc, char **argv)
       if (root == NULL)
 	 cout << "Error loading file '" << args[1] << "'\n";
       else
-	 filename = args[1]; // a valid filename;
+	 filename = args[1]; // remember the filename for SAVE and LOAD
       }
 
    cout << "======================================================\n"
@@ -344,20 +405,27 @@ int main(int argc, char **argv)
 	<< "For more specific instructions, Type HELP <COMMAND>\n"
 	<< "======================================================\n";
 
-   Node *curnode = root; //a pointer to keep track of where we are. may be null.
+   Node *curnode = root; /* Our current node. May be null. */
+   string cmd="";        /* user input */
+   string prompt="> ";   /* user prompt */
 
-   string cmd=""; // user input
-   string prompt="> "; // user prompt
-   cout << prompt;
+   cout << prompt;       /* initial prompting */
 
-   enum {NORMAL=0, WHAT_PROP, WHAT_IS_IT, IS_IT_A, RESET};
+   enum {NORMAL,         /* NORMAL mode, process system commands */
+	 IS_IT_A,        /* Present our guess and wait for Y/N. */
+	 WHAT_IS_IT ,    /* What is it mode, processing new thing */
+	 WHAT_PROP ,     /* What property mode, process new property */
+	 RESET};         /* Reset into NORMAL mode */
+
    unsigned int mode = NORMAL;
 
-   /* Command loop. Repeat until end of CIN (eof) or a command causes us to 
-      break. */
+   /**********************************************************************
+    * Command loop. 
+    * Repeat until end of CIN (eof) or a command causes us to break out. 
+    **********************************************************************/
    while (std::getline(cin, cmd))
       {
-      vector<string> cmds = split(cmd, " ");
+      vector<string> cmds = split(cmd, " "); /* vector of cmd words */
       
       /* We're reseting, we must have reached an end node. */
       if (mode == RESET)
