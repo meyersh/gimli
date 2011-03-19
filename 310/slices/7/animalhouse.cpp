@@ -606,7 +606,7 @@ int main(int argc, char **argv)
 		  if (root == NULL)
 		     cout << "Error loading '" << filename << "'.\n";
 		  else
-		     cout << "File loaded. (TODO-For real).\n";
+		     cout << "File loaded.\n";
 		  }
 	       else
 		  cout << "No filename specified. Try LOAD <filename>.\n";
