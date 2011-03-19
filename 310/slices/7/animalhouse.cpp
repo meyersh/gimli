@@ -521,17 +521,23 @@ int main(int argc, char **argv)
 	 else if (toupper(cmd[0]) == 'N')
 	    {
 	    cout << "Oh.\n";
+	    /* ... and we're at a leaf */
+	    if (curnode->isleaf())
+	       mode = WHAT_IS_IT;
 
 	    /* Things are kosher, this is an internal node */
-	    if (!curnode->isleaf())
+	    else 
 	       {
 	       curnode = curnode->left;
-	       cout << "Is it a"
-		    << (isvowel(curnode->data[0]) ? "n " : " ") /* a | an */
-		    << curnode->data << "? " << endl;
+	       if (curnode->isleaf())
+		  cout << "Is it a" 
+		       << (isvowel(curnode->data[0]) ? "n " : " ") /* a | an */
+		       << curnode->data << "?" << endl;
+	       else
+		  cout << "Does it have a" 
+		       << (isvowel(curnode->data[0]) ? "n " : " ") /* a | an */
+		       << curnode->data << "?" << endl;
 	       }
-	    else // we've no idea it is.
-	       mode = WHAT_IS_IT;
 	    }
 
 	 /* We wanted Y/N and they gave us neither. */
