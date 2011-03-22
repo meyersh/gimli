@@ -601,7 +601,7 @@ int main(int argc, char **argv)
 	       if (filename != "")
 		  {
 		  deallocate_binary_tree(root);
-		  root = load_file(filename);
+		  curnode = root = load_file(filename);
 
 		  if (root == NULL)
 		     cout << "Error loading '" << filename << "'.\n";
@@ -664,7 +664,7 @@ int main(int argc, char **argv)
 	    if (toupper(cmds[0]) == "LOAD")
 	       {
 	       deallocate_binary_tree(root);
-	       root = load_file(cmds[1]);
+	       curnode = root = load_file(cmds[1]);
 
 	       if (root == NULL)
 		  cout << "Failed to load '" << cmds[1] << "'." << endl;
