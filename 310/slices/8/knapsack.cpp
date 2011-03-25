@@ -26,18 +26,19 @@ using namespace std;
 #define KNAPSACK_SIZE 16
 
 struct Item {
-   unsigned int value, weight, max_bound;
+   unsigned int value, weight, max_value, level;
+   vector<bool> selection;
 
    Item()
    {
-      value = weight = max_bound = 0;
+      value = weight = max_value = level = 0;
    }
 
-   Item(unsigned int value, unsigned int weight, unsigned int max_bound)
+   Item(unsigned int value, unsigned int weight, unsigned int max_value)
    {
       this->value = value;
       this->weight = weight;
-      this->max_bound = max_bound;
+      this->max_value = max_value;
    }
    
    unsigned int density() const
@@ -210,14 +211,17 @@ unsigned int sum_weight(vector<Item> items, unsigned int level)
    return sum;
 }
 
-unsigned int calculate_bound(vector<Item> items, 
-			unsigned int K, unsigned int depth=0)
+unsigned int calculate_bound(vector<Item> items, unsigned int K, Item *currNode=NULL)
 /* PARAMS     : a vector of Items, the capacity of the knapsack `K'.
    RETURNS    : an unsigned int representing the maximum value.
    DESCRIPTION: Given our items and K, deduce the maximum value bounds by 
    bounds = currentValue + Sv + (K-TotalSize)*(Vk/Sk)
 */
 {
+   int depth = 0;
+   if (currNode != NULL)
+      depth = currNode->level;
+
    unsigned int upperBound = 0;
    unsigned int current_weight = 0;
    int i;
@@ -267,7 +271,6 @@ int main(int argc, char **argv)
    /* Load up the file */
 
    vector<Item> items;
-   vector<bool> selected; // selected items
 
    string line="";
    while (std::getline(ifile, line))
@@ -283,9 +286,6 @@ int main(int argc, char **argv)
 
    // *sort items by density*
    std::sort(items.rbegin(), items.rend());
-   // initialize selected
-   for (int i = 0; i < items.size(); i++)
-      selected.push_back(false);
 
    /* print out our items list for debugging */
    for (int i = 0; i < items.size(); i++)
@@ -295,16 +295,16 @@ int main(int argc, char **argv)
 	   << items[i].density() << "d\n";
 
    maxHeapPQ<Item> prioq; // priority queue
-   unsigned int level = 0;
    int best_so_far=-1;
    unsigned int best_value = 0;
+   vector<bool> best_selection; // best selection thus far
    int weight = 0;
 
    /* Initialize before entering while() loop */
-   items[0].max_bound = calculate_bound(items, KNAPSACK_SIZE, level);
+   items[0].max_value = calculate_bound(items, KNAPSACK_SIZE);
    prioq.addItem(items[0]);
 
-   cout << "Initial max_bound: " << items[0].max_bound << endl;
+   cout << "Initial max_value: " << items[0].max_value << endl;
 
    while (!prioq.isEmpty())
       {
@@ -312,47 +312,53 @@ int main(int argc, char **argv)
       Item currNode;
       prioq.removeLargest(currNode);
 
-      if (currNode.max_bound > best_value) /* && 
+      if (currNode.max_value > best_value) /* && 
 					      currNode.weight + weight <= KNAPSACK_SIZE) */
 	 {
 	 Item next_added = currNode;
+	 next_added.selection.push_back(true);
 	 weight += next_added.weight;
-	 next_added.max_bound = calculate_bound(items,
-						KNAPSACK_SIZE, level);
+	 next_added.max_value = calculate_bound(items,
+						KNAPSACK_SIZE, &currNode);
 	 // This is where we need to add the value of the next item
 	 // in items[]
-	 next_added.value += items[level+1].value;
+	 next_added.value += items[currNode.selection.size()].value;
+	 next_added.weight += items[currNode.selection.size()].weight;
 
-	 if (weight <= KNAPSACK_SIZE)
+	 if (next_added.weight <= KNAPSACK_SIZE)
 	    {
 	    if (next_added.value > best_value)
+	       {
 	       best_value = next_added.value;
-	    if (next_added.max_bound > best_value)
+	       best_selection = next_added.selection;
+	       }
+	    if (next_added.max_value > best_value)
 	       prioq.addItem(next_added);
 	    }
 
 	 Item next_not_added = currNode;
 	 // this should calculate_bound( next_not_added )??
 	 // whatever *that* means.
-	 next_not_added.max_bound = calculate_bound(items, 
-						    KNAPSACK_SIZE, level);
-	 if (next_not_added.max_bound > best_value)
+	 next_not_added.selection.push_back(false);
+	 next_not_added.max_value = calculate_bound(items, 
+						    KNAPSACK_SIZE, &currNode);
+	 if (next_not_added.max_value > best_value)
 	    {
-	    weight -= next_not_added.weight;
+	    cout << "currNode.selection.size() = " << currNode.selection.size() << endl;
+	    next_not_added.weight -= items[currNode.selection.size()].weight;
 	    prioq.addItem(next_not_added);
 	    }
 	 }
 
-      cout << "level: " << level
+      cout << "level: " << currNode.level
 	   << " weight: " << weight 
 	   << " item: " << currNode.weight << "w "
 	   << currNode.value << "v "
-	   << currNode.max_bound << "b "
+	   << currNode.max_value << "b "
 	   << "(best_so_far: " << best_so_far 
 	   << ") (best_value: "
 	   << best_value << ")\n";
 
-      level++;
       }
 
    return 0;
