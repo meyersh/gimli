@@ -23,18 +23,21 @@
 
 using namespace std;
 
+#define KNAPSACK_SIZE 16
+
 struct Item {
-   unsigned int value, weight;
+   unsigned int value, weight, max_bound;
 
    Item()
    {
-      value = weight = 0;
+      value = weight = max_bound = 0;
    }
 
-   Item(unsigned int value, unsigned int weight)
+   Item(unsigned int value, unsigned int weight, unsigned int max_bound)
    {
       this->value = value;
       this->weight = weight;
+      this->max_bound = max_bound;
    }
    
    unsigned int density() const
@@ -45,6 +48,13 @@ struct Item {
    bool operator< (const Item &b) const
    {
       if (this->density() < b.density()) 
+	 return true;
+      return false;
+   }
+
+   bool operator> (const Item &b) const
+   {
+      if (this->density() > b.density())
 	 return true;
       return false;
    }
@@ -69,8 +79,10 @@ private:
       b = t;
    }
 
-   void sift_up(int i=heap.size()-1)
+   void sift_up(int i=-1)
    {
+      if (i == -1)
+	 i = heap.size()-1;
       int parent = (i-1)/2;
 
       if (parent < 0)
@@ -106,7 +118,7 @@ private:
    }
 
 public:
-   void addItem(const V &item)
+   void addItem(V &item)
    {
       heap.push_back(item);
       sift_up();
@@ -140,7 +152,7 @@ public:
       return 0;
    }
 
-   int isEmpty() {return !heap.size();}
+   int isEmpty() {return heap.empty();}
    void clear() {heap.clear();}
 };
 
@@ -182,7 +194,24 @@ std::vector<std::string> split(const std::string line,
    return ret;
 }
 
-unsigned int bounds(vector<Item> items, unsigned int K, unsigned int depth=0)
+unsigned int sum_value(vector<Item> items, unsigned int level)
+{
+   unsigned int sum = 0;
+   for (int i = 0; i < items.size() || i < level; i++)
+      sum += items[i].value;
+   return sum;
+}
+
+unsigned int sum_weight(vector<Item> items, unsigned int level)
+{
+   unsigned int sum = 0;
+   for (int i = 0; i < items.size() || i < level; i++)
+      sum += items[i].weight;
+   return sum;
+}
+
+unsigned int calculate_bound(vector<Item> items, 
+			unsigned int K, unsigned int depth=0)
 /* PARAMS     : a vector of Items, the capacity of the knapsack `K'.
    RETURNS    : an unsigned int representing the maximum value.
    DESCRIPTION: Given our items and K, deduce the maximum value bounds by 
@@ -219,12 +248,14 @@ unsigned int bounds(vector<Item> items, unsigned int K, unsigned int depth=0)
 
 int main(int argc, char **argv)
 {
+   /* Handle user parameters */
    vector<string> args(argv, argc+argv);
    if (args.size() != 2)
       {
       cout << "Usage: " << args[0] << " <weights file>\n";
       return -1;
       }
+
    ifstream ifile(args[1].c_str());
 
    if (!ifile)
@@ -233,7 +264,10 @@ int main(int argc, char **argv)
       return -1;
       }
 
+   /* Load up the file */
+
    vector<Item> items;
+   vector<bool> selected; // selected items
 
    string line="";
    while (std::getline(ifile, line))
@@ -247,16 +281,79 @@ int main(int argc, char **argv)
       i = NULL;
       }
 
-   // *sort items by density *
-   std::sort(items.begin(), items.end());
-      
+   // *sort items by density*
+   std::sort(items.rbegin(), items.rend());
+   // initialize selected
+   for (int i = 0; i < items.size(); i++)
+      selected.push_back(false);
+
+   /* print out our items list for debugging */
    for (int i = 0; i < items.size(); i++)
       cout << i << ": " 
-	   << items[i].weight << "w " 
 	   << items[i].value << "v "
+	   << items[i].weight << "w " 
 	   << items[i].density() << "d\n";
 
-   cout << "Upper: " << bounds(items, 16, 1) << endl; 
+   maxHeapPQ<Item> prioq; // priority queue
+   unsigned int level = 0;
+   int best_so_far=-1;
+   unsigned int best_value = 0;
+   int weight = 0;
+
+   /* Initialize before entering while() loop */
+   items[0].max_bound = calculate_bound(items, KNAPSACK_SIZE, level);
+   prioq.addItem(items[0]);
+
+   cout << "Initial max_bound: " << items[0].max_bound << endl;
+
+   while (!prioq.isEmpty())
+      {
+      /* dequeue an item to process */
+      Item currNode;
+      prioq.removeLargest(currNode);
+
+      if (currNode.max_bound > best_value) /* && 
+					      currNode.weight + weight <= KNAPSACK_SIZE) */
+	 {
+	 Item next_added = currNode;
+	 weight += next_added.weight;
+	 next_added.max_bound = calculate_bound(items,
+						KNAPSACK_SIZE, level);
+	 // This is where we need to add the value of the next item
+	 // in items[]
+	 next_added.value += items[level+1].value;
+
+	 if (weight <= KNAPSACK_SIZE)
+	    {
+	    if (next_added.value > best_value)
+	       best_value = next_added.value;
+	    if (next_added.max_bound > best_value)
+	       prioq.addItem(next_added);
+	    }
+
+	 Item next_not_added = currNode;
+	 // this should calculate_bound( next_not_added )??
+	 // whatever *that* means.
+	 next_not_added.max_bound = calculate_bound(items, 
+						    KNAPSACK_SIZE, level);
+	 if (next_not_added.max_bound > best_value)
+	    {
+	    weight -= next_not_added.weight;
+	    prioq.addItem(next_not_added);
+	    }
+	 }
+
+      cout << "level: " << level
+	   << " weight: " << weight 
+	   << " item: " << currNode.weight << "w "
+	   << currNode.value << "v "
+	   << currNode.max_bound << "b "
+	   << "(best_so_far: " << best_so_far 
+	   << ") (best_value: "
+	   << best_value << ")\n";
+
+      level++;
+      }
 
    return 0;
 }
