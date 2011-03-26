@@ -23,7 +23,7 @@
 
 using namespace std;
 
-#define KNAPSACK_SIZE 16
+#define KNAPSACK_SIZE 50
 
 struct Item {
    unsigned int value, weight, max_value, level;
@@ -43,6 +43,8 @@ struct Item {
    
    unsigned int density() const
    {
+      if (value == 0 || weight == 0)
+	 return 0;
       return value/weight;
    }
 
@@ -67,6 +69,15 @@ struct Item {
       return false;
    }
    */
+   
+   string selection_str()
+   {
+      string ret;
+      for (int i = 0; i < selection.size(); i++)
+	 ret += selection[i];
+      return ret;
+   }
+
 };
 
 template<class V> class maxHeapPQ {
@@ -211,7 +222,8 @@ unsigned int sum_weight(vector<Item> items, unsigned int level)
    return sum;
 }
 
-unsigned int calculate_bound(vector<Item> items, unsigned int K, Item *currNode=NULL)
+unsigned int calculate_bound(vector<Item> items, unsigned int K, 
+			     Item *currNode=NULL)
 /* PARAMS     : a vector of Items, the capacity of the knapsack `K'.
    RETURNS    : an unsigned int representing the maximum value.
    DESCRIPTION: Given our items and K, deduce the maximum value bounds by 
@@ -229,6 +241,12 @@ unsigned int calculate_bound(vector<Item> items, unsigned int K, Item *currNode=
 	i < items.size();
 	i++)
       {
+      /* filter out nodes if we've written them off in our 
+	 selection process */
+      if (currNode != NULL 
+	  && currNode->selection.size() > i 
+	  && currNode->selection[i] == false)
+	 continue;
 
       current_weight += items[i].weight;
       upperBound += items[i].value;
@@ -244,6 +262,19 @@ unsigned int calculate_bound(vector<Item> items, unsigned int K, Item *currNode=
       upperBound += items[i].density() * ( K - current_weight);
 
    return upperBound;
+}
+
+string selection_str(vector<bool> selection)
+/* PARAMS     : a vector of bool representing a binary selection
+   RETURNS    : a string showing the binary 100101
+   DESCRIPTION: Iterates through a vector to make a string/binary
+   representation suitable for cout'ing */
+{
+   string ret;
+   for (int i = 0; i < selection.size(); i++)
+      ret += selection[i] ? '1' : '0';
+
+   return ret;
 }
 
 /***********************
@@ -312,14 +343,15 @@ int main(int argc, char **argv)
       Item currNode;
       prioq.removeLargest(currNode);
 
-      if (currNode.max_value > best_value) /* && 
-					      currNode.weight + weight <= KNAPSACK_SIZE) */
+      if (currNode.max_value > best_value &&
+	  currNode.weight <= KNAPSACK_SIZE) 
 	 {
 	 Item next_added = currNode;
+
 	 next_added.selection.push_back(true);
-	 weight += next_added.weight;
-	 next_added.max_value = calculate_bound(items,
-						KNAPSACK_SIZE, &currNode);
+	 next_added.max_value = 
+	    calculate_bound(items, KNAPSACK_SIZE, &next_added);
+
 	 // This is where we need to add the value of the next item
 	 // in items[]
 	 next_added.value += items[currNode.selection.size()].value;
@@ -337,29 +369,30 @@ int main(int argc, char **argv)
 	    }
 
 	 Item next_not_added = currNode;
-	 // this should calculate_bound( next_not_added )??
-	 // whatever *that* means.
+	 // this should calculate_bound( next_not_added )
 	 next_not_added.selection.push_back(false);
-	 next_not_added.max_value = calculate_bound(items, 
-						    KNAPSACK_SIZE, &currNode);
+	 next_not_added.weight -= items[currNode.selection.size()].weight;
+	 next_not_added.value -= items[currNode.selection.size()].value;
+	 next_not_added.max_value = 
+	    calculate_bound(items, KNAPSACK_SIZE, &next_not_added);
+
 	 if (next_not_added.max_value > best_value)
 	    {
-	    cout << "currNode.selection.size() = " << currNode.selection.size() << endl;
-	    next_not_added.weight -= items[currNode.selection.size()].weight;
 	    prioq.addItem(next_not_added);
+	    //	    best_selection = next_not_added.selection;
 	    }
 	 }
 
-      cout << "level: " << currNode.level
-	   << " weight: " << weight 
+      cout << "level: " << currNode.selection.size()
 	   << " item: " << currNode.weight << "w "
 	   << currNode.value << "v "
 	   << currNode.max_value << "b "
 	   << "(best_so_far: " << best_so_far 
-	   << ") (best_value: "
-	   << best_value << ")\n";
+	   << ") (best_value: " << best_value << ") "
+	   << "(sel: " << selection_str(best_selection) << ")\n";
 
       }
-
+   cout << "sel: (" << best_selection.size() << ") '" 
+	<< selection_str(best_selection) << "'\n";
    return 0;
 }
