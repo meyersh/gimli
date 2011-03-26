@@ -230,22 +230,26 @@ unsigned int calculate_bound(vector<Item> items, unsigned int K,
    bounds = currentValue + Sv + (K-TotalSize)*(Vk/Sk)
 */
 {
-   int depth = 0;
-   if (currNode != NULL)
-      depth = currNode->level;
-
    unsigned int upperBound = 0;
    unsigned int current_weight = 0;
+
+   vector<bool> selection;
+
+   if (currNode != NULL)
+      selection = currNode->selection;
+
+   // presume any node not already in our selection is a possibility.
+   while (selection.size() < items.size())
+      selection.push_back(true);
+   
    int i;
-   for (i = depth; 
+   for (i = 0; 
 	i < items.size();
 	i++)
       {
       /* filter out nodes if we've written them off in our 
 	 selection process */
-      if (currNode != NULL 
-	  && currNode->selection.size() > i 
-	  && currNode->selection[i] == false)
+      if (selection[i] == false)
 	 continue;
 
       current_weight += items[i].weight;
@@ -257,10 +261,11 @@ unsigned int calculate_bound(vector<Item> items, unsigned int K,
 
    i++;
    
+   /*
    // * compute fractional density.
    if (i < items.size())
       upperBound += items[i].density() * ( K - current_weight);
-
+   */
    return upperBound;
 }
 
@@ -315,6 +320,8 @@ int main(int argc, char **argv)
       i = NULL;
       }
 
+   /* Process the file */
+
    // *sort items by density*
    std::sort(items.rbegin(), items.rend());
 
@@ -333,7 +340,9 @@ int main(int argc, char **argv)
 
    /* Initialize before entering while() loop */
    items[0].max_value = calculate_bound(items, KNAPSACK_SIZE);
-   prioq.addItem(items[0]);
+   Item initialnode; // this is all zip except for bounds.
+   initialnode.max_value = calculate_bound(items, KNAPSACK_SIZE);
+   prioq.addItem(initialnode);
 
    cout << "Initial max_value: " << items[0].max_value << endl;
 
@@ -349,13 +358,13 @@ int main(int argc, char **argv)
 	 Item next_added = currNode;
 
 	 next_added.selection.push_back(true);
-	 next_added.max_value = 
-	    calculate_bound(items, KNAPSACK_SIZE, &next_added);
 
 	 // This is where we need to add the value of the next item
-	 // in items[]
 	 next_added.value += items[currNode.selection.size()].value;
 	 next_added.weight += items[currNode.selection.size()].weight;
+
+	 next_added.max_value = 
+	    calculate_bound(items, KNAPSACK_SIZE, &next_added);
 
 	 if (next_added.weight <= KNAPSACK_SIZE)
 	    {
@@ -368,11 +377,8 @@ int main(int argc, char **argv)
 	       prioq.addItem(next_added);
 	    }
 
-	 Item next_not_added = currNode;
-	 // this should calculate_bound( next_not_added )
+	 Item next_not_added = currNode; // inherit weight+value
 	 next_not_added.selection.push_back(false);
-	 next_not_added.weight -= items[currNode.selection.size()].weight;
-	 next_not_added.value -= items[currNode.selection.size()].value;
 	 next_not_added.max_value = 
 	    calculate_bound(items, KNAPSACK_SIZE, &next_not_added);
 
@@ -387,12 +393,13 @@ int main(int argc, char **argv)
 	   << " item: " << currNode.weight << "w "
 	   << currNode.value << "v "
 	   << currNode.max_value << "b "
-	   << "(best_so_far: " << best_so_far 
+	   << "(sel: " << selection_str(currNode.selection)
 	   << ") (best_value: " << best_value << ") "
-	   << "(sel: " << selection_str(best_selection) << ")\n";
+	   << "(best sel: " << selection_str(best_selection) << ")\n";
 
       }
    cout << "sel: (" << best_selection.size() << ") '" 
 	<< selection_str(best_selection) << "'\n";
+   cout << "Best so far: " << best_value << endl;
    return 0;
 }
