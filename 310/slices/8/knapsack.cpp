@@ -41,6 +41,7 @@ the knapsack.
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <cstdlib>
 
 using namespace std;
 
@@ -224,37 +225,15 @@ public:
  * HELPER FUNCTIONS
  **********************/
 
-std::vector<std::string> split(const std::string line, 
-                               const std::string split_pattern=",")
-/* PARAMS     : string thing, string separator
-   RETURNS    : vector of strings
-   DESCRIPTION: Splits a string into pieces on `split_pattern` and returns a
-   vector of these results. */
+string indent(int level)
+/* PARAMS     : level of indentation
+   RETURNS    : string containing level number of spaces.
+   DESCRIPTION: Simple function to help indentation. */
 {
-   std::vector<std::string> ret;
-   int start,
-      end,
-      len = 0;
+   string ret = "";
+   for (int i = 0; i < level; i++)
+      ret += "  ";
 
-   for (start = 0; start < line.size(); start += len + 1)
-      {
-      len = 0;
-      end = line.find(split_pattern, start);
-      if (end == std::string::npos)
-         {
-         ret.push_back(line.substr(start, line.size()-start));
-         break;
-         }
-
-      /* If we made it this far, we've got a match. */
-      len = end - start;
-
-      if (len < split_pattern.size())
-         continue;
-
-      ret.push_back(line.substr(start, len));
-
-      }
    return ret;
 }
 
@@ -342,14 +321,13 @@ int main(int argc, char **argv)
 {
    /* Handle user parameters */
    vector<string> args(argv, argc+argv);
-   if (args.size() != 3)
+   if (args.size() != 2)
       {
-      cout << "Usage: " << args[0] << " <weights file> <weight limit>\n";
+      cout << "Usage: " << args[0] << " <weights file>\n";
       return -1;
       }
 
    ifstream ifile(args[1].c_str());
-   unsigned int knapsack_size = atoi(args[2].c_str());
 
    if (!ifile)
       {
@@ -362,17 +340,17 @@ int main(int argc, char **argv)
     ***********************/
 
    vector<Item> items;
+   unsigned int knapsack_size = 0;
 
-   string line="";
-   while (std::getline(ifile, line))
+   ifile >> knapsack_size;
+   while (ifile.good())
       {
-      Item* i = new Item;
+      Item new_item;
+      ifile >> new_item.value
+	    >> new_item.weight;
 
-      i->value = atoi(split(line, " ")[0].c_str());
-      i->weight = atoi(split(line, " ")[1].c_str());
-
-      items.push_back(*i);
-      i = NULL;
+      if (new_item.value && new_item.weight)
+	 items.push_back(new_item);
       }
 
    /***********************
@@ -383,36 +361,48 @@ int main(int argc, char **argv)
    std::sort(items.rbegin(), items.rend());
 
    /* print out our items list for debugging */
-   cout << "Inventory: (Sorted by value/density)\n";
-   for (int i = 0; i < items.size(); i++)
-      cout << i << ": " 
-	   << items[i].value << "v "
-	   << items[i].weight << "w " 
-	   << items[i].density() << "d\n";
-   cout << endl;
+   if (getenv("DEBUGGING") != NULL)
+      {
+      cout << "Inventory: (Sorted by value/density)\n";
+      for (int i = 0; i < items.size(); i++)
+	 cout << i << ": " 
+	      << items[i].value << "v "
+	      << items[i].weight << "w " 
+	      << items[i].density() << "d\n";
+      cout << endl;
+      }
 
    maxHeapPQ<Item> prioq; // priority queue
    unsigned int best_value = 0;
    vector<bool> best_selection; // best selection thus far
 
-   /* Filter out crazy knapsack's right away */
-   if (sum_weight(items) <= knapsack_size)
+   /*
+    * Filter out crazy knapsack's right away 
+    */
+
+   /* knapsack big enough already */
+   if (sum_weight(items) <= knapsack_size) 
       {
       cout << "All items will fit in the knapsack neatly.\n";
       return 0;
       }
-   else if (items.back().weight > knapsack_size)
+
+   /* smallest item > then knapsack */
+   else if (items.back().weight > knapsack_size) 
       {
       cout << "Nothing at all will fit into this knapsack.\n";
       return 0;
       }
+
+   /* everything is ok, procede. */
    
    /* Initialize before entering while() loop */
    Item initialnode; // this is all zip except for bounds.
    initialnode.max_value = calculate_bound(items, knapsack_size);
 
    prioq.addItem(initialnode);
-   cout << "Initial max_value: " << initialnode.max_value << endl;
+   if (getenv("DEBUGGING") != NULL)
+      cout << "Initial max_value: " << initialnode.max_value << endl;
 
    while (!prioq.isEmpty())
       {
@@ -456,42 +446,51 @@ int main(int argc, char **argv)
 	    //	    best_selection = next_not_added.selection;
 	    }
 	 }
-
-      cout << "level: " << currNode.selection.size()
-	   << " item: " << currNode.weight << "w "
-	   << currNode.value << "v "
-	   << currNode.max_value << "b "
-	   << "(sel: " << selection_str(currNode.selection)
-	   << ") (best_value: " << best_value << ") "
-	   << "(best sel: " << selection_str(best_selection) << ")\n";
+      
+      if (getenv("DEBUGGING") != NULL)
+	 cout << indent(currNode.selection.size())
+	      << "level: " << currNode.selection.size()
+	      << " item: " << currNode.weight << "w "
+	      << currNode.value << "v "
+	      << currNode.max_value << "b "
+	      << "(sel: " << selection_str(currNode.selection)
+	      << ") (best_value: " << best_value << ") "
+	      << "(best sel: " << selection_str(best_selection) << ")\n";
 
       }
    
-   cout << "sel: (" << best_selection.size() << ") '" 
-	<< selection_str(best_selection) << "'\n";
+   if (getenv("DEBUGGING") != NULL)
+      cout << "sel: (" << best_selection.size() << ") '" 
+	   << selection_str(best_selection) << "'\n\n";
 
-   cout << "\nResulting knapsack inventory:\n";
-   int weight = 0,
-      value = 0;
+   cout << "Results: (Items marked with * have been selected)\n";
+   int total_weight = 0,
+      total_value = 0;
 
-   for (int i = 0; i < best_selection.size(); i++)
+   /* Generate the final report, print all "inventory" items and 
+      mark the selected items with an asteric. */
+   for (int i = 0; i < items.size(); i++)
       {
-      if (best_selection[i] == false)
-	 {
-	 cout << i << ": NOT CHOSEN\n";
-	 continue;
-	 }
-
-      weight += items[i].weight;
-      value += items[i].value;
-
       cout << i << ": " 
-	   << items[i].value << "v " 
-	   << items[i].weight << "w "
-	   << items[i].density() << "d\n";
+	   << items[i].value << "v "
+	   << items[i].weight << "w " 
+	   << items[i].density() << "d";
+
+      /* this item was selected */
+      if (best_selection.size() > i 
+	  && best_selection[i])
+	 {
+	 cout << "*\n";
+	 total_weight += items[i].weight;
+	 total_value += items[i].value;
+	 }
+      else /* nope, not selected */
+	 cout << endl;
       }
-   cout << "Total weight: " << weight << "/" << knapsack_size << endl
-	<< "Total value:  " << value << endl;
+
+   cout << endl
+	<< "Solution weight: " << total_weight << "/" << knapsack_size << endl
+	<< "Solution value:  " << total_value << endl;
 
    return 0;
 }
