@@ -463,7 +463,7 @@ int main(int argc, char **argv)
       cout << "sel: (" << best_selection.size() << ") '" 
 	   << selection_str(best_selection) << "'\n\n";
 
-   cout << "Results: (Items marked with * have been selected)\n";
+   cout << "Results: (Sorted by value/weight density)\n";
    int total_weight = 0,
       total_value = 0;
 
@@ -487,6 +487,7 @@ int main(int argc, char **argv)
       else /* nope, not selected */
 	 cout << endl;
       }
+   cout << "(Items marked with * have been selected)\n";
 
    cout << endl
 	<< "Solution weight: " << total_weight << "/" << knapsack_size << endl
