@@ -73,13 +73,19 @@ struct Item {
 
    bool operator< (const Item &b) const
    {
-      if (this->density() < b.density()) 
-	 return true;
+      if (this->max_value && b.max_value)
+	 return (this->max_value < b.max_value);
+      else
+	 if (this->density() < b.density()) 
+	    return true;
       return false;
+      
    }
 
    bool operator> (const Item &b) const
    {
+      if (this->max_value && b.max_value)
+	 return (this->max_value > b.max_value);
       if (this->density() > b.density())
 	 return true;
       return false;
