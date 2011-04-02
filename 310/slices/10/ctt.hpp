@@ -50,7 +50,6 @@ public:
 
    // Insert regardless of whether or not we have one already there
    void insert(const string &key, const B &index); 
-   void OLDinsert(const string &key, const B &index); 
 
    // Insert only if one does not already exist, Return 0 if insert, NZ if not
    int insertIfNew(const string &key, const B &index);
@@ -256,81 +255,16 @@ void ctt<B>::insert(const string &key, const B &index)
 }
 
 template<class B>
-void ctt<B>::OLDinsert(const string &key, const B &index)
-/* DESCR: Insert an index (even if there is already a value there. 
-   PARAM: `key' to insert and index.
-   RETUR: void */
-{
-   cttNode<B> *cur_node = matchChar(root, key[0]);
-
-   string::const_iterator end = (key.end() - 1); // the last character.
-   string::const_iterator trail = key.end(); 
-   for (string::const_iterator c = key.begin();
-	c < key.end(); 
-	trail = c++)
-      {
-
-      /* We're creating a root! */
-      if (cur_node == NULL)
-	 {
-	 root = cur_node = new cttNode<B>;
-	 cur_node->cValue = *c;
-	 }
-
-      else if (cur_node->cValue != *c)
-	 {
-	 if (cur_node->cValue == *trail)
-	    {
-	    cur_node->cc = new cttNode<B>;
-	    cur_node->cc->cValue = *c;
-	    cur_node = cur_node->cc;
-	    }
-	 else if (cur_node->cValue < *c)
-	    {
-	    cur_node->lc = new cttNode<B>;
-	    cur_node->lc->cValue = *c;
-	    cur_node = cur_node->lc;
-	    }
-	 else if (cur_node->cValue > *c)
-	    {
-	    cur_node->rc = new cttNode<B>;
-	    cur_node->rc->cValue = *c;
-	    cur_node = cur_node->rc;
-	    }
-	 cur_node = matchChar(cur_node, *c);
-	 }
-      else if (cur_node->cValue == *c)
-	 {
-	 if (c == end)
-	    {
-	    cur_node->hasIndex = true;
-	    cur_node->index = index;
-	    }
-	 else // we're not at the end yet.
-	    {
-	    if (cur_node->cc)
-	       cur_node = cur_node->cc;
-	    else // no center child, need to add one!
-	       {
-	       c++;
-	       cur_node->cc = new cttNode<B>;
-	       cur_node->cc->cValue = *c;
-	       cur_node = cur_node->cc;
-	       }
-	    }
-	 }
-
-      }
-
-   return;
-}
-
-template<class B>
 int ctt<B>::insertIfNew(const string &key, const B &index)
 /* DESCR: Insert a value only if the key does not exist. 
    PARAM: `key' and value
    RETUR: NZ if we did not insert anything */
 {
+   B oldindex;
+   int ret = getIndex(key, oldindex);
+   if (ret)
+      insert(key, index);
+   
 }
 
 template<class B>
@@ -341,91 +275,103 @@ void ctt<B>:: deleteKey(const string &key)
    RETUR: void */
 {
    /* hasIndex; cValue */
-   cttNode<B> *cur_node = root;
+   cttNode<B> *cur_node = matchChar(root, key[0]);
 
    /* try to find each character of the key */
-   for (int i = 0; i < key.size(); i++)
+   for (int i = 1; i < key.size(); i++)
       {
-      cur_node = matchChar(cur_node, key[i]); // set current node to first match
+      if (cur_node == NULL)
+	 return; // null.
+
+      if (cur_node->cc)
+	 cur_node = matchChar(cur_node->cc, key[i]);
+
       if (cur_node == NULL || cur_node->cValue != key[i])
+	 {
 	 return; // search failed.
+	 }
       }
 
-   /* now cur_node->cValue should match the last character in the key, 
-      and it should have the hasIndex flag set. */
+   /* now cur_node->cValue should == the last char in the key */
    if (cur_node->cValue == key[key.size()-1] 
        && cur_node->hasIndex)
       {
-
-      cur_node->hasIndex = 0; /* no longer an index */
-      cttNode<B> *trail_ptr = NULL;
-      // delete as far as we can.
-      for (cur_node = cur_node->par; 
-	   cur_node != NULL; 
-	   trail_ptr = cur_node, 
-	      cur_node = cur_node->parent)
-	 {
-	 /* Count how many children we have. */
-	 int children = 
-	    cur_node->rc ? 1 : 0
-	    +
-	    cur_node->cc ? 1 : 0
-	    + 
-	    cur_node->lc ? 1 : 0;
-
-	 if (children == 0) 
-	    {
-	    /* we're a leaf..? We must be the LAST node. */
-	    if (cur_node->par == NULL)
-	       {
-	       delete cur_node;
-	       root = cur_node = NULL;
-	       }
-	    }
-
-	 /* There is only one child; delete it unless it's an index. */
-	 if (children == 1) 
-	    {
-
-	    if (cur_node->lc && !cur_node->lc->hasIndex)
-	       {
-	       delete cur_node->lc;
-	       cur_node->lc = NULL;
-	       }
-	    else if (cur_node->cc && !cur_node->cc->hasIndex)
-	       {
-	       delete cur_node->cc;
-	       cur_node->cc = NULL;
-	       }
-	    else if (cur_node->rc && !cur_node->rc->hasIndex)
-	       {
-	       delete cur_node->rc;
-	       cur_node->rc = NULL;
-	       }
-
-	    }
-
-	 else if (children == 2 || children == 3) /* delete the child we just CAME from. then stop. */
-	    {
-	    if (cur_node->lc == trail_ptr)
-	       cur_node->lc = NULL;
-
-	    else if (cur_node->lc == trail_ptr)
-	       cur_node->lc = NULL;
-       	    
-	    else if (cur_node->rc == trail_ptr)
-	       cur_node->rc = NULL;
-
-	    delete trail_ptr;
-	    break;
-	    }
-
-	 }
+      cur_node->hasIndex = false; // we found it!
       }
    else
-      std::cout << "You were wrong!\n";
+      return; // didn't find it...
+    
 
-   return;
+   /* now cur_node->cValue should match the last character in the key, 
+      and it should have the hasIndex flag set. */
+
+   cttNode<B> *trail_ptr = NULL;
+  
+   // delete as far as we can.
+   for (cur_node = cur_node->par; 
+	cur_node != NULL; 
+	trail_ptr = cur_node, 
+	   cur_node = cur_node->par)
+      {
+      /* Count how many children we have. */
+      int children = 
+	 cur_node->rc ? 1 : 0
+	 +
+	 cur_node->cc ? 1 : 0
+	 + 
+	 cur_node->lc ? 1 : 0;
+      
+      if (children == 0) 
+	 {
+	 /* we're a leaf..? We must be the LAST node. */
+	 if (cur_node->par == NULL)
+	    {
+	    delete cur_node;
+	    root = cur_node = NULL;
+	    }
+	 }
+      
+      /* There is only one child; delete it unless it's an index. */
+      if (children == 1) 
+	 {
+	 
+	 if (cur_node->lc && !cur_node->lc->hasIndex)
+	    {
+	    delete cur_node->lc;
+	    cur_node->lc = NULL;
+	    }
+	 else if (cur_node->cc && !cur_node->cc->hasIndex)
+	    {
+	    delete cur_node->cc;
+	    cur_node->cc = NULL;
+	    }
+	 else if (cur_node->rc && !cur_node->rc->hasIndex)
+	    {
+	    delete cur_node->rc;
+	    cur_node->rc = NULL;
+	    }
+	 
+	 }
+      
+      else if (children == 2 || children == 3) /* delete the child we 
+						  just CAME from. then stop. */
+	 {
+	 if (cur_node->lc == trail_ptr)
+	    cur_node->lc = NULL;
+	 
+	 else if (cur_node->lc == trail_ptr)
+	    cur_node->lc = NULL;
+	 
+	 else if (cur_node->rc == trail_ptr)
+	    cur_node->rc = NULL;
+	 
+	 delete trail_ptr;
+	 break;
+	 }
+      
+      }
+
+return;
 
 }
 
