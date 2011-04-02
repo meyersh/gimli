@@ -79,7 +79,7 @@ int main(int argc, char **argv)
    int i = 0; 
    while(std::getline(wordsfile, word))
       {
-      if (word = "")
+      if (word == "")
 	 continue; // gimli has a weird dict file.
       words.insert(word, i++);
       words_list.push_back(word);
