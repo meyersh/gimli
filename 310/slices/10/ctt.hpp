@@ -207,8 +207,11 @@ void ctt<B>::insert(const string &key, const B &index)
 
    /* Special case: When the key is only 1 character long, 
       we're done now. */
-   cur_node->hasIndex = true;
-   cur_node->index = index;
+   if (key.size() == 1)
+      {
+      cur_node->hasIndex = true;
+      cur_node->index = index;
+      }
 
    /* Now, add the rest of the key */
    for (int i = 1; i < key.size(); i++)
