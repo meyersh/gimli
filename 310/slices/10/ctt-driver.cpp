@@ -33,8 +33,11 @@ int main()
       }
    wordsfile.close();
 
-   /* Search for each word. Report the found words (probably the shorter
-      list... */
+   /* Search for each word. 
+      Tests:
+      - getIndex()
+      - insert()
+   */
    int found = 0;
    for (int i = 0; i < words_list.size(); i++)
       {
@@ -47,9 +50,9 @@ int main()
 	 found++;
 	 }
       }
-   cout << "Found " << found << "/" << words_list.size() << endl;
+   cout << "Found " << found << "/" << words_list.size() << " words." << endl;
    if (found == words_list.size())
-      cout << "Congratulations, you have a working implementation of" 
+      cout << "Congratulations, you have a flawless implementation of" 
 	   << " getIndex & insert\n";
    return 0;
 }
