@@ -205,6 +205,11 @@ void ctt<B>::insert(const string &key, const B &index)
 	 }
       }
 
+   /* Special case: When the key is only 1 character long, 
+      we're done now. */
+   cur_node->hasIndex = true;
+   cur_node->index = index;
+
    /* Now, add the rest of the key */
    for (int i = 1; i < key.size(); i++)
       {
@@ -217,6 +222,10 @@ void ctt<B>::insert(const string &key, const B &index)
       else 
 	 {
 	 cur_node = cur_node->cc;
+	 /* Everytime we move down, make sure we've matchChar'd */
+	 if (cur_node->cValue != key[i])
+	    cur_node = matchChar(cur_node, key[i]);
+
 	 if (key[i] < cur_node->cValue)
 	    {
 	    cur_node->lc = new cttNode<B>(key[i]);

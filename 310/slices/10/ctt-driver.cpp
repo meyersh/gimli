@@ -44,11 +44,12 @@ int main()
       ret = words.getIndex(word, index);
       if (ret == 0) 
 	 {
-	 cout << "Found: " << word << ":" << index << endl;
 	 found++;
 	 }
       }
    cout << "Found " << found << "/" << words_list.size() << endl;
-   
+   if (found == words_list.size())
+      cout << "Congratulations, you have a working implementation of" 
+	   << " getIndex & insert\n";
    return 0;
 }
