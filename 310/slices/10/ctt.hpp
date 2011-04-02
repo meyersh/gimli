@@ -147,18 +147,19 @@ int ctt<B>::getIndex(const string &key, B &index)
    RETUR: NZ on fail. */
 {
    /* hasIndex; cValue */
-   cttNode<B> *cur_node = root;
-
-   cout << "Searching for " << key << endl;
+   cttNode<B> *cur_node = matchChar(root, key[0]);
 
    /* try to find each character of the key */
-   for (int i = 0; i < key.size(); i++)
+   for (int i = 1; i < key.size(); i++)
       {
-      cur_node = matchChar(cur_node, key[i]); // set current node to first match
+      if (cur_node == NULL)
+	 return -3; // null.
+
+      if (cur_node->cc)
+	 cur_node = matchChar(cur_node->cc, key[i]);
+
       if (cur_node == NULL || cur_node->cValue != key[i])
 	 {
-	 if (cur_node)
-	    cout << cur_node->cValue << " != " << key[i] << endl;
 	 return -1; // search failed.
 	 }
       }
@@ -166,9 +167,12 @@ int ctt<B>::getIndex(const string &key, B &index)
    /* now cur_node->cValue should == the last char in the key */
    if (cur_node->cValue == key[key.size()-1] 
        && cur_node->hasIndex)
+      {
       index = cur_node->index;
-
+      return 0;
+      }
    return -2;
+
 
 }
 
@@ -189,12 +193,12 @@ void ctt<B>::insert(const string &key, const B &index)
    /* First character is unique. */
    else if (cur_node->cValue != key[0])
       {
-      if (cur_node->cValue < key[0])
+      if (key[0] < cur_node->cValue)
 	 {
 	 cur_node->lc = new cttNode<B>(key[0]);
 	 cur_node = cur_node->lc;
 	 }
-      if (cur_node->cValue > key[0])
+      if (key[0] > cur_node->cValue)
 	 {
 	 cur_node->rc = new cttNode<B>(key[0]);
 	 cur_node = cur_node->rc;
@@ -213,7 +217,6 @@ void ctt<B>::insert(const string &key, const B &index)
       else 
 	 {
 	 cur_node = cur_node->cc;
-	 cout << cur_node->cValue << "<" << key[i] << endl;
 	 if (key[i] < cur_node->cValue)
 	    {
 	    cur_node->lc = new cttNode<B>(key[i]);
