@@ -21,6 +21,12 @@ struct cttNode
       *rc; //right child
 		  
    cttNode (){cValue=NULL; hasIndex=0; par=lc=cc=rc=NULL;}
+   cttNode (char cValue)
+   {
+      this->cValue = cValue;
+      hasIndex = 0;
+      par = lc = cc = rc = NULL;
+   }
 };
 
 //*********************************************************
@@ -44,6 +50,7 @@ public:
 
    // Insert regardless of whether or not we have one already there
    void insert(const string &key, const B &index); 
+   void OLDinsert(const string &key, const B &index); 
 
    // Insert only if one does not already exist, Return 0 if insert, NZ if not
    int insertIfNew(const string &key, const B &index);
@@ -74,7 +81,7 @@ void ctt<C>::clear()
 	 cur=cur->rc;
       else
 	 cur=deleteNode(cur); //cur gets the parent of the node that we deleted
-	    }//end while
+      } //end while
 }//end function
 
 //***************************************************************
@@ -142,12 +149,18 @@ int ctt<B>::getIndex(const string &key, B &index)
    /* hasIndex; cValue */
    cttNode<B> *cur_node = root;
 
+   cout << "Searching for " << key << endl;
+
    /* try to find each character of the key */
    for (int i = 0; i < key.size(); i++)
       {
       cur_node = matchChar(cur_node, key[i]); // set current node to first match
       if (cur_node == NULL || cur_node->cValue != key[i])
+	 {
+	 if (cur_node)
+	    cout << cur_node->cValue << " != " << key[i] << endl;
 	 return -1; // search failed.
+	 }
       }
 
    /* now cur_node->cValue should == the last char in the key */
@@ -166,12 +179,80 @@ void ctt<B>::insert(const string &key, const B &index)
    RETUR: void */
 {
    cttNode<B> *cur_node = matchChar(root, key[0]);
+   
+   /* Empty tree. */
+   if (cur_node == NULL)
+      {
+      root = cur_node = new cttNode<B>(key[0]);
+      }
+
+   /* First character is unique. */
+   else if (cur_node->cValue != key[0])
+      {
+      if (cur_node->cValue < key[0])
+	 {
+	 cur_node->lc = new cttNode<B>(key[0]);
+	 cur_node = cur_node->lc;
+	 }
+      if (cur_node->cValue > key[0])
+	 {
+	 cur_node->rc = new cttNode<B>(key[0]);
+	 cur_node = cur_node->rc;
+	 }
+      }
+
+   /* Now, add the rest of the key */
+   for (int i = 1; i < key.size(); i++)
+      {
+      /* cur_node == PARENT of whatever we're trying to insert. */
+      if (cur_node->cc == NULL)
+	 {
+	 cur_node->cc = new cttNode<B>(key[i]);
+	 cur_node = cur_node->cc;
+	 }
+      else 
+	 {
+	 cur_node = cur_node->cc;
+	 cout << cur_node->cValue << "<" << key[i] << endl;
+	 if (key[i] < cur_node->cValue)
+	    {
+	    cur_node->lc = new cttNode<B>(key[i]);
+	    cur_node = cur_node->lc;
+	    }
+	 else if (key[i] > cur_node->cValue)
+	    {
+	    cur_node->rc = new cttNode<B>(key[i]);
+	    cur_node = cur_node->rc;
+	    }
+	 else if (cur_node->cValue == key[i])
+	    {
+	    /* Don't think we have to do anything here. */
+	    }
+	 }
+
+      if (i == key.size()-1)
+	 {
+	 //cout << "We're at the last one. '" << key[i] << cur_node->cValue << "'\n";
+	 cur_node->hasIndex = true;
+	 cur_node->index=index;
+	 }
+      }
+   
+}
+
+template<class B>
+void ctt<B>::OLDinsert(const string &key, const B &index)
+/* DESCR: Insert an index (even if there is already a value there. 
+   PARAM: `key' to insert and index.
+   RETUR: void */
+{
+   cttNode<B> *cur_node = matchChar(root, key[0]);
 
    string::const_iterator end = (key.end() - 1); // the last character.
-   
-   for (string::const_iterator c = key.begin() + 1;
+   string::const_iterator trail = key.end(); 
+   for (string::const_iterator c = key.begin();
 	c < key.end(); 
-	c++)
+	trail = c++)
       {
 
       /* We're creating a root! */
@@ -183,13 +264,19 @@ void ctt<B>::insert(const string &key, const B &index)
 
       else if (cur_node->cValue != *c)
 	 {
-	 if (cur_node->cValue < *c)
+	 if (cur_node->cValue == *trail)
+	    {
+	    cur_node->cc = new cttNode<B>;
+	    cur_node->cc->cValue = *c;
+	    cur_node = cur_node->cc;
+	    }
+	 else if (cur_node->cValue < *c)
 	    {
 	    cur_node->lc = new cttNode<B>;
 	    cur_node->lc->cValue = *c;
 	    cur_node = cur_node->lc;
 	    }
-	 else // cur_node->cvalue > *c
+	 else if (cur_node->cValue > *c)
 	    {
 	    cur_node->rc = new cttNode<B>;
 	    cur_node->rc->cValue = *c;
@@ -220,7 +307,7 @@ void ctt<B>::insert(const string &key, const B &index)
 
       }
 
-    return;
+   return;
 }
 
 template<class B>
@@ -250,7 +337,7 @@ void ctt<B>:: deleteKey(const string &key)
       }
 
    /* now cur_node->cValue should match the last character in the key, 
-    and it should have the hasIndex flag set. */
+      and it should have the hasIndex flag set. */
    if (cur_node->cValue == key[key.size()-1] 
        && cur_node->hasIndex)
       {
