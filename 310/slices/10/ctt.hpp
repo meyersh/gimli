@@ -1,6 +1,8 @@
 #ifndef CTT_HPP
 #define CTT_HPP
+
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -71,7 +73,7 @@ void ctt<C>::clear()
       else if (cur ->rc !=NULL) // it has a right child
 	 cur=cur->rc;
       else
-	 cur=deleteNode(cur)//cur gets the parent of the node that we deleted
+	 cur=deleteNode(cur); //cur gets the parent of the node that we deleted
 	    }//end while
 }//end function
 
@@ -83,14 +85,16 @@ cttNode<D> *ctt<D>::deleteNode(cttNode<D> *nd)
    cttNode<D> *p; //parent
    if ((nd->lc) || (nd->cc) || (nd->rc)) // Node has children - don't delete
       return NULL;
+   
    p=nd->par;
    //check which child is to be deleted and set the pointer to it to NULL
-   if(p->lc==nd)
+   if(p && p->lc == nd)
       p->lc=NULL;
-   else if (p->cc ==nd)
+   else if (p && p->cc == nd)
       p->cc=NULL;
-   else
+   else if (p && p->rc == nd)
       p->rc=NULL;
+   
    delete nd;
    return p;
 }
@@ -130,7 +134,7 @@ cttNode<B> *ctt<B>::matchChar(cttNode<B> *nd, char cval)
 }
 
 template<class B> 
-cttNode<B> *ctt<B>::int getIndex(const string &key, B &index)
+int ctt<B>::getIndex(const string &key, B &index)
 /* DESCR: Verifies the existance of a key.
    PARAM: const string "key" and an `B` reference to hold the index.
    RETUR: NZ on fail. */
@@ -161,7 +165,62 @@ void ctt<B>::insert(const string &key, const B &index)
    PARAM: `key' to insert and index.
    RETUR: void */
 {
-   return;
+   cttNode<B> *cur_node = matchChar(root, key[0]);
+
+   string::const_iterator end = (key.end() - 1); // the last character.
+   
+   for (string::const_iterator c = key.begin() + 1;
+	c < key.end(); 
+	c++)
+      {
+
+      /* We're creating a root! */
+      if (cur_node == NULL)
+	 {
+	 root = cur_node = new cttNode<B>;
+	 cur_node->cValue = *c;
+	 }
+
+      else if (cur_node->cValue != *c)
+	 {
+	 if (cur_node->cValue < *c)
+	    {
+	    cur_node->lc = new cttNode<B>;
+	    cur_node->lc->cValue = *c;
+	    cur_node = cur_node->lc;
+	    }
+	 else // cur_node->cvalue > *c
+	    {
+	    cur_node->rc = new cttNode<B>;
+	    cur_node->rc->cValue = *c;
+	    cur_node = cur_node->rc;
+	    }
+	 cur_node = matchChar(cur_node, *c);
+	 }
+      else if (cur_node->cValue == *c)
+	 {
+	 if (c == end)
+	    {
+	    cur_node->hasIndex = true;
+	    cur_node->index = index;
+	    }
+	 else // we're not at the end yet.
+	    {
+	    if (cur_node->cc)
+	       cur_node = cur_node->cc;
+	    else // no center child, need to add one!
+	       {
+	       c++;
+	       cur_node->cc = new cttNode<B>;
+	       cur_node->cc->cValue = *c;
+	       cur_node = cur_node->cc;
+	       }
+	    }
+	 }
+
+      }
+
+    return;
 }
 
 template<class B>
@@ -181,7 +240,7 @@ void ctt<B>:: deleteKey(const string &key)
 {
    /* hasIndex; cValue */
    cttNode<B> *cur_node = root;
-   
+
    /* try to find each character of the key */
    for (int i = 0; i < key.size(); i++)
       {
@@ -197,11 +256,12 @@ void ctt<B>:: deleteKey(const string &key)
       {
 
       cur_node->hasIndex = 0; /* no longer an index */
-
+      cttNode<B> *trail_ptr = NULL;
       // delete as far as we can.
       for (cur_node = cur_node->par; 
 	   cur_node != NULL; 
-	   cur_node = cur_node->parent)
+	   trail_ptr = cur_node, 
+	      cur_node = cur_node->parent)
 	 {
 	 /* Count how many children we have. */
 	 int children = 
@@ -213,50 +273,55 @@ void ctt<B>:: deleteKey(const string &key)
 
 	 if (children == 0) 
 	    {
-	    /* we're a leaf..? */
+	    /* we're a leaf..? We must be the LAST node. */
 	    if (cur_node->par == NULL)
+	       {
 	       delete cur_node;
+	       root = cur_node = NULL;
+	       }
+	    }
 
 	 /* There is only one child; delete it unless it's an index. */
 	 if (children == 1) 
 	    {
-	    cttNode<B> node_to_delete = NULL; 
 
-	    if (cur_node->rc && !cur_node->rc->hasIndex)
+	    if (cur_node->lc && !cur_node->lc->hasIndex)
 	       {
-	       node_to_delete = cur_node->rc;
+	       delete cur_node->lc;
+	       cur_node->lc = NULL;
+	       }
+	    else if (cur_node->cc && !cur_node->cc->hasIndex)
+	       {
+	       delete cur_node->cc;
+	       cur_node->cc = NULL;
+	       }
+	    else if (cur_node->rc && !cur_node->rc->hasIndex)
+	       {
+	       delete cur_node->rc;
 	       cur_node->rc = NULL;
 	       }
 
-	    else if (cur_node->cc && !cur_node->cc->hasIndex)
-	       {
-	       node_to_delete = cur_node->cc;
-	       cur_node->cc = NULL;
-	       }
-
-	    else if (cur_node->lc && !cur_node->lc->hasIndex)
-	       {
-	       node_to_delete = cur_node->lc;
-	       cur_node->lc = NULL;
-	       }
-
-	    if (node_to_delete)
-	       delete node_to_delete;
-
 	    }
 
-	 else if (children > 1)
-	    break; /* there are other keys from this... */
+	 else if (children == 2 || children == 3) /* delete the child we just CAME from. then stop. */
+	    {
+	    if (cur_node->lc == trail_ptr)
+	       cur_node->lc = NULL;
 
-	   
-	 if (cur_node->cc  cur_node->cc->hasIndex)
-	    break; /* This is an index, so we can't delete any more. */
+	    else if (cur_node->lc == trail_ptr)
+	       cur_node->lc = NULL;
+       	    
+	    else if (cur_node->rc == trail_ptr)
+	       cur_node->rc = NULL;
 
-	 delete cur_node->cc;
-	 cur_node->cc = NULL;
-	    
+	    delete trail_ptr;
+	    break;
+	    }
+
 	 }
       }
+   else
+      std::cout << "You were wrong!\n";
 
    return;
 
