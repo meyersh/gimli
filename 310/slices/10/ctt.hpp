@@ -172,7 +172,6 @@ int ctt<B>::getIndex(const string &key, B &index)
       }
    return -2;
 
-
 }
 
 template<class B>
@@ -210,9 +209,10 @@ void ctt<B>::insert(const string &key, const B &index)
       {
       cur_node->hasIndex = true;
       cur_node->index = index;
+      return;
       }
 
-   /* Now, add the rest of the key */
+   /* Otherwise, add the rest of the key */
    for (int i = 1; i < key.size(); i++)
       {
       /* cur_node == PARENT of whatever we're trying to insert. */
@@ -244,9 +244,9 @@ void ctt<B>::insert(const string &key, const B &index)
 	    }
 	 }
 
+      /* We're on the last character in the key */
       if (i == key.size()-1)
 	 {
-	 //cout << "We're at the last one. '" << key[i] << cur_node->cValue << "'\n";
 	 cur_node->hasIndex = true;
 	 cur_node->index=index;
 	 }
