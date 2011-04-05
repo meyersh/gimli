@@ -15,8 +15,10 @@
 
 using namespace std;
 
-#define WORDS_FILE "/usr/share/dict/words"
-
+// LINUX + MAC
+// #define WORDS_FILE "/usr/share/dict/words"
+// SOLARIS:
+#define WORDS_FILE "/usr/share/lib/dict/words"
 /* global variables */
 
 
