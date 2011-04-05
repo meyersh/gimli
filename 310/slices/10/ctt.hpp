@@ -1,3 +1,16 @@
+/*
+  SUBMITTED BY: Shaun Meyer
+  CREATED BY: (Initially) Chelsey, from notes
+  Functions: Shaun Meyer
+  CREATED: APR 4 2011
+  DESCRIPTION:
+  Implements a templated ternary tree.
+
+  I added cttNode(B) constructor to allow some syntactic sugar and
+  often use the fact that hasIndex will (in my case) NOT modify
+  index if something goes wrong. 
+*/
+
 #ifndef CTT_HPP
 #define CTT_HPP
 
@@ -264,6 +277,8 @@ int ctt<B>::insertIfNew(const string &key, const B &index)
    int ret = getIndex(key, oldindex);
    if (ret)
       insert(key, index);
+   else
+      return -1;
    
 }
 
@@ -371,7 +386,7 @@ void ctt<B>:: deleteKey(const string &key)
       
       }
 
-return;
+   return;
 
 }
 
