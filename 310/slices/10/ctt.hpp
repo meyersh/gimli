@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <stack>
+#include <queue>
 #include <string>
 #include <iostream>
 
@@ -242,6 +243,7 @@ void ctt<B>::insert(const string &key, const B &index)
       if (cur_node->cc == NULL)
 	 {
 	 cur_node->cc = new cttNode<B>(key[i]);
+	 cur_node->cc->par = cur_node;
 	 cur_node = cur_node->cc;
 	 }
       else 
@@ -254,11 +256,13 @@ void ctt<B>::insert(const string &key, const B &index)
 	 if (key[i] < cur_node->cValue)
 	    {
 	    cur_node->lc = new cttNode<B>(key[i]);
+	    cur_node->lc->par = cur_node;
 	    cur_node = cur_node->lc;
 	    }
 	 else if (key[i] > cur_node->cValue)
 	    {
 	    cur_node->rc = new cttNode<B>(key[i]);
+	    cur_node->rc->par = cur_node;
 	    cur_node = cur_node->rc;
 	    }
 	 else if (cur_node->cValue == key[i])
@@ -402,18 +406,37 @@ void ctt<B>:: deleteKey(const string &key)
 
 }
 
+/*
+void traverse(Tptr p) 
+{    if (!p) return; 
+     traverse(p->lokid);  // low kid
+     if (p->splitchar)  // value
+         traverse(p->eqkid);  // eq kid
+     else 
+         printf("%s/n", (char *) p->eqkid); 
+     traverse(p->hikid);  // hi kid
+} 
+ */
+
 template<class B>
-vector<string> ctt<B>:: keys(cttNode<B> start_node=root)
+vector<string> ctt<B>:: keys()
 /* DESCR: 
    PARAM: 
    RETUR:  */
 {
    vector<string> keys;
+
    stack<cttNode<B>*> node_stack;
-   node_stack.push(start_node);
+   queue<cttNode<B>*> indexes;
+
+   node_stack.push(root);
+
    cttNode<B> *cur_node;
+
+   /* find all node indexes */
    while (!node_stack.empty())
       {
+
       cur_node = node_stack.top();
       node_stack.pop();
 
@@ -426,9 +449,45 @@ vector<string> ctt<B>:: keys(cttNode<B> start_node=root)
       if (cur_node->lc)
 	 node_stack.push(cur_node->lc);
 
-      keys.push_back(&cur_node->cValue);
+      if (cur_node->hasIndex == true)
+	 indexes.push(cur_node);
 
       }
+
+   // trace all the indexes to put together their words.
+   stack<char> word;
+   cttNode<B> *trail_ptr;
+   cur_node = NULL;
+
+   while (!indexes.empty())
+      {
+      cur_node = indexes.front(); indexes.pop();
+
+      word.push(cur_node->cValue);
+      
+      /*  follow a given index to the root */
+      for (trail_ptr = cur_node,
+	      cur_node = cur_node->par;
+	   cur_node;
+	   trail_ptr = cur_node,
+	      cur_node = cur_node->par)
+	 {
+	 if (cur_node->cc == trail_ptr)
+	    word.push(cur_node->cValue);
+	 }
+	 
+      /* Empty the character stack into a word string. */
+      string new_word = "";
+      while (!word.empty())
+	 {
+	    new_word += word.top();
+	    word.pop();
+	 }
+
+      if (new_word != "")
+	 keys.push_back(new_word);
+      }
+
    
    return keys;
 }
