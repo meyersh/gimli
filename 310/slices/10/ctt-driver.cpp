@@ -25,13 +25,13 @@ using namespace std;
 
 /* functions */
 int check_keys(vector<string> &words_list, ctt<int> &words, 
-	       bool print_found=false, bool print_missing=false)
+	       bool print_found=false, bool print_missing=false, int offset=-1)
 {
    /* Search for each word. */
    int found = 0;
    string word;
 
-   for (int i = 0; i < words_list.size(); i++)
+   for (int i = offset+1; i < words_list.size(); i++)
       {
       word = words_list[i];
       int index = 0;
@@ -118,21 +118,26 @@ int main(int argc, char **argv)
       {
       word = words_list[i];
       int index = 0;
+      cout << "Deleting '" << word << "'\n";
       words.deleteKey(word);
-
+      
       /* Check that we're not damaging OTHER keys in this process by
 	 checking that all other keys are still present. 
 	 ( This is expensive, so only check every few thousand keys. */
-      if (i % 3000 == 0)
-	 if (check_keys(words_list, words) != (words_list.size()-i-1))
-	    cout << "\nThere are undeleted keys.\n" << flush;
+      if (i % 3000 == 0 || true)
+	 if (check_keys(words_list, words, print_found, print_missing) != (words_list.size()-i-1))
+	    cout << "\nDelete is damaging other keys.\n" << flush;
 	 else 
-	    cout << "." << flush;
+	    //cout << "." << flush;
 
 
       if (!words.getIndex(word, index))
 	 {
 	 cout << "Failed to deleted key '" << word << "' (" << index << ")\n";
+	 }
+      else
+	 {
+	 cout << "Successfully deleted key '" << word << "'\n";
 	 }
       }
    cout << endl;

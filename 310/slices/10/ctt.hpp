@@ -81,6 +81,8 @@ public:
    int getIndex(const string &key, B &index); // Return 0 on success, NZ if fail
 
    vector<string> keys();
+   vector<string> keys2();
+
 
 };
 
@@ -337,7 +339,8 @@ void ctt<B>:: deleteKey(const string &key)
    cttNode<B> *trail_ptr = NULL;
   
    // delete as far as we can.
-   for (cur_node = cur_node->par; 
+   for (trail_ptr = cur_node, 
+	   cur_node = cur_node->par; 
 	cur_node != NULL; 
 	trail_ptr = cur_node, 
 	   cur_node = cur_node->par)
@@ -352,6 +355,7 @@ void ctt<B>:: deleteKey(const string &key)
       
       if (children == 0) 
 	 {
+	 cout << "==> 0 children.\n";
 	 /* we're a leaf..? We must be the LAST node. */
 	 if (cur_node->par == NULL)
 	    {
@@ -363,7 +367,7 @@ void ctt<B>:: deleteKey(const string &key)
       /* There is only one child; delete it unless it's an index. */
       if (children == 1) 
 	 {
-	 
+	 cout << "==> 1 child\n";
 	 if (cur_node->lc && !cur_node->lc->hasIndex)
 	    {
 	    delete cur_node->lc;
@@ -385,6 +389,19 @@ void ctt<B>:: deleteKey(const string &key)
       else if (children == 2 || children == 3) /* delete the child we 
 						  just CAME from. then stop. */
 	 {
+	 cout << "==> 2 || 3 children.\n";
+	 cttNode<B> **child[] = {&(cur_node->lc), &(cur_node->cc), &(cur_node->rc)};
+	 for (int i = 0; i < 3; i++)
+	    {
+	    if (*child[i] == trail_ptr)
+	       {
+	       delete *child;
+	       *child[i] == NULL;
+	       }
+	    
+	    
+	    }
+	 /*
 	 if (cur_node->lc == trail_ptr)
 	    cur_node->lc = NULL;
 	 
@@ -395,6 +412,7 @@ void ctt<B>:: deleteKey(const string &key)
 	    cur_node->rc = NULL;
 	 
 	 delete trail_ptr;
+	 */
 	 break;
 	 }
       
@@ -406,23 +424,11 @@ void ctt<B>:: deleteKey(const string &key)
 
 }
 
-/*
-void traverse(Tptr p) 
-{    if (!p) return; 
-     traverse(p->lokid);  // low kid
-     if (p->splitchar)  // value
-         traverse(p->eqkid);  // eq kid
-     else 
-         printf("%s/n", (char *) p->eqkid); 
-     traverse(p->hikid);  // hi kid
-} 
- */
-
 template<class B>
 vector<string> ctt<B>:: keys()
-/* DESCR: 
-   PARAM: 
-   RETUR:  */
+/* DESCR: Given a turnary tree, construct a vector<string> of all keys
+   PARAM: none
+   RETUR: a vector<string> containing all keys in the search tree. */
 {
    vector<string> keys;
 
@@ -433,13 +439,15 @@ vector<string> ctt<B>:: keys()
 
    cttNode<B> *cur_node;
 
-   /* find all node indexes */
+   /* travserse the tree in using pre-order to find all node indexes */
    while (!node_stack.empty())
       {
 
-      cur_node = node_stack.top();
-      node_stack.pop();
+      cur_node = node_stack.top(); node_stack.pop();
 
+      /* We're pushing onto a stack, so while pre-order is LC, CC, RC
+	 these if statements are in reverse. Potentially, this could be fixed
+	 by using a queue instead of a stack. */
       if (cur_node->rc)
 	 node_stack.push(cur_node->rc);
 
