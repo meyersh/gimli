@@ -9,6 +9,10 @@
   I added cttNode(B) constructor to allow some syntactic sugar and
   often use the fact that hasIndex will (in my case) NOT modify
   index if something goes wrong. 
+  
+  CHANGES:
+  APR 6 2011 - I'd like to add iteration & partial matching. 
+  see http://pcplus.techradar.com/node/3074.
 */
 
 #ifndef CTT_HPP
