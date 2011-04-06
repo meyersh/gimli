@@ -18,8 +18,11 @@
 #ifndef CTT_HPP
 #define CTT_HPP
 
+#include <vector>
+#include <stack>
 #include <string>
 #include <iostream>
+
 
 using namespace std;
 
@@ -75,6 +78,9 @@ public:
    void deleteKey(const string &key); 
 
    int getIndex(const string &key, B &index); // Return 0 on success, NZ if fail
+
+   vector<string> keys();
+
 };
 
 //*********************************************************
@@ -392,6 +398,39 @@ void ctt<B>:: deleteKey(const string &key)
 
    return;
 
+
+
+}
+
+template<class B>
+vector<string> ctt<B>:: keys(cttNode<B> start_node=root)
+/* DESCR: 
+   PARAM: 
+   RETUR:  */
+{
+   vector<string> keys;
+   stack<cttNode<B>*> node_stack;
+   node_stack.push(start_node);
+   cttNode<B> *cur_node;
+   while (!node_stack.empty())
+      {
+      cur_node = node_stack.top();
+      node_stack.pop();
+
+      if (cur_node->rc)
+	 node_stack.push(cur_node->rc);
+
+      if (cur_node->cc)
+	 node_stack.push(cur_node->cc);
+
+      if (cur_node->lc)
+	 node_stack.push(cur_node->lc);
+
+      keys.push_back(&cur_node->cValue);
+
+      }
+   
+   return keys;
 }
 
 #endif

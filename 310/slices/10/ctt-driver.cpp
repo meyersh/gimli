@@ -18,7 +18,8 @@ using namespace std;
 // LINUX + MAC
 // #define WORDS_FILE "/usr/share/dict/words"
 // SOLARIS:
-#define WORDS_FILE "/usr/share/lib/dict/words"
+//#define WORDS_FILE "/usr/share/lib/dict/words"
+#define WORDS_FILE "words.txt"
 /* global variables */
 
 
@@ -141,6 +142,11 @@ int main(int argc, char **argv)
       cout << "Something went wrong, there are keys remaining. This\n"
 	   << "indicates that there is something wrong with your deleteKey().\n";
 
+
+   cout << "Testing keys()\n";
+   vector<string> keys = words.keys();
+   for (int i = 0; i < keys.size(); i++)
+      cout << i << ": " << keys[i] << endl;
 
    return 0;
 }
