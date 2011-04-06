@@ -109,6 +109,7 @@ int main(int argc, char **argv)
       return 0; // no further tests are done if this has failed.
       }
 
+#ifdef TEST_DELETE
    /* test: 
       void ctt<B>:: deleteKey(const string &key)
    */
@@ -142,11 +143,13 @@ int main(int argc, char **argv)
       cout << "Something went wrong, there are keys remaining. This\n"
 	   << "indicates that there is something wrong with your deleteKey().\n";
 
+#endif
 
    cout << "Testing keys()\n";
    vector<string> keys = words.keys();
    for (int i = 0; i < keys.size(); i++)
       cout << i << ": " << keys[i] << endl;
+
 
    return 0;
 }
