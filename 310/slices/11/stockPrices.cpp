@@ -54,7 +54,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
-#include "ctt.hpp"
+#include "hash.hpp"
 
 using namespace std;
 
@@ -156,7 +156,7 @@ int main(int argc, char **argv)
       return 0;
       }
 
-   ctt<double> stock_prices; // all stock_prices, in reTRIEval form.
+   hashTable<double> stock_prices(8192); // all stock_prices, in hash form.
    
    string line;
    int num_symbols = 0;
