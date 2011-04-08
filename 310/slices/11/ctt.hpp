@@ -354,7 +354,6 @@ void ctt<B>:: deleteKey(const string &key)
 	 /* we're a leaf..? We must be the LAST node. */
 	 if (cur_node == root)
 	    {
-	    cout << cur_node->cValue;
 	    delete cur_node;
 	    root = cur_node = NULL;
 	    }
@@ -363,38 +362,39 @@ void ctt<B>:: deleteKey(const string &key)
       /* There is only one child; delete it unless it's an index. */
       if (children == 1) 
 	 {
-	 if (trail_ptr && trail_ptr->hasIndex == false)
+	 if (cur_node->lc && !cur_node->lc->hasIndex)
 	    {
-	    if (trail_ptr->par->cc == trail_ptr)
-	       trail_ptr->par->cc = NULL;
-	    else if (trail_ptr->par->lc == trail_ptr)
-	       trail_ptr->par->lc = NULL;
-	    else if (trail_ptr->par->rc == trail_ptr)
-	       trail_ptr->par->rc = NULL;
-
-	    cout << trail_ptr->cValue;
-	    delete trail_ptr;
+	    delete cur_node->lc;
+	    cur_node->lc = NULL;
 	    }
+	 else if (cur_node->cc && !cur_node->cc->hasIndex)
+	    {
+	    delete cur_node->cc;
+	    cur_node->cc = NULL;
+	    }
+	 else if (cur_node->rc && !cur_node->rc->hasIndex)
+	    {
+	    delete cur_node->rc;
+	    cur_node->rc = NULL;
+	    }
+	 
 	 }
       
       else if (children == 2 || children == 3) /* delete the child we 
 						  just CAME from. then stop. */
 	 {
-	 /*
-	   cttNode<B> **child[] = {&(cur_node->lc), &(cur_node->cc), &(cur_node->rc)};
-	   for (int i = 0; i < 3; i++)
-	   {
-	   if (*child[i] == trail_ptr)
-	   {
-	   cout << ((*child[i])->cValue);
-	   delete *child;
-	   *child[i] == NULL;
-	   }
-	   
+	 cttNode<B> **child[] = {&(cur_node->lc), &(cur_node->cc), &(cur_node->rc)};
+	 for (int i = 0; i < 3; i++)
+	    {
+	    if (*child[i] == trail_ptr)
+	       {
+	       delete *child;
+	       *child[i] == NULL;
+	       }
 	    
-	   }
-	 */
-	 
+	    
+	    }
+	 /*
 	 if (cur_node->lc == trail_ptr)
 	    cur_node->lc = NULL;
 	 
@@ -404,18 +404,14 @@ void ctt<B>:: deleteKey(const string &key)
 	 else if (cur_node->rc == trail_ptr)
 	    cur_node->rc = NULL;
 	 
-	 cout << trail_ptr->cValue << endl;
 	 delete trail_ptr;
-
+	 */
 	 break;
 	 }
-
-      }
-   cout << endl;
       
+      }
 
-
-return;
+   return;
 
 
 
@@ -485,8 +481,8 @@ vector<string> ctt<B>:: keys()
       string new_word = "";
       while (!word.empty())
 	 {
-	 new_word += word.top();
-	 word.pop();
+	    new_word += word.top();
+	    word.pop();
 	 }
 
       if (new_word != "")
