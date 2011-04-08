@@ -41,7 +41,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
-#include "ctt.hpp"
+#include "hash.hpp"
 
 using namespace std;
 
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
 
    /* each key will point to a vector of strings.
       this will allow duplicate email_addresses. */
-   ctt<int> names;
+   hashTable<int> names;
    vector< vector<string > > email_addresses;
 
    /* statistical counters */
