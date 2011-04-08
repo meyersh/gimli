@@ -332,10 +332,6 @@ void ctt<B>:: deleteKey(const string &key)
    else
       return; // didn't find it...
     
-
-   /* now cur_node->cValue should match the last character in the key, 
-      and it should have the hasIndex flag set. */
-
    cttNode<B> *trail_ptr = NULL;
   
    // delete as far as we can.
@@ -347,17 +343,16 @@ void ctt<B>:: deleteKey(const string &key)
       {
       /* Count how many children we have. */
       int children = 
-	 cur_node->rc ? 1 : 0
+	 (cur_node->rc ? 1 : 0)
 	 +
-	 cur_node->cc ? 1 : 0
+	 (cur_node->cc ? 1 : 0)
 	 + 
-	 cur_node->lc ? 1 : 0;
+	 (cur_node->lc ? 1 : 0);
       
       if (children == 0) 
 	 {
-	 cout << "==> 0 children.\n";
 	 /* we're a leaf..? We must be the LAST node. */
-	 if (cur_node->par == NULL)
+	 if (cur_node == root)
 	    {
 	    delete cur_node;
 	    root = cur_node = NULL;
@@ -367,7 +362,6 @@ void ctt<B>:: deleteKey(const string &key)
       /* There is only one child; delete it unless it's an index. */
       if (children == 1) 
 	 {
-	 cout << "==> 1 child\n";
 	 if (cur_node->lc && !cur_node->lc->hasIndex)
 	    {
 	    delete cur_node->lc;
@@ -389,7 +383,6 @@ void ctt<B>:: deleteKey(const string &key)
       else if (children == 2 || children == 3) /* delete the child we 
 						  just CAME from. then stop. */
 	 {
-	 cout << "==> 2 || 3 children.\n";
 	 cttNode<B> **child[] = {&(cur_node->lc), &(cur_node->cc), &(cur_node->rc)};
 	 for (int i = 0; i < 3; i++)
 	    {
