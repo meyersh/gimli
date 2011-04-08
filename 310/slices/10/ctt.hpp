@@ -332,6 +332,7 @@ void ctt<B>:: deleteKey(const string &key)
    else
       return; // didn't find it...
     
+   cout << "Deleting '" << key << "' ";
 
    /* now cur_node->cValue should match the last character in the key, 
       and it should have the hasIndex flag set. */
@@ -352,13 +353,15 @@ void ctt<B>:: deleteKey(const string &key)
 	 cur_node->cc ? 1 : 0
 	 + 
 	 cur_node->lc ? 1 : 0;
-      
+
+      //      cout << cur_node->cValue << " ==> " << children << " children.\n";
+
       if (children == 0) 
 	 {
-	 cout << "==> 0 children.\n";
 	 /* we're a leaf..? We must be the LAST node. */
 	 if (cur_node->par == NULL)
 	    {
+	    cout << cur_node->cValue;
 	    delete cur_node;
 	    root = cur_node = NULL;
 	    }
@@ -366,42 +369,58 @@ void ctt<B>:: deleteKey(const string &key)
       
       /* There is only one child; delete it unless it's an index. */
       if (children == 1) 
-	 {
-	 cout << "==> 1 child\n";
+	 {/*
 	 if (cur_node->lc && !cur_node->lc->hasIndex)
 	    {
+	    cout << cur_node->lc->cValue;
 	    delete cur_node->lc;
 	    cur_node->lc = NULL;
 	    }
 	 else if (cur_node->cc && !cur_node->cc->hasIndex)
 	    {
+	    cout << cur_node->cc->cValue;
 	    delete cur_node->cc;
 	    cur_node->cc = NULL;
 	    }
 	 else if (cur_node->rc && !cur_node->rc->hasIndex)
 	    {
+	    cout << cur_node->rc->cValue;
 	    delete cur_node->rc;
 	    cur_node->rc = NULL;
 	    }
-	 
+	  */
+	 if (trail_ptr && trail_ptr->hasIndex == false)
+	    {
+	    if (trail_ptr->par->cc == trail_ptr)
+	       trail_ptr->par->cc = NULL;
+	    else if (trail_ptr->par->lc == trail_ptr)
+	       trail_ptr->par->lc = NULL;
+	    else if (trail_ptr->par->rc == trail_ptr)
+	       trail_ptr->par->rc = NULL;
+
+	    cout << trail_ptr->cValue;
+	    delete trail_ptr;
+	    }
 	 }
       
       else if (children == 2 || children == 3) /* delete the child we 
 						  just CAME from. then stop. */
 	 {
-	 cout << "==> 2 || 3 children.\n";
-	 cttNode<B> **child[] = {&(cur_node->lc), &(cur_node->cc), &(cur_node->rc)};
-	 for (int i = 0; i < 3; i++)
-	    {
-	    if (*child[i] == trail_ptr)
-	       {
-	       delete *child;
-	       *child[i] == NULL;
-	       }
-	    
-	    
-	    }
 	 /*
+	   cttNode<B> **child[] = {&(cur_node->lc), &(cur_node->cc), &(cur_node->rc)};
+	   for (int i = 0; i < 3; i++)
+	   {
+	   if (*child[i] == trail_ptr)
+	   {
+	   cout << ((*child[i])->cValue);
+	   delete *child;
+	   *child[i] == NULL;
+	   }
+	   
+	    
+	   }
+	 */
+	 
 	 if (cur_node->lc == trail_ptr)
 	    cur_node->lc = NULL;
 	 
@@ -411,14 +430,18 @@ void ctt<B>:: deleteKey(const string &key)
 	 else if (cur_node->rc == trail_ptr)
 	    cur_node->rc = NULL;
 	 
+	 cout << trail_ptr->cValue << endl;
 	 delete trail_ptr;
-	 */
+
 	 break;
 	 }
-      
-      }
 
-   return;
+      }
+   cout << endl;
+      
+
+
+return;
 
 
 
@@ -488,8 +511,8 @@ vector<string> ctt<B>:: keys()
       string new_word = "";
       while (!word.empty())
 	 {
-	    new_word += word.top();
-	    word.pop();
+	 new_word += word.top();
+	 word.pop();
 	 }
 
       if (new_word != "")

@@ -118,7 +118,6 @@ int main(int argc, char **argv)
       {
       word = words_list[i];
       int index = 0;
-      cout << "Deleting '" << word << "'\n";
       words.deleteKey(word);
       
       /* Check that we're not damaging OTHER keys in this process by
