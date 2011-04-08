@@ -1,3 +1,6 @@
+#ifndef __HASH__HPP__
+#define __HASH__HPP__
+
 #include <string>
 #include <vector>
 
@@ -67,10 +70,10 @@ template<class V>
 void hashTable<V>::insert(const string &key, const V &index)
 {
    unsigned int bucket_location = hash(key, mask());
-   if (hash(key, mask()) > buckets.size()-1)
+   if (bucket_location > buckets.size()-1)
       {
       cout << "Key_out_of_bounds: " << key << " hash: " 
-	   << hash(key, mask()) << " : " << index << endl;
+	   << bucket_location << " : " << index << endl;
       return;
       }
    if (buckets[bucket_location] == NULL)
@@ -89,10 +92,72 @@ void hashTable<V>::insert(const string &key, const V &index)
 template<class V>
 void hashTable<V>::deleteKey(const string &key)
 {
+   int bucket_location = hash(key, mask());
+   for (Node *b = buckets[bucket_location]; 
+	b != NULL; 
+	b = b->next)
+      {
+      if (b->key == key)
+	 {
+	 if (buckets[bucket_location] == b)
+	    if (b->next)
+	       buckets[bucket_location] = b->next;
+	    else
+	       buckets[bucket_location] = NULL;
+
+	 if (b->next)
+	    b->next->prev = b->prev;
+	 if (b->prev)
+	    b->prev->next = b->next;
+	 
+	 delete b;
+	 return;
+	 }
+      }
 }
 
 template<class V>
-int getIndex(const string &key, V &index)
+int hashTable<V>::getIndex(const string &key, V &index)
 {
+   unsigned int bucket_location = hash(key, mask());
+   if (bucket_location > buckets.size()-1)
+      {
+      cout << "Key_out_of_bounds: " << key << " hash: " 
+	   << bucket_location << " : " << index << endl;
+      return -1;
+      }
+   
+   if (buckets[bucket_location] == NULL)
+      return -2; // nothing there.
+
+   for (Node* k = buckets[bucket_location]; k; k = k->next)
+      {
+      if (k->key == key)
+	 {
+	 index = k->index;
+	 return 0;
+	 }
+      
+      }
 }
 
+template<class V>
+vector<string> hashTable<V>::keys()
+{
+   Node *n = NULL;
+   vector<string> ret;
+   for (int i = 0; i < buckets.size(); i++)
+      {
+      if (buckets[i] == NULL)
+	 continue;
+      for (n = buckets[i]; n; n = n->next)
+	 {
+	 ret.push_back(n->key);
+	 }
+      }
+   return ret;
+}
+
+
+
+#endif
