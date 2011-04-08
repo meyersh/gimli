@@ -37,6 +37,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
 #include <cstdlib>
@@ -92,6 +93,34 @@ string tolower(string inpt)
       ret += tolower(inpt[i]); // tolower(char) version.
 
    return ret;
+}
+
+void pretty_print_vector(vector<string> symbols, int width=80)
+/* PARAMS     : vector<string> of symbols, int representing max character width
+   RETURNS    : void
+   DESCRIPTION: Print pretty the content of a vector<string> */
+{
+   int widest = 0, // widest string seen.
+      w = 0; // width of current line.
+
+   for (int i = 0; i < symbols.size(); i++)
+      {
+      if (symbols[i].size() > widest)
+	 widest = symbols[i].size();
+      }
+
+   for (int i = 0; i < symbols.size(); i++, w += widest)
+      {
+      cout << setw(widest)
+	   << symbols[i];
+      if (w + widest > width)
+	 {
+	 cout << endl;
+	 w = 0;
+	 }
+      }
+   if (w)
+      cout << endl;
 }
 
 /***********************
@@ -166,12 +195,16 @@ int main(int argc, char **argv)
 
    cout << "Loaded " << num_names << " names with " << num_addresses
 	<< " addresses. Type a name to search for that exact key or \n" 
+	<< "PRINT to show all names loaded.\n"
 	<< "QUIT to leave (apologies if your friends name is quit.)\n\n";
 
    cout << "> "; // initiate prompt.
    while (std::getline(cin, line))
       {
-      if (tolower(line) != "quit")
+      if (tolower(line) == "print")
+	 pretty_print_vector(names.keys(), 0);
+     
+      else if (tolower(line) != "quit")
 	 {
 	 int index = -1;
 	 names.getIndex(tolower(line), index);

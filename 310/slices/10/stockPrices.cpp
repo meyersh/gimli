@@ -108,6 +108,34 @@ string tolower(string inpt)
    return ret;
 }
 
+void pretty_print_vector(vector<string> symbols, int width=80)
+/* PARAMS     : vector<string> of symbols, int representing max character width
+   RETURNS    : void
+   DESCRIPTION: Print pretty the content of a vector<string> */
+{
+   int widest = 0, // widest string seen.
+      w = 0; // width of current line.
+
+   for (int i = 0; i < symbols.size(); i++)
+      {
+      if (symbols[i].size() > widest)
+	 widest = symbols[i].size();
+      }
+
+   for (int i = 0; i < symbols.size(); i++, w += widest)
+      {
+      cout << setw(widest)
+	   << symbols[i];
+      if (w + widest > width)
+	 {
+	 cout << endl;
+	 w = 0;
+	 }
+      }
+   if (w)
+      cout << endl;
+}
+
 /***********************
  * THE BIG SHOW
  **********************/
@@ -152,7 +180,7 @@ int main(int argc, char **argv)
    cout << fixed           // no scientific notation
 	<< setprecision(2) // only two decimals, please.
 	<< num_symbols << " symbols loaded.\n"
-	<< "[L]ookup price, [C]hange a price, [D]elete a price, or [Q]uit.\n"
+	<< "[L]ookup price, [C]hange a price, [D]elete a price, [S]ymbols or [Q]uit.\n"
 	<< "> ";
 
    double price; // a place holder for our price.
@@ -162,6 +190,9 @@ int main(int argc, char **argv)
       vector<string> cmds = split(line, " ");
       if (tolower(line[0]) == 'q')
 	 break;
+
+      if (tolower(line[0]) == 's')
+	 pretty_print_vector(stock_prices.keys());
 
       /* This never happens, if it does: Print out errors */
       if (cmds.size() != 2 && cmds.size() != 3)
@@ -174,7 +205,7 @@ int main(int argc, char **argv)
 	 else if (cmds[0][0] == 'c')
 	    cout << "To set/change: C <SYMBOL> <PRICE>\n";
 	 else
-	    cout << "[L]ookup price, [C]hange a price, [D]elete a price, or [Q]uit.\n";
+	    cout << "[L]ookup price, [C]hange a price, [D]elete a price, [S]ymbols or [Q]uit.\n";
 	 }
 
       if (cmds.size() == 2)
