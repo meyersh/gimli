@@ -12,17 +12,25 @@ using namespace std;
 int main()
 {
    hashTable<int> words;
+   vector<string> wordlist;
    int index = 0;
 
    ifstream words_file(WORDS_FILE);
    if (!words_file)
       return 0;
 
-   string line;
-   while (std::getline(words_file, line))
+   string word;
+   while (std::getline(words_file, word))
       {
-         words.insert(line, index);
-	 index++;
+      wordlist.push_back(word);
+      words.insert(word, index);
+      index++;
+      }
+
+   for (int i = 0; i < wordlist.size(); i++)
+      {
+      if (words.getIndex(wordlist[i], index))
+	 cout << "Could not retrieve key '" << wordlist[i] << "'" << endl;
       }
 
 }
