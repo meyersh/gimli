@@ -357,7 +357,6 @@ void ctt<B>:: deleteKey(const string &key)
 	 /* we're a leaf..? We must be the LAST node. */
 	 if (cur_node == root)
 	    {
-	    cout << cur_node->cValue;
 	    delete cur_node;
 	    root = cur_node = NULL;
 	    }
@@ -375,7 +374,6 @@ void ctt<B>:: deleteKey(const string &key)
 	    else if (trail_ptr->par->rc == trail_ptr)
 	       trail_ptr->par->rc = NULL;
 
-	    cout << trail_ptr->cValue;
 	    delete trail_ptr;
 	    }
 	 }
@@ -401,11 +399,17 @@ void ctt<B>:: deleteKey(const string &key)
 	 if (cur_node->lc == trail_ptr)
 	    cur_node->lc = NULL;
 	 
-	 else if (cur_node->lc == trail_ptr)
-	    cur_node->lc = NULL;
+	 else if (cur_node->cc == trail_ptr)
+	    cur_node->cc = NULL;
 	 
 	 else if (cur_node->rc == trail_ptr)
 	    cur_node->rc = NULL;
+
+	 else
+	    {
+	    cout << "Something went wrong.\n";
+	    break; // something went wrong.
+	    }
 	 
 	 delete trail_ptr;
 
@@ -413,9 +417,6 @@ void ctt<B>:: deleteKey(const string &key)
 	 }
 
       }
-   cout << endl;
-      
-
 
 return;
 
