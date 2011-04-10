@@ -16,10 +16,10 @@
 using namespace std;
 
 // LINUX + MAC
-// #define WORDS_FILE "/usr/share/dict/words"
+#define WORDS_FILE "/usr/share/dict/words"
 // SOLARIS:
 //#define WORDS_FILE "/usr/share/lib/dict/words"
-#define WORDS_FILE "words.txt"
+//#define WORDS_FILE "words.txt"
 /* global variables */
 
 
@@ -117,18 +117,16 @@ int main(int argc, char **argv)
    for (int i = 0; i < words_list.size(); i++)
       {
       word = words_list[i];
-      int index = 0;
+      int index = -1;
       words.deleteKey(word);
       
       /* Check that we're not damaging OTHER keys in this process by
 	 checking that all other keys are still present. 
 	 ( This is expensive, so only check every few thousand keys. */
-      if (i % 3000 == 0 || true)
-	 if (check_keys(words_list, words, print_found, print_missing) != (words_list.size()-i-1))
+      if (i % 3000 == 0 )
+	 if (check_keys(words_list, words, print_found, print_missing) 
+	     != (words_list.size()-i-1))
 	    cout << "\nDelete is damaging other keys.\n" << flush;
-	 else 
-	    //cout << "." << flush;
-
 
       if (!words.getIndex(word, index))
 	 {
