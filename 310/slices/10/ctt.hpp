@@ -333,7 +333,10 @@ void ctt<B>:: deleteKey(const string &key)
       return; // didn't find it...
     
    cttNode<B> *trail_ptr = NULL;
-  
+   
+   if (cur_node->lc || cur_node->cc || cur_node->rc)
+      return; // index isn't a leaf node. Nothing to delete.
+
    // delete as far as we can.
    for (trail_ptr = cur_node, 
 	   cur_node = cur_node->par; 
@@ -404,7 +407,6 @@ void ctt<B>:: deleteKey(const string &key)
 	 else if (cur_node->rc == trail_ptr)
 	    cur_node->rc = NULL;
 	 
-	 cout << trail_ptr->cValue << endl;
 	 delete trail_ptr;
 
 	 break;
