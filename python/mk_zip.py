@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 
 # I am sick of having to manually ZIP things for class, ugh!, huge drag.
 
