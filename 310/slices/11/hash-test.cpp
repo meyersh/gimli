@@ -10,15 +10,23 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
+#include "uname.hpp"
 #include "hash.hpp"
 
 using namespace std;
 
 // LINUX + MAC
-// #define WORDS_FILE "/usr/share/dict/words"
+#ifdef __linux
+#define WORDS_FILE "/usr/share/dict/words"
+#endif
+#ifdef __APPLE__
+#define WORDS_FILE "/usr/share/dict/words"
+#endif
+
 // SOLARIS:
+#ifdef __sun
 #define WORDS_FILE "/usr/share/lib/dict/words"
+#endif
 //#define WORDS_FILE "words.txt"
 /* global variables */
 
