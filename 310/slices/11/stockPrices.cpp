@@ -108,6 +108,33 @@ string tolower(string inpt)
    return ret;
 }
 
+bool is_valid_symbol(const string &symbol)
+/* PARAMS     : string thing
+   RETURNS    : true if string is a valid symbol, false otherwise.
+   DESCRIPTION: Check that symbol is only letters, hyphens, or
+   (optionally) one dot. */
+{
+   int dots = 0;
+   string::const_iterator c;
+   if (symbol[0] == '.' 
+       || (symbol.size() > 1 && symbol[symbol.size()-1] == '.'))
+      return false;
+
+   for (c = symbol.begin(); c != symbol.end(); c++)
+      {
+      if (*c == '.')
+	 dots++;
+      else if (isalpha(*c) || *c == '-')
+	 continue;
+      else // non-alpha, non-hyphen, non-dot
+	 return false;
+
+      if (dots > 1)
+	 return false;
+      }
+   return true;
+}
+
 void pretty_print_vector(vector<string> symbols, int width=80)
 /* PARAMS     : vector<string> of symbols, int representing max character width
    RETURNS    : void
@@ -121,7 +148,9 @@ void pretty_print_vector(vector<string> symbols, int width=80)
       if (symbols[i].size() > widest)
 	 widest = symbols[i].size();
       }
-
+   
+   widest++; // pad us by one space.
+   
    for (int i = 0; i < symbols.size(); i++, w += widest)
       {
       cout << setw(widest)
@@ -129,7 +158,7 @@ void pretty_print_vector(vector<string> symbols, int width=80)
       if (w + widest > width)
 	 {
 	 cout << endl;
-	 w = 0;
+	 w = 1;
 	 }
       }
    if (w)
@@ -157,7 +186,8 @@ int main(int argc, char **argv)
       }
 
    hashTable<double> stock_prices(8192); // all stock_prices, in hash form.
-   
+   vector<string> invalid_symbols; // all invalid symbols detected.
+
    string line;
    int num_symbols = 0;
    while(std::getline(stock_file, line))
@@ -167,6 +197,11 @@ int main(int argc, char **argv)
 	 continue; // malformed line
       else if (pair.size() == 2 && pair[1] == "N/A")
 	 continue; // N/A stock from yahoo. 
+      else if (!is_valid_symbol(pair[0]))
+	 {
+	 invalid_symbols.push_back(pair[0]);
+	 continue;
+	 }
 
       double price = atof(pair[1].c_str());
       stock_prices.insert(tolower(pair[0]), price);
@@ -177,10 +212,17 @@ int main(int argc, char **argv)
     * Symbols have been loaded, it's menu time now.
     */
 
+   if (invalid_symbols.size() != 0)
+      {
+      cout << "Invalid symbols:\n";
+      pretty_print_vector(invalid_symbols, 80);
+      }
+
    cout << fixed           // no scientific notation
 	<< setprecision(2) // only two decimals, please.
 	<< num_symbols << " symbols loaded.\n"
-	<< "[L]ookup price, [C]hange a price, [D]elete a price, [S]ymbols or [Q]uit.\n"
+	<< "[L]ookup price, [C]hange a price, [D]elete a price, "
+	<< "[P]rint symbols or [Q]uit.\n"
 	<< "> ";
 
    double price; // a place holder for our price.
@@ -191,7 +233,7 @@ int main(int argc, char **argv)
       if (tolower(line[0]) == 'q')
 	 break;
 
-      if (tolower(line[0]) == 's')
+      if (tolower(line[0]) == 'p')
 	 pretty_print_vector(stock_prices.keys());
 
       /* This never happens, if it does: Print out errors */
@@ -205,7 +247,8 @@ int main(int argc, char **argv)
 	 else if (cmds[0][0] == 'c')
 	    cout << "To set/change: C <SYMBOL> <PRICE>\n";
 	 else
-	    cout << "[L]ookup price, [C]hange a price, [D]elete a price, [S]ymbols or [Q]uit.\n";
+	    cout << "[L]ookup price, [C]hange a price, [D]elete a price, "
+		 << "[P]rint symbols or [Q]uit.\n";
 	 }
 
       if (cmds.size() == 2)
