@@ -99,6 +99,9 @@ public:
    // return a vector<string> of all keys.
    vector<string> keys();
 
+   // resize the hashTable
+   int resize(unsigned int new_size);
+
 };
 
 template<class V>
