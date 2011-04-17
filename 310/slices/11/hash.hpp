@@ -59,7 +59,7 @@ public:
       DESCRI: Implements the ELF hash algorithm. Uses mask to
       reduce the size of the returned integer by bitwise ANDing
       the result of the hash function with the mask. */
-    */ 
+     
    {
       string::const_iterator p; 
       unsigned h = 0, g;
