@@ -14,7 +14,8 @@ Initial functions + class to interact with a sudoku board.
 
 using namespace std;
 
-#define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
+//#define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
+#define PLATINUM_BLONDE "....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."
 
 struct sudoku_table {
    int table[81]; /* the table (expressed as a 1d array. */
@@ -28,6 +29,9 @@ struct sudoku_table {
    int          sub_square(int cell);
    void         print_table();
 
+   int zeros(unsigned int cell);
+
+   void do_single_position();
 
    sudoku_table(string board="") {
       /* PARAMS: an optional string representation of the sudoku board.
@@ -78,9 +82,24 @@ unsigned int bit(int val)
    a bit more legible. */
 {
    if (val > 0 && val <= 9)
-      return 1 << val;
+      return 1 << val - 1;
 
    throw logic_error("bit value out-of-range.");
+}
+
+int sudoku_table::zeros(unsigned int cell)
+{
+   unsigned int val = pencil_mark[cell];
+   int z = 0;
+
+   for (unsigned int mask = 1; mask <= 256; mask <<= 1)
+      {
+      /* XOR compares the ENTIRE number, so we make it match with the (mask | val)
+	 so that only the mask bit we're checking may differ from val. */
+      if ((mask | val) ^ val)
+	 z++;
+      }
+   return z;
 }
 
 unsigned int sudoku_table::check_row(int cell)
@@ -219,6 +238,39 @@ void sudoku_table::print_table()
 	 }
       }
 }
+
+void sudoku_table::do_single_position()
+/* rip through every cell. When/if the pencil marks has only one possibility, 
+   set it... */
+{
+   for (int i = 0; i < 81; i++)
+      {
+      if (table[i])
+	 continue;
+      if (zeros(i) == 1)
+	 {
+	 unsigned int bitset = 0x1FF - pencil_mark[i];
+	 table[i] = 1;
+	 while (!(1 & bitset))
+	    {
+	    table[i]++;
+	    bitset >>= 1;
+	    }
+	 cout << "0x1FF - " << pencil_mark[i] << "\n";
+	 }
+
+      }
+   /* update pencil marks */
+   for (int i = 0; i < 81; i++)
+      {
+      // check all rows
+      check_row(i);
+      check_col(i);
+      check_subsquare(i);
+      }
+   
+}
+
 template<class V>
 void print_array(vector<V> vec)
 {
@@ -236,7 +288,17 @@ int main()
 
    //   table.check_subsquare(0); /* will exit program if this test fails. */
 
-   cout << hex << "pencil_mark: " << table.pencil_mark[64] << endl;
+   //   cout << hex << "pencil_mark: " << table.pencil_mark[64] << endl;
+
+   for (int i = 0; i < 100; i++)
+      table.do_single_position();
+   
+
+   cout << "\nAfter single_position:\n";
+   table.print_table();
+   cout << "\n"
+	<< "Pencil for 13: " << hex << table.pencil_mark[13] << endl
+	<< "Zeros for 13:  " << table.zeros(13) << endl;
 
 #ifdef DEBUG_PENCIL_ROWCOL
 
