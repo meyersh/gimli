@@ -18,14 +18,15 @@ using namespace std;
 
 struct sudoku_table {
    int table[81]; /* the table (expressed as a 1d array. */
+   unsigned int pencil_mark[81]; /* temp table for scribbling in pencil marks */
 
    unsigned int bit(int val);
    unsigned int check_row(int cell);
    unsigned int check_col(int cell);
    unsigned int check_subsquare(int cell);
-   vector<int> neighbors(int subsquare);
-   int sub_square(int cell);
-   void print_table();
+   vector<int>  neighbors(int subsquare);
+   int          sub_square(int cell);
+   void         print_table();
 
 
    sudoku_table(string board="") {
@@ -39,13 +40,33 @@ struct sudoku_table {
       /* Invalid input or empty board string. Initialize to 0's */
       if (board == "" || board.size() != 81)
 	 for (int i = 0; i < 81; i++)
+	    {
 	    table[i] = 0;
+	    pencil_mark[i] = 0;
+	    }
       else /* Valid string input, attempt to intialize sudoku board. */
 	 for (int cell = 0; cell < 81; cell++)
+	    {
+	    pencil_mark[cell] = 0;
 	    if (board[cell] != '.')
+	       {
 	       table[cell] = board[cell]-'0';
+	       
+	       }
 	    else
 	       table[cell] = 0;
+	    }
+
+      /* 
+       * Set initial pencil marks
+       */
+      for (int i = 0; i < 81; i++)
+	 {
+	 // check all rows
+	 check_row(i);
+	 check_col(i);
+	 check_subsquare(i);
+	 }
    }
 };
 
@@ -79,13 +100,17 @@ unsigned int sudoku_table::check_row(int cell)
       {
       if (table[x]) /* if there is a number in this cell... */
 	 {
-	 if (numbers & 1 << table[cell]) /* and it's a duplicate... */
+	 if (numbers & 1 << table[x] - 1) /* and it's a duplicate... */
+	    {
+	    print_table();
+	    cout << x << ": " << table[x] << endl;
 	    throw logic_error("Duplicate Number in Row!");
+	    }
 	 else /* it's ok, note it. */
-	    numbers |= 1 << table[x];
+	    numbers |= 1 << table[x] - 1;
 	 }
       }
-
+   pencil_mark[cell] |= numbers;
    return numbers;
 }
 
@@ -98,16 +123,18 @@ unsigned int sudoku_table::check_col(int cell)
    
    /* give us the first element in cell's column: */
    int col = cell % 9;
-   for (int y = col; y < col+72; y += 9)
+   for (int y = col; y <= col+72; y += 9)
       {
       if (table[y]) /* there is a number in this cell... */
 	 {
-	 if (numbers & 1 << table[cell]) /* and it's a duplicate... */
+	 if (numbers & 1 << table[y] - 1) /* and it's a duplicate... */
 	    throw logic_error("Duplicate Number in Col!");
 	 else /* it's ok, note it. */
-	    numbers |= 1 << table[y];
+	    numbers |= 1 << table[y] - 1;
 	 }
       }
+
+   pencil_mark[cell] |= numbers;
 
    return numbers;
 }
@@ -164,13 +191,16 @@ unsigned int sudoku_table::check_subsquare(int cell)
       {
       if (table[ elements[c] ])
 	 {
-	 if (1 << table[elements[c]] & numbers)
+	 if ((1 << table[elements[c]] - 1) & numbers)
 	    throw logic_error("Duplicate detected in subsquare.");
 	 else 
-	    numbers |= 1 << table[elements[c]];
+	    numbers |= 1 << table[elements[c]] - 1;
 	 
 	 }
-      }
+      }   
+
+   pencil_mark[cell] |= numbers;
+
    return numbers;
 }
 
@@ -204,8 +234,25 @@ int main()
 
    table.print_table();
 
-   table.check_subsquare(0); /* will exit program if this test fails. */
+   //   table.check_subsquare(0); /* will exit program if this test fails. */
 
+   cout << hex << "pencil_mark: " << table.pencil_mark[64] << endl;
+
+#ifdef DEBUG_PENCIL_ROWCOL
+
+   for (int cell = 0; cell < 9; cell++)
+      {
+      cout << "Cell " << cell << " Row: " << cell/9 << " Col: " << cell%9 << endl;
+
+      cout << hex << "check_row " << table.check_row(cell) << endl;
+      cout << hex << "check_col " << table.check_col(cell) << endl;
+
+      cout << "pencil_mark: " << hex << (table.pencil_mark[cell]) << endl;
+      
+      }
+
+#endif
+ 
 #ifdef DEBUG_MATHS
    cout << i << ": " << (i / 9) << "r" << (i % 9) 
 	<< " = " << ( i % 9 ) - ( i / 9 ) << endl;
