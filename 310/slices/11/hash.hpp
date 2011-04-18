@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -101,6 +102,9 @@ public:
 
    // resize the hashTable
    int resize(unsigned int new_size);
+
+   // return the contents of the hash in printable form.
+   string hash_print();
 
 };
 
@@ -229,6 +233,31 @@ vector<string> hashTable<V>::keys()
 	 }
       }
    return ret;
+}
+
+template<class V>
+string hashTable<V>::hash_print()
+{
+   stringstream ret;
+   vector<string> k = keys();
+      
+      for (int i = 0; i < buckets.size(); i++)
+	 {
+	    if (buckets[i] == NULL)
+	       continue;
+	    
+	    ret << "BUCKET #" << i << endl;
+
+	    for (Node *cur_node = buckets[i]; 
+		 cur_node; 
+		 cur_node = cur_node->next)
+	       {
+	       ret << i << ": " 
+		   << cur_node->key << " -> " 
+		   << cur_node->index << endl;
+	       }
+	 } 
+      return ret.str();
 }
 
 #endif

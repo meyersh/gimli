@@ -222,7 +222,7 @@ int main(int argc, char **argv)
 	<< setprecision(2) // only two decimals, please.
 	<< num_symbols << " symbols loaded.\n"
 	<< "[L]ookup price, [C]hange a price, [D]elete a price, "
-	<< "[P]rint symbols or [Q]uit.\n"
+	<< "[P]rint symbols\n[S]how hashTable, or [Q]uit.\n"
 	<< "> ";
 
    double price; // a place holder for our price.
@@ -236,6 +236,8 @@ int main(int argc, char **argv)
       if (tolower(line[0]) == 'p')
 	 pretty_print_vector(stock_prices.keys());
 
+      if (tolower(line[0]) == 's')
+	 cout << stock_prices.hash_print();
       /* This never happens, if it does: Print out errors */
       if (cmds.size() != 2 && cmds.size() != 3)
 	 {
@@ -248,7 +250,7 @@ int main(int argc, char **argv)
 	    cout << "To set/change: C <SYMBOL> <PRICE>\n";
 	 else
 	    cout << "[L]ookup price, [C]hange a price, [D]elete a price, "
-		 << "[P]rint symbols or [Q]uit.\n";
+		 << "[P]rint symbols\n[S]how hashTable, or [Q]uit.\n";
 	 }
 
       if (cmds.size() == 2)
