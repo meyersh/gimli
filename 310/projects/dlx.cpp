@@ -1,8 +1,11 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
 #define MAX_COL 1000
 #define MAX_ROW 1000
+
+using namespace std;
 
 class dlx {
    struct Node {
@@ -11,7 +14,7 @@ class dlx {
       Node() 
       {
 	 header = up = down = left = right = NULL;
-	 id = "";
+	 id = "...";
       }
 
       void cover() 
@@ -39,7 +42,7 @@ class dlx {
 	 for (Node *row = column->down; row != column; row = row->down)
 	    {
 	    
-	    for (Node *right_node = row-right; 
+	    for (Node *right_node = row->right; 
 		 right_node != row;
 		 right_node = right_node->right)
 	       {
@@ -57,18 +60,49 @@ public:
    dlx(int row_width)
    {
       columns.resize(row_width);
-      root = new Node;
-      root->up = root->down = root->left = root->right = root;
-      root->ID = "ROOT";
 
-      Node *cur_node = root;
-      for (int i = 0; i < row_width; i++, cur_node = cur_node->right)
+      for (int i = 0; i < row_width; i++)
 	 {
+	 cout << i << endl;
 	 columns[i] = new Node;
-	 cur_node->right = columns[i];
+	 columns[i]->right = columns[0];
 	    
-	 new_node->right = root;
-	 new_node->left = cur_node;
+	 if (i)
+	    {
+	    columns[i]->left = columns[i-1];
+	    columns[i]->left->right = columns[i];
+	    }
+	 else 
+	    columns[i]->left = columns[i];
+
+	 columns[i]->up = columns[i]->down = columns[i];
+
+	 columns[i]->id = i+'0';
+	 }
+
+      root = columns[0];
+   }
+
+   void print_matrix()
+   {
+
+      for (int i = 0;
+	   i < columns.size();
+	   i++)
+	 {
+	    Node *column = columns[i];
+	 cout << column << " '" << column->id << "'" <<  endl;
+	 /*
+	 for (Node *row = column->down; row != column; row = row->down)
+	    {
+	    for (Node *right_node = row->right; 
+		 right_node != row; 
+		 right_node = right_node->right)
+	       {
+	       cout << right_node << endl;
+	       }
+	    }
+	 */
 	 }
    }
 
@@ -123,3 +157,11 @@ public:
 	 }
    }
 };
+
+int main()
+{
+   dlx foo(8);
+   foo.insert_row("10110001");
+   foo.print_matrix();
+   return 0;
+}
