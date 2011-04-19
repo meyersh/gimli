@@ -299,7 +299,7 @@ void print_array(vector<V> vec)
 int main()
 {
 
-   sudoku_table table(PLATINUM_BLONDE);
+   sudoku_table table(PALMS_PUZZLE);
 
    table.print_table();
 
