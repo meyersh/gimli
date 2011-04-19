@@ -31,7 +31,7 @@ struct sudoku_table {
 
    int zeros(unsigned int cell);
 
-   void do_single_position();
+   int do_single_position();
 
    sudoku_table(string board="") {
       /* PARAMS: an optional string representation of the sudoku board.
@@ -239,10 +239,12 @@ void sudoku_table::print_table()
       }
 }
 
-void sudoku_table::do_single_position()
+int sudoku_table::do_single_position()
 /* rip through every cell. When/if the pencil marks has only one possibility, 
    set it... */
 {
+   int cells_filled = 0;
+
    for (int i = 0; i < 81; i++)
       {
       if (table[i])
@@ -256,6 +258,7 @@ void sudoku_table::do_single_position()
 	    table[i]++;
 	    bitset >>= 1;
 	    }
+	 cells_filled++;
 	 cout << "0x1FF - " << pencil_mark[i] << "\n";
 	 }
 
@@ -268,7 +271,8 @@ void sudoku_table::do_single_position()
       check_col(i);
       check_subsquare(i);
       }
-   
+
+   return cells_filled;
 }
 
 template<class V>
@@ -290,8 +294,11 @@ int main()
 
    //   cout << hex << "pencil_mark: " << table.pencil_mark[64] << endl;
 
-   for (int i = 0; i < 100; i++)
-      table.do_single_position();
+   while (table.do_single_position())
+      {
+      cout << ".";
+      }
+   cout << endl;
    
 
    cout << "\nAfter single_position:\n";
