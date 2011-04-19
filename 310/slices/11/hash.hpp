@@ -237,27 +237,33 @@ vector<string> hashTable<V>::keys()
 
 template<class V>
 string hashTable<V>::hash_print()
+/* PARAMS: None.
+   RETURN: string output of the technical contents of the hash table
+   DESCRI: Return the hash table (per Randys request) */
 {
    stringstream ret;
    vector<string> k = keys();
       
-      for (int i = 0; i < buckets.size(); i++)
+   // for each bucket...
+   for (int i = 0; i < buckets.size(); i++)
+      {
+      // skip empty buckets.
+      if (buckets[i] == NULL)
+	 continue;
+      
+      ret << "BUCKET #" << i << endl;
+      
+      // print out every node in the bucket...
+      for (Node *cur_node = buckets[i]; 
+	   cur_node; 
+	   cur_node = cur_node->next)
 	 {
-	    if (buckets[i] == NULL)
-	       continue;
-	    
-	    ret << "BUCKET #" << i << endl;
-
-	    for (Node *cur_node = buckets[i]; 
-		 cur_node; 
-		 cur_node = cur_node->next)
-	       {
-	       ret << i << ": " 
-		   << cur_node->key << " -> " 
-		   << cur_node->index << endl;
-	       }
-	 } 
-      return ret.str();
+	 ret << i << ": " 
+	     << cur_node->key << " -> " 
+	     << cur_node->index << endl;
+	 }
+      } 
+   return ret.str();
 }
 
 #endif
