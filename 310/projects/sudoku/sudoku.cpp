@@ -15,7 +15,7 @@ Initial functions + class to interact with a sudoku board.
 using namespace std;
 
 //#define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
-#define PLATINUM_BLONDE "....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."
+#define PALMS_PUZZLE "....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."
 
 struct sudoku_table {
    int table[81]; /* the table (expressed as a 1d array. */
@@ -88,6 +88,11 @@ unsigned int bit(int val)
 }
 
 int sudoku_table::zeros(unsigned int cell)
+/* PARAMS: A cell address
+   RETURN: Number of zero bits in the pencil_mark[cell]
+   DESCRI: Pencil marks are kept in a small bit array, one
+   popular calculation is how many zeros are in a given array
+   (used to determine if we have a UNIQUE potential for a cell.) */
 {
    unsigned int val = pencil_mark[cell];
    int z = 0;
@@ -224,6 +229,9 @@ unsigned int sudoku_table::check_subsquare(int cell)
 }
 
 void sudoku_table::print_table()
+/* PARAMS: None
+   RETURN: Void
+   DESCRI: Print out the table (to the cli) for debugging. */
 {
    int counter = 0;
    for (int i=0; i < 81; i++)
@@ -240,8 +248,10 @@ void sudoku_table::print_table()
 }
 
 int sudoku_table::do_single_position()
-/* rip through every cell. When/if the pencil marks has only one possibility, 
-   set it... */
+/* PARAMS: None
+   RETURN: Number of (new) cells filled.
+   DESCRI: rip through every cell. When/if the pencil marks has only one 
+   possibility, set it... */
 {
    int cells_filled = 0;
 
@@ -277,6 +287,9 @@ int sudoku_table::do_single_position()
 
 template<class V>
 void print_array(vector<V> vec)
+/* PARAMS: vector of anything (that can be << to cout)
+   RETURN: void
+   DESCRI: Debugging function, cout's the contents of any vector. */
 {
    for (int i = 0; i < vec.size(); i++)
       cout << vec[i] << " ";
