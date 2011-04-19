@@ -1,5 +1,6 @@
 struct sudoku_table {
-   unsigned int table[9][9];
+  unsigned int table[9*9] = {0  logout
+}; // 0 = empty cell
 };
 
 unsigned int check_row(unsigned int **table, int row)
