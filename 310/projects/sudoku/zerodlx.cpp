@@ -5,8 +5,10 @@
 
 #include <vector>
 #include <iostream>
+#include <iomanip>
 
 #define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
+#define EXTREME "2.......4.3.5.7.1...6...2...6.7.2.8.....3.....5.8.4.3...1...5...8.9.6.7.7.......1"
 
 class Zerodlx {
 private:
@@ -158,17 +160,28 @@ private:
 using namespace std;
 
 int main(int argc, char **argv) {
+   cout << "Content-Type: text/plain\n\n";
+   string in_puzzle;
+   cin >> in_puzzle;
+
    vector<int> puzzle(81);
+
    for (int i = 0; i < 81; i++)
       {
-      if (PLATINUM_BLONDE[i] == '.')
+      if (in_puzzle[i] == '.')
 	 puzzle[i] = 0;
       else
-	 puzzle[i] = PLATINUM_BLONDE[i] - '0';
+	 puzzle[i] = in_puzzle[i] - '0';
       }
+
+
+
    Zerodlx zerodlx(3, 1);
    int solns = zerodlx.solve(puzzle);
+
    for (int i = 0; i < 81; i++)
+      {
       cout << puzzle.at(i);
+      }
    cout << endl;
 }
