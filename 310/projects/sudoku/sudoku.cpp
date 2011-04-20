@@ -11,6 +11,7 @@ Initial functions + class to interact with a sudoku board.
 #include <iomanip>
 #include <vector>
 #include <stdexcept>
+#include <cstdlib>
 
 using namespace std;
 
@@ -29,6 +30,7 @@ struct sudoku_table {
    vector<int>  neighbors(int subsquare);
    int          sub_square(int cell);
    void         print_table();
+   void         print_web_table();
 
    int zeros(unsigned int cell);
 
@@ -261,6 +263,16 @@ void sudoku_table::print_table()
       }
 }
 
+void sudoku_table::print_web_table()
+/* PARAMS: None
+   RETURN: Void
+   DESCRI: Print out the table to the web. */
+{
+   for (int i = 0; i < 81; i++)
+      cout << table[i];
+   cout << endl;
+}
+
 int sudoku_table::do_single_position()
 /* PARAMS: None
    RETURN: Number of (new) cells filled.
@@ -417,6 +429,22 @@ void print_array(vector<V> vec)
 
 int main()
 {
+
+   /* If this is called as CGI, do the CGI thing */
+   if (strcmp( getenv("REQUEST_METHOD"), "POST" ) == 0)
+      {
+      cout << "Content-Type: text/plain\n\n";
+      string puzzle;
+      std::getline(cin, puzzle);
+      sudoku_table table(puzzle);
+      while (table.do_single_position())
+	 ;
+      table.print_web_table();
+
+      return 0; 
+      }
+
+   /* Not called as CGI, so do the driver thing. */
 
    sudoku_table table(PALMS_PUZZLE);
 
