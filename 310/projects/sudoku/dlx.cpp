@@ -1,109 +1,179 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
-#define MAX_COL 1000
-#define MAX_ROW 1000
+#include <stdexcept>
 
 using namespace std;
 
 class dlx {
-   struct Node {
-      Node *header, *up, *down, *left, *right;
-      string id;
+   class Column; 
+
+   class Node {
+   public:
+      Column *header;
+      Node  *up, *down, *left, *right;
+      int row; /* row number */
+      /*
       Node() 
       {
-	 header = up = down = left = right = NULL;
-	 id = "...";
-      }
+	 header = NULL;
+	 up = down = left = right = NULL;
+	 } */
 
-      void cover() 
-      {
-	 Node *column = header;
-	 column->right->left = column->left;
-	 column->left->right = column->right;
+   };
 
-	 for (Node *row = column->down; row != column; row = row->down)
-	    {
-	    for (Node *right_node = row->right; 
-		 right_node != row; 
-		 right_node = right_node->right)
-	       {
-	       right_node->right->left = right_node->left;
-	       right_node->left->right = right_node->right;
-	       }
-	    }
-      }
-      
-      void uncover()
+   class Column : public Node {
+   public:
+      Column *left, *right;
+      Node *up, *down;
+      int size;
+      bool covered;
+
+      Column()
       {
-	 Node *column = header;
-	 
-	 for (Node *row = column->down; row != column; row = row->down)
-	    {
-	    
-	    for (Node *right_node = row->right; 
-		 right_node != row;
-		 right_node = right_node->right)
-	       {
-	       right_node->right->left = right_node;
-	       right_node->left->right = right_node;
-	       }
-	    }
+	 size = 0;
+	 left = right = NULL;
+	 up = down = this;
       }
    };
    
+   /* DLX data members */
    Node *root;
-   vector<Node*> columns;
-
-public:
-   dlx(int row_width)
+   vector< vector<Node> > matrix;
+   vector<Column> columns;
+   vector<int> solution;
+   
+   /* Sizes */
+   int BOX, UNIT, GRID;
+   
+private:
+   void cover(Column *col)
    {
-      columns.resize(row_width);
-
-      for (int i = 0; i < row_width; i++)
+      col->covered = true;
+      col->right->left = col->left;
+      col->left->right = col->right;
+      for (Node *row = col->down; row != col; row = row->down)
 	 {
-	 cout << i << endl;
-	 columns[i] = new Node;
-	 columns[i]->right = columns[0];
-	    
-	 if (i)
+	 for (Node *c = row->right; c != row; c = c->right)
 	    {
-	    columns[i]->left = columns[i-1];
-	    columns[i]->left->right = columns[i];
+	    c->up->down = c->down;
+	    c->down->up = c->up;
+	    c->header->size--;
 	    }
-	 else 
-	    columns[i]->left = columns[i];
+	 }
+   }
 
-	 columns[i]->up = columns[i]->down = columns[i];
+   void uncover(Column *col)
+   {
+      col->covered = false;
+      col->right->left = col;
+      col->left->right = col;
+      for (Node *row = col->down; row != col; row = row->down)
+	 {
+	 for (Node *c = row->right; c != row; c = c->right)
+	    {
+	    c->up->down = c;
+	    c->down->up = c;
+	    c->header->size++;
+	    }
+	 }
+   }
 
-	 columns[i]->id = i+'0';
+   void search(int k)
+   {
+      /* Donald Knuth's Algorithm X is as follows:
+	 (http://en.wikipedia.org/wiki/Knuth's_Algorithm_X)
+	 1. If the matrix A is empty, the problem is solved; terminate successfully.
+	 2. Otherwise choose a column c (deterministically).
+	 3. Choose a row r such that Ar, c = 1 (nondeterministically).
+	 4. Include row r in the partial solution.
+	 5. For each column j such that Ar, j = 1,
+	    5.1  for each row i such that Ai, j = 1,
+	    5.2    delete row i from matrix A;
+	    5.3  delete column j from matrix A.
+	 6. Repeat this algorithm recursively on the reduced matrix A.
+      */
+	 if (root->right = root)
+	 {
+	 return; /* solution found */
 	 }
 
-      root = columns[0];
+   }
+
+public:
+   dlx(int sz)
+   {
+      BOX = sz; /* Describing a typical sudoku board, a box is a 3 cells wide. */
+      UNIT = BOX * BOX; /* A UNIT is 3 cells by 3 cells. */
+      GRID = UNIT * UNIT; /* A GRID is 9 cells by 9 cells (or 3 units by 3 units...) */
+
+      int g4 = GRID*4+1; /* pre-calculate this since we'll be using it a lot. */
+
+      /* Set vector sizes... */
+      solution.resize(GRID); /* our solution will be GRID cells long. */
+      columns.resize(g4, Column()); /* there are GRID possibilities with 4 constraints. */
+
+      /* there are GRID*UNIT rows, and 4 columns */
+      matrix.resize(GRID*UNIT,  
+	     vector<Node>(4, Node()));
+
+      root = &(columns[GRID*4]); // the last item in the columns shall be the "root" */
+
+      /* Set all columns' left and right pointers. */
+      for (int i = 0; i < columns.size(); i++) 
+	 {
+	 columns[i].left = &(columns[(i+g4-1)%g4]); /* one i to the left, using mod to wrap to the last column if i==0. */
+	 columns[i].right = &(columns[(i+1)%g4]); /* one i to the right, using mod to wrap to the first column. */
+	 }
+      
+      /* Set the rows... */
+      for (int row = 0; row < GRID*UNIT; row++)
+	 {
+	 for (int col = 0; col < 4; col++) /* four constraints. */
+	    {
+	    matrix[row][col].right = &(matrix[row][(col+1)%4]); /* one column to the right, mod 4 to loop around if need be. */
+	    matrix[row][col].left = &(matrix[row][(col+3)%4]); /* one column to the left, mod'ed to loop around if need be. */
+	    matrix[row][col].row = row; /* set our current row number */
+
+	    int colNum = GRID*col%4;
+	    
+	    if (colNum == 0) /* All cells must be filled in. */
+	       colNum += row / GRID * UNIT + row % GRID / UNIT;
+	    else if (colNum == 1) /* All rows must have 1-9 */
+	       colNum += row / GRID * UNIT + row % UNIT;
+	    else if (colNum == 2) /* All cols must have 1-9 */
+	       colNum += row % GRID / UNIT * UNIT + row % UNIT;
+	    else if (colNum == 3) /* All subsquares must have 1-9 */
+	       colNum += (row / GRID / BOX * BOX + row % GRID / UNIT / BOX) * UNIT + row % UNIT;
+	    else
+	       {
+	       cout << colNum << endl;
+	       throw runtime_error("Something went wrong!!");
+	       }
+
+	    matrix[row][col].down = matrix[row][col].header = &(columns[colNum]);
+
+	    /* Inherit the column headers' up pointer */
+	    matrix[row][col].up = columns[colNum].up; 
+
+	    /* Set the new column header down pointer */
+	    matrix[row][col].up = columns[colNum].up = &(matrix[row][col]);
+
+	    /* Count this row */
+	    columns[colNum].size++;
+	       
+	    }
+	 }
+     
+      
    }
 
    void print_matrix()
    {
-
-      for (int i = 0;
-	   i < columns.size();
-	   i++)
-	 {
-	    Node *column = columns[i];
-	 cout << column << " '" << column->id << "'" <<  endl;
-	 /*
-	 for (Node *row = column->down; row != column; row = row->down)
-	    {
-	    for (Node *right_node = row->right; 
-		 right_node != row; 
-		 right_node = right_node->right)
-	       {
-	       cout << right_node << endl;
-	       }
-	    }
-	 */
-	 }
+      cout << matrix.size()
+	   << endl
+	   << matrix[0].size() 
+	   << endl;
    }
 
    void insert_row(const string &row)
@@ -112,49 +182,7 @@ public:
       if it is less than, we assume it is fixed by the least
       signifiant digits. */
    {
-      Node *row_root = NULL;
-      for (int i = row.size() - 1;
-	   i >= 0;
-	   i--)
-	 {
-	 if (row[i] == '0')
-	    continue;
-	 if (row[i] == '1')
-	    {
-	    if (row_root != NULL)
-	       {
-	       Node *old_right = row_root->right;
-	       Node *n = new Node;
 
-	       // -- set left + right links
-	       row_root->right = n;
-	       n->header = row_root->header->right;
-	       old_right->left = n;
-
-	       // -- set the down links
-	       n->down = n->header;
-
-	       // -- set the up link
-	       n->up = n->header->up;
-	       n->down->up = n;
-	       n->header->up = n;
-	       }
-	    else
-	       {
-	       row_root = new Node;
-	       row_root->header = columns[i];
-	       row_root->right = row_root;
-	       row_root->left = row_root;
-
-	       // -- set the down link
-	       row_root->down = columns[i];
-
-	       // -- set the up link.
-	       row_root->up = columns[i]->up;
-	       row_root->down->up = row_root;
-	       }
-	    }
-	 }
    }
 };
 
