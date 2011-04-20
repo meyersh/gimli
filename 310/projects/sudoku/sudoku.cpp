@@ -111,28 +111,8 @@ int sudoku_table::zeros(unsigned int cell)
 
 int sudoku_table::get_subsquare_address(int subsquare_number)
 {
-   switch (subsquare_number) {
-   case 0:
-      return 0;
-   case 1:
-      return 3;
-   case 2:
-      return 6;
-   case 3:
-      return 27;
-   case 4:
-      return 30;
-   case 5:
-      return 33;
-   case 6:
-      return 54;
-   case 7:
-      return 57;
-   case 8:
-      return 60;
-   default:
-      throw runtime_error("Invalid subsquare number!");
-   }
+  int subsquare_addresses = {0, 3, 6, 27, 30, 33, 54, 57, 60};
+  return subsquare_addresses[subsquare_number];
 }
 
 unsigned int sudoku_table::check_row(int cell)
@@ -223,6 +203,9 @@ vector<int> sudoku_table::neighbors(int subsquare)
    DESCRI: Get all elements in a given sub_square (based on the cell address 
    of the top-left cell. */
 {
+
+  /* At the end of a subsquare row, add 7 for next row. */
+
    vector<int> ret;
    for (int row = 0; row < 3; row++)
       for (int col = 0; col < 3; col++)
