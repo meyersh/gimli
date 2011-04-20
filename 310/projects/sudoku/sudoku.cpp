@@ -18,13 +18,33 @@ using namespace std;
 
 //#define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
 #define PALMS_PUZZLE "....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."
+#define DEBUG 1
+
+
+
+template<class V>
+void print_array(vector<V> vec)
+/* PARAMS: vector of anything (that can be << to cout)
+   RETURN: void
+   DESCRI: Debugging function, cout's the contents of any vector. */
+{
+   for (int i = 0; i < vec.size(); i++)
+      cout << vec[i] << " ";
+   cout << endl;
+}
 
 struct sudoku_table {
    int table[81]; /* the table (expressed as a 1d array. */
+   vector<vector <int*> > rows, cols, subcells;
+   
    unsigned int pencil_mark[81]; /* temp table for scribbling in pencil marks */
 
    unsigned int bit(int val);
+   void set(int cell, int value);
+
    int get_subsquare_address(int subsquare_number);
+   int get_subsquare_from_address(int cell);
+
    unsigned int check_row(int cell);
    unsigned int check_col(int cell);
    unsigned int check_subsquare(int cell);
@@ -67,6 +87,18 @@ struct sudoku_table {
 	    }
 
       /* 
+       * Set rows, cols, and subcells references. 
+       * (it's gonna be great!)
+       */
+      rows.resize(9); cols.resize(9); subcells.resize(9);
+      for (int i = 0; i < 81; i++)
+	 {
+	 rows[i/9].push_back(&i);
+	 cols[i%9].push_back(&i);
+	 subcells[get_subsquare_from_address(i)].push_back(&i);
+	 }
+      
+      /* 
        * Set initial pencil marks
        */
       for (int i = 0; i < 81; i++)
@@ -90,6 +122,25 @@ unsigned int bit(int val)
       return 1 << val - 1;
 
    throw logic_error("bit value out-of-range.");
+}
+
+void sudoku_table::set(int cell, int value)
+{
+   table[cell] = value;
+   unsigned int mask = ~(1 << value);
+
+   int row = cell / 9;
+   int col = cell % 9;
+   int subcell = get_subsquare_from_address(cell);
+
+   /* unset that pencil_mark in all of the same row/col/subcell */
+   for (int i = 0; i < 9; i++)
+      {
+	 pencil_mark[*rows[row][i]] &= mask;
+	 pencil_mark[*cols[col][i]] &= mask;
+	 pencil_mark[*subcells[subcell][i]] &= mask;
+      }
+
 }
 
 int sudoku_table::zeros(unsigned int cell)
@@ -118,6 +169,16 @@ int sudoku_table::get_subsquare_address(int subsquare_number)
   return subsquare_addresses[subsquare_number];
 }
 
+int sudoku_table::get_subsquare_from_address(int cell)
+{
+ int subsquare_addresses[] = {0, 3, 6, 27, 30, 33, 54, 57, 60};
+ cell = sub_square(cell);
+ for (int i = 0; i < 9; i++)
+    if (subsquare_addresses[i] == cell)
+       return i;
+
+}
+
 unsigned int sudoku_table::check_row(int cell)
 /* PARAMS: cell number whose row we wish to check
    RETURN: bitwise array indicating which elements have been found
@@ -140,8 +201,8 @@ unsigned int sudoku_table::check_row(int cell)
 	    print_table();
 	    throw logic_error("Duplicate Number in Row!");
 	    }
-	 else /* it's ok, note it. */
-	    numbers |= 1 << table[x] - 1;
+	 /* it's ok, note it. */
+	 numbers |= 1 << table[x] - 1;
 	 }
       }
    pencil_mark[cell] |= numbers;
@@ -162,8 +223,11 @@ unsigned int sudoku_table::check_col(int cell)
       if (table[y]) /* there is a number in this cell... */
 	 {
 	 if (numbers & 1 << table[y] - 1) /* and it's a duplicate... */
+	    {
+	    print_table();
 	    throw logic_error("Duplicate Number in Col!");
-	 else /* it's ok, note it. */
+	    }
+	 /* it's ok, note it. */
 	    numbers |= 1 << table[y] - 1;
 	 }
       }
@@ -302,6 +366,7 @@ int sudoku_table::do_single_position()
    for (int i = 0; i < 81; i++)
       {
       // check all rows
+      pencil_mark[i] = 0;
       check_row(i);
       check_col(i);
       check_subsquare(i);
@@ -318,22 +383,30 @@ int sudoku_table::do_single_occurence()
     */
    for (int row = 0; row <= 72; row += 9)
       {
+      if (DEBUG)
+	 cout << "Checking row " << row << '\t';
+
       /* Check every cell in a row */
       for (int cell = row; cell < row + 9; cell++)
 	 {
-	 /* Read the pencil marks into values */
+	 if (table[cell])
+	    continue; 
+
+	 if (DEBUG) cout << setw(3)<< dec << cell;
+
+	 /* Read the pencil marks into values `v' */
 	 unsigned int pencil = pencil_mark[cell];
 	 for (unsigned int mark = 1, v = 1; v <= 9; mark <<= 1, v++)
 	    if (mark & ~pencil)
 	       cells[v].push_back(cell);
 	 }
-
-      /* Check our cells for unique values */
-      for (int value = 0; value < cells.size(); value++)
+      if (DEBUG) cout << endl;
+      /* Check our cells for unique values & fill them in */
+      for (int value = 1; value < cells.size(); value++)
 	 {
 	 if (cells[value].size() == 1) /* fill it in, it's unique! */
 	    {
-	    table[cells[value][0]] = value;
+	    set(cells[value][0], value);
 	    cells_filled++;
 
 	    /* update pencil marks for the row we've just finished */
@@ -341,7 +414,7 @@ int sudoku_table::do_single_occurence()
 	    check_col(cells[value][0]);
 	    check_subsquare(cells[value][0]);
 	    }
-	 
+	 print_array(cells[value]);
 	 cells[value].clear();
 	 }
       }
@@ -351,9 +424,16 @@ int sudoku_table::do_single_occurence()
     */
    for (int col = 0; col < 9; col++)
       {
+      if (DEBUG) cout << "Checking col " << col;
+
       /* For each cell in a column... */
       for (int cell = col; cell < col + 72; cell += 9)
 	 {
+	 if (table[cell]) 
+	    continue;
+
+	 if (DEBUG) cout << setw(3) << dec << cell;
+
 	 /* Read the pencil marks into values */
 	 unsigned int pencil = pencil_mark[cell];
 	 for (unsigned int mark = 1, v = 1; v <= 9; mark <<= 1, v++)
@@ -361,12 +441,14 @@ int sudoku_table::do_single_occurence()
 	       cells[v].push_back(cell);
 	 }
 
+      if (DEBUG) cout << endl;
+
       /* Check our cells for unique values */
-      for (int value = 0; value < cells.size(); value++)
+      for (int value = 1; value < cells.size(); value++)
 	 {
 	 if (cells[value].size() == 1) /* fill it in, it's unique! */
 	    {
-	    table[cells[value][0]] = value;
+	    set(cells[value][0], value);
 	    cells_filled++;
 	    /* update pencil marks for the column we've just finished */
 	    check_row(cells[value][0]);
@@ -384,20 +466,31 @@ int sudoku_table::do_single_occurence()
     */
    for (int subcell = 0; subcell < 9; subcell++)
       {
+      if (DEBUG) cout << "Checking subcell " << subcell;
+
       vector<int> n = neighbors( get_subsquare_address(subcell) );
       for (int cell = 0; cell < 9; cell++)
 	 {
+	 if (table[n[cell]])
+	    continue;
+
+	 if (DEBUG) cout << setw(3) << dec << n[cell];
+
 	 /* Read the pencil marks into values */
 	 unsigned int pencil = pencil_mark[n[cell]];
+
 	 for (unsigned int mark = 1, v = 1; v <= 9; mark <<= 1, v++)
 	    if (mark & ~pencil)
 	       cells[v].push_back(n[cell]);
 	 }
-      for (int value = 0; value < cells.size(); value++)
+
+      if (DEBUG) cout << endl;
+
+      for (int value = 1; value < cells.size(); value++)
 	 {
 	 if (cells[value].size() == 1) /* fill it in, it's unique! */
 	    {
-	    table[cells[value][0]] = value;
+	    set(cells[value][0], value);
 	    cells_filled++;
 	    cout << cells[value][0] << " could be " << value << endl;
 	    /* update pencil marks for the subcell we've just finished. */
@@ -414,22 +507,13 @@ int sudoku_table::do_single_occurence()
 }
 
 
-template<class V>
-void print_array(vector<V> vec)
-/* PARAMS: vector of anything (that can be << to cout)
-   RETURN: void
-   DESCRI: Debugging function, cout's the contents of any vector. */
-{
-   for (int i = 0; i < vec.size(); i++)
-      cout << vec[i] << " ";
-   cout << endl;
-}
 
 int main()
 {
 
    /* If this is called as CGI, do the CGI thing */
-   if (strcmp( getenv("REQUEST_METHOD"), "POST" ) == 0)
+   if (getenv("REQUEST_METHOD") && 
+       strcmp( getenv("REQUEST_METHOD"), "POST" ) == 0)
       {
       cout << "Content-Type: text/plain\n\n";
       string puzzle;
@@ -473,7 +557,7 @@ int main()
    cout << table.do_single_occurence() << endl;
    table.print_table();
 
-
+   int i = 2;
 #ifdef DEBUG_PENCIL_ROWCOL
 
    for (int cell = 0; cell < 9; cell++)
