@@ -18,7 +18,7 @@ using namespace std;
 
 //#define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
 #define PALMS_PUZZLE "....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."
-#define DEBUG 1
+int DEBUG 1
 
 
 
@@ -517,6 +517,7 @@ int main()
    if (getenv("REQUEST_METHOD") && 
        strcmp( getenv("REQUEST_METHOD"), "POST" ) == 0)
       {
+      DEBUG = 0;
       cout << "Content-Type: text/plain\n\n";
       string puzzle;
       std::getline(cin, puzzle);
