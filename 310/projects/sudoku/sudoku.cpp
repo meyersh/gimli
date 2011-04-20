@@ -35,7 +35,7 @@ void print_array(vector<V> vec)
 
 struct sudoku_table {
    int table[81]; /* the table (expressed as a 1d array. */
-   vector<vector <int*> > rows, cols, subcells;
+   vector<vector <int> > rows, cols, subcells;
    
    unsigned int pencil_mark[81]; /* temp table for scribbling in pencil marks */
 
@@ -93,9 +93,9 @@ struct sudoku_table {
       rows.resize(9); cols.resize(9); subcells.resize(9);
       for (int i = 0; i < 81; i++)
 	 {
-	 rows[i/9].push_back(&i);
-	 cols[i%9].push_back(&i);
-	 subcells[get_subsquare_from_address(i)].push_back(&i);
+	 rows[i/9].push_back(i);
+	 cols[i%9].push_back(i);
+	 subcells[get_subsquare_from_address(i)].push_back(i);
 	 }
       
       /* 
@@ -127,7 +127,8 @@ unsigned int bit(int val)
 void sudoku_table::set(int cell, int value)
 {
    table[cell] = value;
-   unsigned int mask = ~(1 << value);
+   unsigned int mask = (1 << value - 1);
+   cout << value << " = " << hex << mask << endl;
 
    int row = cell / 9;
    int col = cell % 9;
@@ -136,9 +137,9 @@ void sudoku_table::set(int cell, int value)
    /* unset that pencil_mark in all of the same row/col/subcell */
    for (int i = 0; i < 9; i++)
       {
-	 pencil_mark[*rows[row][i]] &= mask;
-	 pencil_mark[*cols[col][i]] &= mask;
-	 pencil_mark[*subcells[subcell][i]] &= mask;
+	 pencil_mark[rows[row][i]] |= mask;
+	 pencil_mark[cols[col][i]] |= mask;
+	 pencil_mark[subcells[subcell][i]] |= mask;
       }
 
 }
@@ -228,9 +229,34 @@ unsigned int sudoku_table::check_col(int cell)
 	    throw logic_error("Duplicate Number in Col!");
 	    }
 	 /* it's ok, note it. */
-	    numbers |= 1 << table[y] - 1;
+	 numbers |= 1 << table[y] - 1;
 	 }
       }
+
+   pencil_mark[cell] |= numbers;
+
+   return numbers;
+}
+
+unsigned int sudoku_table::check_subsquare(int cell)
+/* PARAMS: 2d array of unsigned int (assumed 9x9 elements)
+   RETURN: bitwise array indicating which elements have been found
+   DESCRI: Iterate over a sub-box and note which elements are present. */
+{
+   vector<int> elements = neighbors( sub_square(cell) );
+   unsigned int numbers = 0;
+
+   for (int c = 0; c < elements.size(); c++)
+      {
+      if (table[ elements[c] ])
+	 {
+	 if ((1 << table[elements[c]] - 1) & numbers)
+	    throw logic_error("Duplicate detected in subsquare.");
+	 else 
+	    numbers |= 1 << table[elements[c]] - 1;
+	 
+	 }
+      }   
 
    pencil_mark[cell] |= numbers;
 
@@ -280,30 +306,6 @@ vector<int> sudoku_table::neighbors(int subsquare)
    return ret;
 }
 
-unsigned int sudoku_table::check_subsquare(int cell)
-/* PARAMS: 2d array of unsigned int (assumed 9x9 elements)
-   RETURN: bitwise array indicating which elements have been found
-   DESCRI: Iterate over a sub-box and note which elements are present. */
-{
-   vector<int> elements = neighbors( sub_square(cell) );
-   unsigned int numbers = 0;
-
-   for (int c = 0; c < elements.size(); c++)
-      {
-      if (table[ elements[c] ])
-	 {
-	 if ((1 << table[elements[c]] - 1) & numbers)
-	    throw logic_error("Duplicate detected in subsquare.");
-	 else 
-	    numbers |= 1 << table[elements[c]] - 1;
-	 
-	 }
-      }   
-
-   pencil_mark[cell] |= numbers;
-
-   return numbers;
-}
 
 void sudoku_table::print_table()
 /* PARAMS: None
@@ -552,9 +554,9 @@ int main()
 
    cout << "Doing single_occurence (it's going to be great!)\n";
    cout << table.do_single_occurence() << endl;
+   /*   cout << table.do_single_occurence() << endl;
    cout << table.do_single_occurence() << endl;
-   cout << table.do_single_occurence() << endl;
-   cout << table.do_single_occurence() << endl;
+   cout << table.do_single_occurence() << endl; */
    table.print_table();
 
    int i = 2;
