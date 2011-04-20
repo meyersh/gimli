@@ -517,7 +517,6 @@ int main()
    if (getenv("REQUEST_METHOD") && 
        strcmp( getenv("REQUEST_METHOD"), "POST" ) == 0)
       {
-      DEBUG = 0;
       cout << "Content-Type: text/plain\n\n";
       string puzzle;
       std::getline(cin, puzzle);
