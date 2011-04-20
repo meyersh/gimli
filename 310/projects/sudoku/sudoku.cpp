@@ -295,8 +295,6 @@ int sudoku_table::do_single_position()
 	    bitset >>= 1;
 	    }
 	 cells_filled++;
-
-	 cout << "0x1FF - " << pencil_mark[i] << "\n";
 	 }
 
       }
