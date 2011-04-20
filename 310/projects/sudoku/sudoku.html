@@ -1,5 +1,87 @@
 <HTML> 
 	<HEAD> 
+
+<script>
+/*
+ * AJAX library and helper functions for CSCI-170. 
+ * Boilerplate by Randy, etc by Shaun.
+ * Mar, 2010
+ *
+ */
+
+function getXMLHttpReq()
+{ 
+    var req = null;
+
+    if (window.XMLHttpRequest)
+	req = new XMLHttpRequest();
+    else if (window.ActiveXObject)
+	req = new ActiveXObject(Microsoft.XMLHTTP);
+    return req;
+}
+
+
+function parseData(response)
+{
+  for (c = 0; c < response.length; c++)
+    document.getElementById(c).value = response[c];
+}
+
+function sendData(dataStr, url, method) { 
+    var req = getXMLHttpReq();
+
+    if (req == null)
+	return 1;
+
+    /* if we are using the GET method we need to append the data
+       to the URL after a ?-mark. */
+
+    if ( method == "GET" ) 
+	url += '?' + dataStr.replace(/\n/g, '&');
+
+    req.open(method, url, true);
+    
+    req.onreadystatechange = function()
+	{
+	    if(req.readyState == 4)
+		{
+		    if(req.status == 200)
+			{
+			    //updateLog(req.responseText, 'output', false); /* where do we dump the output? */
+			    parseData(req.responseText);
+			    document.getElementById('output').innerHTML += "<br>Data sent/recieved from server!<br>--";
+			}
+		    else
+			document.getElementById('output').innerHTML += "Error Status: "   + req.status +
+				  "<br />Error Description: "  + req.statusText;
+		}
+	}
+
+
+    req.setRequestHeader("Content-Type", "text/plain");
+
+    if (method == "POST")
+	req.send(dataStr);
+    else if (method == "GET")
+	req.send(dataStr);
+
+    return 0;
+}
+
+function solve()
+{
+  var puzzle="";
+  for (c = 0; c < 81; c++)
+  {
+    if (document.getElementById(c).value == "")
+      puzzle += "0";
+    else 
+      puzzle += document.getElementById(c).value;
+  }
+ 
+  sendData(puzzle, "sudoku.cgi", "POST");
+}
+</script>
 		<TITLE>Chelsey, Shaun, and Steven's Sudoku Solver</TITLE>
 		<style>
 body {margin:0pt;}
@@ -149,9 +231,59 @@ a:hover {text-decoration:underline;}
 
 <script>
 
+function clear_table()
+{
+  for (i = 0; i < 81; i++)
+    document.getElementById(i).value = '';
+}
+
+function valid_cell(cell)
+{
+  if (cell > 0 || cell < 10 || cell == ' ' )
+    return true;
+  return false;
+}
+
+function check_valid_row(cell)
+{
+   cell = cell.id;
+  
+   /* give us the first element # for the row cell is in. */
+   row = 9 * Math.floor(cell / 9); 
+
+   /* For each element in cell's row: */
+   for (x = row; x < row+9; x++)
+      {
+      document.getElementById('output').innerHTML += "row: " + row + "\n";
+      document.getElementById('output').innerHTML += "checking " + x + "\n";
+      if (x == cell) continue;
+      if (document.getElementById(x).value != "" && document.getElementById(x).value != "!!") /* if there is a number in this cell... */
+	 {
+         if (document.getElementById(x).value == document.getElementById(cell).value)
+            {
+              document.getElementById(cell).parentNode.className='d1';
+              document.getElementById(x).parentNode.className='d1';
+
+              break;
+	    }
+	 else /* it's ok, note it. */
+            {
+            document.getElementById(cell).parentNode.className='d0';
+	    }
+	 }
+      }
+      document.getElementById('output').innerHTML += "<br>";
+}
+
 function checkTable()
 {
   document.getElementById('output').innerHTML += "Checking table!<br/>\n";
+  for (cell = 0; cell < 81; cell++)
+  { 
+    c = document.getElementById(cell);
+    if (!valid_cell(c.value))
+      c.value = "!!";
+  }
 }
 
 function drawTable() 
@@ -175,8 +307,8 @@ function drawTable()
         outp += "<TD CLASS=bottom_border>\n";
       else /* no line at all. */
         outp += "<TD CLASS=regular_border>\n";
-
-    outp += "<INPUT SIZE=2 CLASS=d0 AUTOCOMPLETE=off NAME=foo MAXLENGTH=1 onBlur='checkTable();' ID='' VALUE=''>\n";
+    id = y*9 + x;
+    outp += "<INPUT SIZE=2 CLASS=d0 AUTOCOMPLETE=off NAME=foo MAXLENGTH=1 onBlur='checkTable();check_valid_row(this);' ID='" + id + "' VALUE=''>\n";
     outp += "</TD>\n";
     }
     outp += "</TR>\n";
@@ -185,20 +317,33 @@ function drawTable()
   js_table.innerHTML = outp;
 }
 
-function solve()
+function text_to_puzzle()
 {
-  document.getElementById('output').innerHTML += "Solving table!<br>\n";
+  textObj = document.getElementById('puzzle_input');
+  clear_table();
+  for (c = 0; c < textObj.value.length; c++)
+  {
+    if (textObj.value[c] > 0 && textObj.value[c] < 10)
+    {
+    cell = document.getElementById(c);
+    cell.value = textObj.value[c];    
+    }
+  }
 }
+
 
 drawTable();
 </script>
 <p>
   <input type="button" value="Solve!" onClick="solve();"/>
-  <input type="button" value="Clear Board"/>
+  <input type="button" value="Clear Board" onClick="clear_table();"/>
   <input type="button" value="Source Code"/ onClick="window.location='sudoku.cpp.txt'">
 </p>
 
-<div id="output"></div>
+<input type="text" id='puzzle_input' size=82 maxlength=81/>
+<input type="button" value="Insert puzzle" onClick="text_to_puzzle();"/>
+
+<div id="output" style="width:50%;position:absolute;margin:50px;"></div>
 <!--
 <p/>
 <TABLE CELLSPACING=0 CELLPADDING=0 CLASS=t>
