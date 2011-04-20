@@ -523,8 +523,7 @@ int main()
       sudoku_table table(puzzle);
       while (table.do_single_position())
 	 ;
-      table.do_single_occurrence();
-
+      table.do_single_occurence()
       table.print_web_table();
 
       return 0; 
