@@ -68,7 +68,7 @@ function sendData(dataStr, url, method) {
     return 0;
 }
 
-function solve()
+function solve(cgi)
 {
   var puzzle="";
   for (c = 0; c < 81; c++)
@@ -79,7 +79,7 @@ function solve()
       puzzle += document.getElementById(c).value;
   }
  
-  sendData(puzzle, "sudoku.cgi", "POST");
+  sendData(puzzle, cgi, "POST");
 }
 </script>
 		<TITLE>Chelsey, Shaun, and Steven's Sudoku Solver</TITLE>
@@ -335,7 +335,8 @@ function text_to_puzzle()
 drawTable();
 </script>
 <p>
-  <input type="button" value="Solve!" onClick="solve();"/>
+  <input type="button" value="Solve!" onClick="solve('sudoku.cgi');"/>
+  <input type="button" value="Solve (Using DLX Algorithm)!" onClick="solve('dlx.cgi');"/> 
   <input type="button" value="Clear Board" onClick="clear_table();"/>
   <input type="button" value="Source Code"/ onClick="window.location='sudoku.cpp.txt'">
 </p>
