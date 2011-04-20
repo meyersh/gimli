@@ -111,7 +111,7 @@ int sudoku_table::zeros(unsigned int cell)
 
 int sudoku_table::get_subsquare_address(int subsquare_number)
 {
-  int subsquare_addresses = {0, 3, 6, 27, 30, 33, 54, 57, 60};
+  int subsquare_addresses[] = {0, 3, 6, 27, 30, 33, 54, 57, 60};
   return subsquare_addresses[subsquare_number];
 }
 
@@ -331,7 +331,7 @@ int sudoku_table::do_single_occurence()
 	    check_col(cells[value][0]);
 	    check_subsquare(cells[value][0]);
 	    }
-      
+	 
 	 cells[value].clear();
 	 }
       }
