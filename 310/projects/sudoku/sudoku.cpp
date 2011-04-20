@@ -12,7 +12,7 @@ Initial functions + class to interact with a sudoku board.
 #include <vector>
 #include <stdexcept>
 #include <cstdlib>
-#include <stdio> // for strcmp()
+#include <string.h> // for strcmp()
 
 using namespace std;
 
