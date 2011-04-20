@@ -138,7 +138,6 @@ unsigned int sudoku_table::check_row(int cell)
 	 if (numbers & 1 << table[x] - 1) /* and it's a duplicate... */
 	    {
 	    print_table();
-	    cout << x << ": " << table[x] << endl;
 	    throw logic_error("Duplicate Number in Row!");
 	    }
 	 else /* it's ok, note it. */
