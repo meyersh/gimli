@@ -22,6 +22,7 @@ struct sudoku_table {
    unsigned int pencil_mark[81]; /* temp table for scribbling in pencil marks */
 
    unsigned int bit(int val);
+   int get_subsquare_address(int subsquare_number);
    unsigned int check_row(int cell);
    unsigned int check_col(int cell);
    unsigned int check_subsquare(int cell);
@@ -32,6 +33,7 @@ struct sudoku_table {
    int zeros(unsigned int cell);
 
    int do_single_position();
+   int do_single_occurence(); 
 
    sudoku_table(string board="") {
       /* PARAMS: an optional string representation of the sudoku board.
@@ -105,6 +107,32 @@ int sudoku_table::zeros(unsigned int cell)
 	 z++;
       }
    return z;
+}
+
+int sudoku_table::get_subsquare_address(int subsquare_number)
+{
+   switch (subsquare_number) {
+   case 0:
+      return 0;
+   case 1:
+      return 3;
+   case 2:
+      return 6;
+   case 3:
+      return 27;
+   case 4:
+      return 30;
+   case 5:
+      return 33;
+   case 6:
+      return 54;
+   case 7:
+      return 57;
+   case 8:
+      return 60;
+   default:
+      throw runtime_error("Invalid subsquare number!");
+   }
 }
 
 unsigned int sudoku_table::check_row(int cell)
@@ -236,7 +264,10 @@ void sudoku_table::print_table()
    int counter = 0;
    for (int i=0; i < 81; i++)
       {
-      cout << setw(3) << table[i];
+      if (table[i] == 0)
+	 cout << setw(3) << '_';
+      else
+	 cout << setw(3) << table[i];
       counter++;
       if (counter == 9)
 	 {
@@ -269,6 +300,7 @@ int sudoku_table::do_single_position()
 	    bitset >>= 1;
 	    }
 	 cells_filled++;
+
 	 cout << "0x1FF - " << pencil_mark[i] << "\n";
 	 }
 
@@ -281,9 +313,113 @@ int sudoku_table::do_single_position()
       check_col(i);
       check_subsquare(i);
       }
+   return cells_filled;
+}
+
+int sudoku_table::do_single_occurence()
+{
+   int cells_filled = 0;
+   vector< vector<int> > cells(10);
+   /*
+    * Check each row for "single_occurrences"
+    */
+   for (int row = 0; row <= 72; row += 9)
+      {
+      /* Check every cell in a row */
+      for (int cell = row; cell < row + 9; cell++)
+	 {
+	 /* Read the pencil marks into values */
+	 unsigned int pencil = pencil_mark[cell];
+	 for (unsigned int mark = 1, v = 1; v <= 9; mark <<= 1, v++)
+	    if (mark & ~pencil)
+	       cells[v].push_back(cell);
+	 }
+
+      /* Check our cells for unique values */
+      for (int value = 0; value < cells.size(); value++)
+	 {
+	 if (cells[value].size() == 1) /* fill it in, it's unique! */
+	    {
+	    table[cells[value][0]] = value;
+	    cells_filled++;
+
+	    /* update pencil marks for the row we've just finished */
+	    check_row(cells[value][0]);
+	    check_col(cells[value][0]);
+	    check_subsquare(cells[value][0]);
+	    }
+      
+	 cells[value].clear();
+	 }
+      }
+
+   /*
+    * Check each col for "single_occurrences"
+    */
+   for (int col = 0; col < 9; col++)
+      {
+      /* For each cell in a column... */
+      for (int cell = col; cell < col + 72; cell += 9)
+	 {
+	 /* Read the pencil marks into values */
+	 unsigned int pencil = pencil_mark[cell];
+	 for (unsigned int mark = 1, v = 1; v <= 9; mark <<= 1, v++)
+	    if (mark & ~pencil)
+	       cells[v].push_back(cell);
+	 }
+
+      /* Check our cells for unique values */
+      for (int value = 0; value < cells.size(); value++)
+	 {
+	 if (cells[value].size() == 1) /* fill it in, it's unique! */
+	    {
+	    table[cells[value][0]] = value;
+	    cells_filled++;
+	    /* update pencil marks for the column we've just finished */
+	    check_row(cells[value][0]);
+	    check_col(cells[value][0]);
+	    check_subsquare(cells[value][0]);
+	    }
+
+	 cells[value].clear();
+	 }
+      }
+
+
+   /*
+    * Check each subsquare for "single_occurrences"
+    */
+   for (int subcell = 0; subcell < 9; subcell++)
+      {
+      vector<int> n = neighbors( get_subsquare_address(subcell) );
+      for (int cell = 0; cell < 9; cell++)
+	 {
+	 /* Read the pencil marks into values */
+	 unsigned int pencil = pencil_mark[n[cell]];
+	 for (unsigned int mark = 1, v = 1; v <= 9; mark <<= 1, v++)
+	    if (mark & ~pencil)
+	       cells[v].push_back(n[cell]);
+	 }
+      for (int value = 0; value < cells.size(); value++)
+	 {
+	 if (cells[value].size() == 1) /* fill it in, it's unique! */
+	    {
+	    table[cells[value][0]] = value;
+	    cells_filled++;
+	    cout << cells[value][0] << " could be " << value << endl;
+	    /* update pencil marks for the subcell we've just finished. */
+	    check_row(cells[value][0]);
+	    check_col(cells[value][0]);
+	    check_subsquare(cells[value][0]);
+	    }
+	 cells[value].clear();
+	 }
+
+      }
 
    return cells_filled;
 }
+
 
 template<class V>
 void print_array(vector<V> vec)
@@ -316,9 +452,18 @@ int main()
 
    cout << "\nAfter single_position:\n";
    table.print_table();
+   int check_cell = 9;
    cout << "\n"
-	<< "Pencil for 13: " << hex << table.pencil_mark[13] << endl
-	<< "Zeros for 13:  " << table.zeros(13) << endl;
+	<< "Pencil for " << check_cell << ": " << hex << table.pencil_mark[check_cell] << endl
+	<< "Zeros for " << check_cell << ":  " << table.zeros(check_cell) << endl;
+
+   cout << "Doing single_occurence (it's going to be great!)\n";
+   cout << table.do_single_occurence() << endl;
+   cout << table.do_single_occurence() << endl;
+   cout << table.do_single_occurence() << endl;
+   cout << table.do_single_occurence() << endl;
+   table.print_table();
+
 
 #ifdef DEBUG_PENCIL_ROWCOL
 
