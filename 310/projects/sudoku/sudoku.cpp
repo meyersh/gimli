@@ -18,7 +18,7 @@ using namespace std;
 
 //#define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
 #define PALMS_PUZZLE "....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."
-#define DEBUG 1
+#define DEBUG 0
 
 
 
@@ -52,11 +52,14 @@ struct sudoku_table {
    int          sub_square(int cell);
    void         print_table();
    void         print_web_table();
-
+   bool         is_solved();
    int zeros(unsigned int cell);
 
    int do_single_position();
    int do_single_occurence(); 
+   int do_single_occurence_row(); 
+   int do_single_occurence_col(); 
+   int do_single_occurence_subcell(); 
 
    sudoku_table(string board="") {
       /* PARAMS: an optional string representation of the sudoku board.
@@ -128,7 +131,6 @@ void sudoku_table::set(int cell, int value)
 {
    table[cell] = value;
    unsigned int mask = (1 << value - 1);
-   cout << value << " = " << hex << mask << endl;
 
    int row = cell / 9;
    int col = cell % 9;
@@ -142,6 +144,24 @@ void sudoku_table::set(int cell, int value)
 	 pencil_mark[subcells[subcell][i]] |= mask;
       }
 
+}
+
+bool sudoku_table::is_solved()
+{
+   int entries = 0;
+   for (int i = 0; i < 81; i++)
+      {
+      check_row(i);
+      check_col(i);
+      check_subsquare(i);
+
+      if (table[i])
+	 entries++;
+      }
+
+   if (entries == 80)
+      return true;
+   return false;
 }
 
 int sudoku_table::zeros(unsigned int cell)
@@ -354,13 +374,17 @@ int sudoku_table::do_single_position()
       if (zeros(i) == 1)
 	 {
 	 unsigned int bitset = 0x1FF - pencil_mark[i];
-	 table[i] = 1;
+	 int value = 1;
+
 	 while (!(1 & bitset))
 	    {
-	    table[i]++;
+	    value++;
 	    bitset >>= 1;
 	    }
+
+	 set(i, value);
 	 cells_filled++;
+
 	 }
 
       }
@@ -377,6 +401,13 @@ int sudoku_table::do_single_position()
 }
 
 int sudoku_table::do_single_occurence()
+{
+   return do_single_occurence_row() +
+      do_single_occurence_col() +
+      do_single_occurence_subcell();
+}
+
+int sudoku_table::do_single_occurence_row() 
 {
    int cells_filled = 0;
    vector< vector<int> > cells(10);
@@ -416,10 +447,17 @@ int sudoku_table::do_single_occurence()
 	    check_col(cells[value][0]);
 	    check_subsquare(cells[value][0]);
 	    }
-	 print_array(cells[value]);
 	 cells[value].clear();
 	 }
       }
+
+   return cells_filled;
+}
+
+int sudoku_table::do_single_occurence_col()
+{
+   int cells_filled = 0;
+   vector< vector<int> > cells(10);
 
    /*
     * Check each col for "single_occurrences"
@@ -429,7 +467,7 @@ int sudoku_table::do_single_occurence()
       if (DEBUG) cout << "Checking col " << col;
 
       /* For each cell in a column... */
-      for (int cell = col; cell < col + 72; cell += 9)
+      for (int cell = col; cell <= col + 72; cell += 9)
 	 {
 	 if (table[cell]) 
 	    continue;
@@ -462,6 +500,13 @@ int sudoku_table::do_single_occurence()
 	 }
       }
 
+   return cells_filled;
+}
+
+int sudoku_table::do_single_occurence_subcell()
+{
+   int cells_filled = 0;
+   vector< vector<int> > cells(10);
 
    /*
     * Check each subsquare for "single_occurrences"
@@ -494,7 +539,7 @@ int sudoku_table::do_single_occurence()
 	    {
 	    set(cells[value][0], value);
 	    cells_filled++;
-	    cout << cells[value][0] << " could be " << value << endl;
+
 	    /* update pencil marks for the subcell we've just finished. */
 	    check_row(cells[value][0]);
 	    check_col(cells[value][0]);
@@ -508,7 +553,9 @@ int sudoku_table::do_single_occurence()
    return cells_filled;
 }
 
-
+int sudoku_table::do_doubles()
+{
+}
 
 int main()
 {
@@ -539,10 +586,24 @@ int main()
 
    //   cout << hex << "pencil_mark: " << table.pencil_mark[64] << endl;
 
-   while (table.do_single_position())
+
+   int max_iterations = 1000;
+   int step=0;
+   while (!table.is_solved() && max_iterations)
       {
-      cout << ".";
+      cout << "Entering do_single_pos()\n";
+      while (table.do_single_position())
+	 {
+	 table.print_table();
+	 cout << endl;
+	 }
+      
+      cout << "Entering do_single_occur()\n";
+      table.do_single_occurence();
+      table.print_table();
+      max_iterations--;
       }
+
    cout << endl;
    
 
@@ -554,13 +615,14 @@ int main()
 	<< "Zeros for " << check_cell << ":  " << table.zeros(check_cell) << endl;
 
    cout << "Doing single_occurence (it's going to be great!)\n";
-   cout << table.do_single_occurence() << endl;
+   cout << "Cells modified: " << dec << table.do_single_occurence() << endl;
    /*   cout << table.do_single_occurence() << endl;
    cout << table.do_single_occurence() << endl;
    cout << table.do_single_occurence() << endl; */
    table.print_table();
 
    int i = 2;
+
 #ifdef DEBUG_PENCIL_ROWCOL
 
    for (int cell = 0; cell < 9; cell++)
