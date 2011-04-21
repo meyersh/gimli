@@ -61,6 +61,8 @@ struct sudoku_table {
    int do_single_occurence_col(); 
    int do_single_occurence_subcell(); 
 
+   int do_doubles();
+
    sudoku_table(string board="") {
       /* PARAMS: an optional string representation of the sudoku board.
 	 RETURN: None (default constructor)
@@ -555,6 +557,10 @@ int sudoku_table::do_single_occurence_subcell()
 
 int sudoku_table::do_doubles()
 {
+
+   /* Oh, yeah. */
+
+
 }
 
 int main()
