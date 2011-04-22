@@ -6,6 +6,8 @@
 using std::vector;
 using std::string;
 using std::cout;
+using std::cin;
+using std::endl;
 
 class Sudoku 
 {
@@ -19,7 +21,7 @@ class Sudoku
    struct Node {
       Node *l, *r, *u, *d;
       Column *header;
-      int row; /* Set to the value of this cell. 1-9 */
+      int row; /* Set what row we're on. (in the matrix, not the puzzle)  */
       Node()
       {
 	 row = 0;
@@ -32,11 +34,13 @@ class Sudoku
 
    struct Column : public Node {
       int size;
-      Column *L, *R; /* L and R are used because l and r point to a Node type, 
-			this avoids ugly type_casting. */
+      Column *L, *R; /* L and R are used because l and r pointing
+			to a Node type, this avoids ugly type_casting. */
+      bool covered;
       Column()
       {
 	 size = 0;
+	 covered = false;
       }
    };
 
@@ -48,6 +52,7 @@ class Sudoku
    {
       col->R->L = col->L;
       col->L->R = col->R;
+      col->covered = true;
 
       for (Node *row = col->d; row != col; row = row->d)
 	 {
@@ -64,6 +69,7 @@ class Sudoku
    {
       col->R->L = col;
       col->L->R = col;
+      col->covered = false;
 
       for (Node *row = col->d; row != col; row = row->d)
 	 {
@@ -88,17 +94,17 @@ class Sudoku
 	      delete column j from matrix A.
 	 6. Repeat this algorithm recursively on the reduced matrix A. */
 
-      if (root->r == root)
+      if (root->R == root)
 	 {
 	 solutions++;
 	 return; /* #1. If the matrix is empty, the problem is solved. */
 	 }
 
-      Column *min = root->R;
-      cover(min);
+      Column *next = root->R;
+      cover(next);
 
       /* foreach r <D[c], D[D[c]], ...., while r != c */
-      for (Node *i = min->d; i != min; i = i->d)
+      for (Node *i = next->d; i != next; i = i->d)
 	 {
 	 /* Set Ok <- R */
 	 if (solutions == 0)
@@ -115,7 +121,7 @@ class Sudoku
 	 for (Node *j = i->l; j != i ; j = j->l)
 	    uncover(i->header);
 
-	 uncover(min);
+	 uncover(next);
 	 }
 
    }
@@ -132,17 +138,17 @@ public:
    Sudoku(int size=3) :
       /* Initialize some before the function body */
       BOX(size), /* size in a standard board is 3 (the diameter of a subcell) */
-      UNIT(BOX*BOX), /* UNIT is the number of cells in a subcell, col, and row */
+      UNIT(BOX*BOX), /* UNIT is the number of cells in a subcell, col, or row */
       GRID(UNIT*UNIT), /* The entire grid, then, is a UNIT*UNIT (9*9) cells. */
       /*y(GRID*4+1, Column()), /* See #a below +1 for the root node. */
       /* matrix(729*4, Node()), /* This only needs to be 4 because 
 				we never have more than 4 ones 
 				on a given a row. Sparse! */
-      solution(81),
-      root(&(y[y.size()-1]))
+      solution(81)
    {
-      matrix.resize(729*4, vector<Node>(4, Node()));
+      matrix.resize(729, vector<Node>(4, Node()));
       y.resize(GRID*4+1, Column());
+      root = &(y[y.size()-1]);
       /* We generate our matrix to look something like:
 	 http://www.stolaf.edu/people/hansonr/sudoku/exactcovermatrix.htm
 	
@@ -152,8 +158,10 @@ public:
 	 3. Col (every column needs numbers 1-9)
 	 4. Subcell (every sub-square needs numbers 1-9)
 	 
-	 a. 81 cells * 4 constraints = 324 (how many columns our matrix should have)
-	 b. 9 rows * 9 cols * 9 subcells = 729 (how many rows our matrix should have)
+	 a. 81 cells * 4 constraints = 324 (how many columns our 
+	 matrix should have)
+	 b. 9 rows * 9 cols * 9 subcells = 729 (how many rows our 
+	 matrix should have)
       */
 
       /* Lets make our columns data structure! */
@@ -162,13 +170,16 @@ public:
 
       for (int i = 0; i < cols; i++)
 	 {
-	 y[i].R = &(y[(i+1)%cols]); /* i+1 % cols gives us the index one to the right (
-				     or wraps around to 0) */ 
-	 y[i].L = &(y[(i+cols-1)%cols]); /* (i+cols-1)%cols gives us the index on to the
-					  left (or wraps around to the last col. */
+	 y[i].R = &(y[(i+1)%cols]); /* i+1 % cols gives us the index 
+				       one to the right (or wraps around 
+				       to 0) */ 
 
-	 y[i].d = &(y[i]); /* set both the up and down ptr to the column. */
-	 y[i].u = &(y[i]); 
+	 y[i].L = &(y[(i+cols-1)%cols]); /* (i+cols-1)%cols gives us the index 
+					    on to the left (or wraps around to 
+					    the last col. */
+
+	 y[i].d = y[i].u = &(y[i]); /* set both the up and down ptr 
+				       to the column. */
 	 }
 
       /* Lets make our rows data structure! */
@@ -178,7 +189,8 @@ public:
 	    the column that should have a 1. */
 	 for (int j = 0; j < 4; j++)
 	    {
-	    int header = GRID*j; /* which specific constraint are we working in? */
+	    int header = GRID*j; /* which specific constraint 
+				    are we working in? */
 
 	    /* Cell constraint: only one value in each of the 81 cells. 
 	       for every row, we want 9 of these all in the same column before
@@ -216,7 +228,7 @@ public:
 		  (i%81/27)*9 will give us the shift for the minor pattern
 		  where 81 is the size of the entire pattern and 27 is the 
 		  length of a cycle within that pattern. 
-		  (i/243)*18 will give us the shift for the major pattern */
+		  (i/243)*27 will give us the shift for the major pattern */
 	       header += i%9 + (i%81/27)*9 + (i/243)*27;
 	       }
 
@@ -249,23 +261,23 @@ public:
 	       left, 0. i*9, therefore, will give us the set of 9 possibilities
 	       and adding (value-1) to that will give the row representing
 	       puzzle[i] in cell [i]. */
-	    int row = i*9 + value - 1;
+	    int row = i*9 + puzzle[i] - 1;
 	    
 	    /* if any of the row's constraints are covered, 
 	       there is no solution (eg, user puzzle had doubles in it) */
-	    if (matrix[row][0].c->covered
-		|| matrix[row][1].c->covered
-		|| matrix[row][2].c->covered
-		|| matrix[row][3].c->covered)
+	    if (matrix[row][0].header->covered
+		|| matrix[row][1].header->covered
+		|| matrix[row][2].header->covered
+		|| matrix[row][3].header->covered)
 		  {
-		  solvable = false;
+		  solveable = false;
 		  break;
 		  }
 
 	    /* Cover this row / col because the user has entered it, it has to 
 	       occur in the solution. */
 	    for (int j = 0; j < 4; j++)
-	       cover(matrix[row][j].c);
+	       cover(matrix[row][j].header);
 
 	    /* increment k and note row. */
 	    solution[k++] = row;
@@ -274,8 +286,8 @@ public:
 
 	 /* After adding the user puzzle, if it is valid (solvable), 
 	    do a search for the solution to the exact-cover problem. */
-	 if (solvable)
-	    search(row);
+	 if (solveable)
+	    search(k);
 
 	 /* If we've found a solution, we must convert the ROW number into
 	    a meaningful value to place in that cell. This will be the opposite
@@ -284,21 +296,49 @@ public:
 	 if (solutions > 0)
 	    for (int i = 0; i < 81; i++)
 	       {
-	       puzzle[solution[i/9]] =  
+	       int i9 = i/9;
+	       int value = puzzle[i]-i9-value+1;
+	       puzzle[solution[i9]] =  solution[i9];
 	       }
 
+	 /* uncover all headers (in case we want to do this again. */
+	 for (int i = k - 1; i >=0; i--)
+	    for (int j = 3; j >= 0; j--)
+	       uncover(matrix[solution[i]][j].header);
 
+	 if (solveable)
+	    return solutions;
+	 else
+	    return -2;
    }
-
+   
 };
 
 int main()
 {
    Sudoku sudoku;
-   string puzzle;
-   std::getline(cin, puzzle);
+   vector<int> puzzle;
+   string inpt;
+   std::getline(cin, inpt);
+   //   char *puzzle = "
+   // ....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8....";
 
-   sudoku.solve(puzzle);
+   for (int i = 0; i < inpt.size(); i++)
+      {
+      if (inpt[i] == '.')
+	 puzzle.push_back(0);
+      else
+	 {
+	 int cell = inpt[i]-'0';
+	 puzzle.push_back(cell);
+	 }
+      }
+
+   cout << sudoku.solve(puzzle) << " solutions. \n"; 
+
+   for (int i = 0; i < puzzle.size(); i++)
+      cout << puzzle[i];
+   cout << endl;
 
    cout << "Goodbye!\n";
 
