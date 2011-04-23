@@ -332,9 +332,9 @@ int main()
    vector<int> puzzle;
    string inpt;
    std::getline(cin, inpt);
-   //   char *puzzle = "
-   // ....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8....";
-   
+
+   cout << "Content-Type: text/plain\n\n";
+
    for (int i = 0; i < inpt.size(); i++)
       {
       if (inpt[i] == '.')
@@ -346,13 +346,13 @@ int main()
 	 }
       }
 
-   cout << sudoku.solve(puzzle) << " solutions. \n"; 
+   // cout << sudoku.solve(puzzle) << " solutions. \n"; 
 
    for (int i = 0; i < puzzle.size(); i++)
       cout << puzzle[i];
    cout << endl;
 
-   cout << "Goodbye!\n";
+   //cout << "Goodbye!\n";
 
    return 0;
 }
