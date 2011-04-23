@@ -117,17 +117,17 @@ class Sudoku
 	 {
 	 if (c->size < next->size)
 	    next = c;
-	 if (next->size == 0)
+	 if (next->size == 0) /* no solution in this subtree. */
 	    return;
 	 }
-
 
       cover(next);
 
       /* foreach r <D[c], D[D[c]], ...., while r != c */
-      for (Node *i = next->d; i != next && solutions < 1; i = i->d)
+      for (Node *i = next->d; i != next && solutions < max_solutions; i = i->d)
 	 {
-	 /* Set Ok <- R */
+	 /* Set Ok <- R...
+	  the last thing set will be the correct (while solutions==0) */
 	 if (solutions == 0)
 	    solution[k] = i->row;
 
@@ -140,11 +140,10 @@ class Sudoku
 	 /* set r<- Ok and c <- C[r]; */
 	 /* foreach j <- L[r], L[L[r]], ..., while j != r */
 	 for (Node *j = i->l; j != i ; j = j->l)
-	    uncover(i->header);
+	    uncover(j->header);
 
-	 uncover(next);
 	 }
-
+      uncover(next);
    }
 
 
@@ -153,10 +152,11 @@ public:
    vector<vector<Node> > matrix;  /* our node matrix */
    Column *root;         /* root points to the first column. */
    int solutions;        /* number of solutions to puzzle. */
+   int max_solutions;    /* when to stop finding solutions */
    vector<int> solution; /* final solution to puzzle */
    int BOX, UNIT, GRID;  /* a few dimensional variables */
 
-   Sudoku(int size=3) :
+   Sudoku(int size=3, int max=1) :
       /* Initialize some before the function body */
       BOX(size), /* size in a standard board is 3 (the diameter of a subcell) */
       UNIT(BOX*BOX), /* UNIT is the number of cells in a subcell, col, or row */
@@ -165,7 +165,8 @@ public:
       /* matrix(729*4, Node()), /* This only needs to be 4 because 
 				we never have more than 4 ones 
 				on a given a row. Sparse! */
-      solution(81)
+      solution(81),
+      max_solutions(max)
    {
       matrix.resize(729, vector<Node>(4, Node()));
       y.resize(GRID*4+1, Column());
@@ -257,8 +258,11 @@ public:
 	    matrix[i][j].l = &(matrix[i][(j+3)%4]); /* l == prev j, or wrap. */
 	    matrix[i][j].u = y[header].u; /* inherit our column->up */
 
+	    /* Actually insert the row. */
 	    y[header].u = y[header].u->d = &(matrix[i][j]);
-	    matrix[i][j].d = matrix[i][j].header = &(y[header]); /* set d to header */
+
+	    /* set d to header */
+	    matrix[i][j].d = matrix[i][j].header = &(y[header]); 
 
 	    matrix[i][j].row = i;
 	    matrix[i][j].header->size++;
@@ -346,8 +350,6 @@ int main()
    string inpt;
    std::getline(cin, inpt);
 
-
-
    for (int i = 0; i < inpt.size(); i++)
       {
       if (inpt[i] == '.')
@@ -362,11 +364,13 @@ int main()
 
    int solutions = sudoku.solve(puzzle);
 
+   /* Output an appropriate header */
    if (getenv("REQUEST_METHOD"))
       cout << "Content-Type: text/plain\n\n";
    else 
       cout << solutions << " Solutions.\n";
 
+   /* output the solution: */
    for (int i = 0; i < puzzle.size(); i++)
       cout << puzzle[i];
    cout << endl;
