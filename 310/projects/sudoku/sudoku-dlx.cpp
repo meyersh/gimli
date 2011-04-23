@@ -346,7 +346,7 @@ int main()
 	 }
       }
 
-   // cout << sudoku.solve(puzzle) << " solutions. \n"; 
+   sudoku.solve(puzzle);
 
    for (int i = 0; i < puzzle.size(); i++)
       cout << puzzle[i];
