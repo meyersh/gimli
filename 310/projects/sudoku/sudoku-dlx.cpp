@@ -49,6 +49,10 @@ class Sudoku
     */
 
    void cover(Column *col)
+   /* PARAMS: col ptr to the column object we're covering.
+      RETURN: void
+      DESCRI: Decends down a column (col), for each row we see
+      traverse right on c to cover that node, also. */
    {
       col->R->L = col->L;
       col->L->R = col->R;
@@ -66,6 +70,10 @@ class Sudoku
    }
 
    void uncover(Column *col)
+   /* PARAMS: col ptr to the column object we're uncovering.
+      RETURN: void
+      DESCRI: Descends down a column (col), for each row we
+      see, traverse right on c to uncover that node. */
    {
       col->R->L = col;
       col->L->R = col;
@@ -85,7 +93,7 @@ class Sudoku
    void search(int k)
    {
       /* 1. If the matrix A is empty, the problem is solved; terminate successfully.
-	 2. Otherwise choose a column c `min` (deterministically).
+	 2. Otherwise choose a column c `next` (deterministically).
 	 3. Choose a row r such that Ar, c = 1 (nondeterministically).
 	 4. Include row r in the partial solution.
 	 5. For each column j such that Ar, j = 1,
@@ -166,7 +174,7 @@ public:
 
       /* Lets make our columns data structure! */
 
-      int cols = GRID*4+1; // number of cols
+      int cols = GRID*4+1; // number of cols + root
 
       for (int i = 0; i < cols; i++)
 	 {
@@ -179,18 +187,18 @@ public:
 					    the last col. */
 
 	 y[i].d = y[i].u = &(y[i]); /* set both the up and down ptr 
-				       to the column. */
+				       to the column itself. */
 	 }
 
       /* Lets make our rows data structure! */
       for (int i = 0; i < 729; i++)
 	 {
 	 /* For each general constraint, calculate 
-	    the column that should have a 1. */
+	    the column that this node belongs to. */
 	 for (int j = 0; j < 4; j++)
 	    {
 	    int header = GRID*j; /* which specific constraint 
-				    are we working in? */
+				    are we working in? 0, 81, 162, or 243. */
 
 	    /* Cell constraint: only one value in each of the 81 cells. 
 	       for every row, we want 9 of these all in the same column before
@@ -205,7 +213,7 @@ public:
 	    else if (j == 1)
 	       {
 	       /* row%9 is the individual offset.
-		  is the overall offset. */
+		  i/81*9 is the overall offset. */
 	       header += i/81*9 + i%9;
 	       }
 
@@ -232,10 +240,13 @@ public:
 	       header += i%9 + (i%81/27)*9 + (i/243)*27;
 	       }
 
-	    matrix[i][j].r = &(matrix[i][(j+1)%4]);
-	    matrix[i][j].l = &(matrix[i][(j+3)%4]);
-	    matrix[i][j].u = y[header].u;
-	    matrix[i][j].d = matrix[i][j].header = &(y[header]);
+	    matrix[i][j].r = &(matrix[i][(j+1)%4]); /* r == next j, or wrap */
+	    matrix[i][j].l = &(matrix[i][(j+3)%4]); /* l == prev j, or wrap. */
+	    matrix[i][j].u = y[header].u; /* inherit our column->up */
+
+	    y[header].u = y[header].u->d = &(matrix[i][j]);
+	    matrix[i][j].d = matrix[i][j].header = &(y[header]); /* set d to header */
+
 	    matrix[i][j].row = i;
 	    matrix[i][j].header->size++;
 	    }
@@ -274,8 +285,8 @@ public:
 		  break;
 		  }
 
-	    /* Cover this row / col because the user has entered it, it has to 
-	       occur in the solution. */
+	    /* Cover this row / col because the user has entered it, 
+	       it has to occur in the solution. */
 	    for (int j = 0; j < 4; j++)
 	       cover(matrix[row][j].header);
 
@@ -296,9 +307,9 @@ public:
 	 if (solutions > 0)
 	    for (int i = 0; i < 81; i++)
 	       {
-	       int i9 = i/9;
-	       int value = puzzle[i]-i9-value+1;
-	       puzzle[solution[i9]] =  solution[i9];
+	       int cell = solution[i] / 9;
+	       int value = solution[i] % 9 + 1;
+	       puzzle[cell] = value;
 	       }
 
 	 /* uncover all headers (in case we want to do this again. */
@@ -306,6 +317,7 @@ public:
 	    for (int j = 3; j >= 0; j--)
 	       uncover(matrix[solution[i]][j].header);
 
+	 /* return the solution count. */
 	 if (solveable)
 	    return solutions;
 	 else
@@ -322,7 +334,7 @@ int main()
    std::getline(cin, inpt);
    //   char *puzzle = "
    // ....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8....";
-
+   
    for (int i = 0; i < inpt.size(); i++)
       {
       if (inpt[i] == '.')
