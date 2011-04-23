@@ -1,7 +1,8 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
+#include <string.h>
+#include <cstdlib>
 
 using std::vector;
 using std::string;
@@ -109,10 +110,22 @@ class Sudoku
 	 }
 
       Column *next = root->R;
+      
+      /* Choose the next column, look at the smallest number of possibilities
+	 first. */
+      for (Column *c = root->R; c != root; c = c->R)
+	 {
+	 if (c->size < next->size)
+	    next = c;
+	 if (next->size == 0)
+	    return;
+	 }
+
+
       cover(next);
 
       /* foreach r <D[c], D[D[c]], ...., while r != c */
-      for (Node *i = next->d; i != next; i = i->d)
+      for (Node *i = next->d; i != next && solutions < 1; i = i->d)
 	 {
 	 /* Set Ok <- R */
 	 if (solutions == 0)
@@ -333,7 +346,7 @@ int main()
    string inpt;
    std::getline(cin, inpt);
 
-   cout << "Content-Type: text/plain\n\n";
+
 
    for (int i = 0; i < inpt.size(); i++)
       {
@@ -346,7 +359,13 @@ int main()
 	 }
       }
 
-   sudoku.solve(puzzle);
+
+   int solutions = sudoku.solve(puzzle);
+
+   if (getenv("REQUEST_METHOD"))
+      cout << "Content-Type: text/plain\n\n";
+   else 
+      cout << solutions << " Solutions.\n";
 
    for (int i = 0; i < puzzle.size(); i++)
       cout << puzzle[i];
