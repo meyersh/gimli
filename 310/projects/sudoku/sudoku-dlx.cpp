@@ -1,14 +1,10 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <string.h>
 #include <cstdlib>
+#include <fstream>
 
-using std::vector;
-using std::string;
-using std::cout;
-using std::cin;
-using std::endl;
+using namespace std;
 
 class Sudoku 
 {
@@ -98,9 +94,9 @@ class Sudoku
 	 3. Choose a row r such that Ar, c = 1 (nondeterministically).
 	 4. Include row r in the partial solution.
 	 5. For each column j such that Ar, j = 1,
-	    for each row i such that Ai, j = 1,
-	         delete row i from matrix A;
-	      delete column j from matrix A.
+	 for each row i such that Ai, j = 1,
+	 delete row i from matrix A;
+	 delete column j from matrix A.
 	 6. Repeat this algorithm recursively on the reduced matrix A. */
 
       if (root->R == root)
@@ -127,7 +123,7 @@ class Sudoku
       for (Node *i = next->d; i != next && solutions < max_solutions; i = i->d)
 	 {
 	 /* Set Ok <- R...
-	  the last thing set will be the correct (while solutions==0) */
+	    the last thing set will be the correct (while solutions==0) */
 	 if (solutions == 0)
 	    solution[k] = i->row;
 
@@ -141,8 +137,8 @@ class Sudoku
 	 /* foreach j <- L[r], L[L[r]], ..., while j != r */
 	 for (Node *j = i->l; j != i ; j = j->l)
 	    uncover(j->header);
-
 	 }
+
       uncover(next);
    }
 
@@ -163,8 +159,8 @@ public:
       GRID(UNIT*UNIT), /* The entire grid, then, is a UNIT*UNIT (9*9) cells. */
       /*y(GRID*4+1, Column()), /* See #a below +1 for the root node. */
       /* matrix(729*4, Node()), /* This only needs to be 4 because 
-				we never have more than 4 ones 
-				on a given a row. Sparse! */
+	 we never have more than 4 ones 
+	 on a given a row. Sparse! */
       solution(81),
       max_solutions(max)
    {
@@ -297,10 +293,10 @@ public:
 		|| matrix[row][1].header->covered
 		|| matrix[row][2].header->covered
 		|| matrix[row][3].header->covered)
-		  {
-		  solveable = false;
-		  break;
-		  }
+	       {
+	       solveable = false;
+	       break;
+	       }
 
 	    /* Cover this row / col because the user has entered it, 
 	       it has to occur in the solution. */
@@ -312,70 +308,104 @@ public:
 	    }
 	 }
 
-	 /* After adding the user puzzle, if it is valid (solvable), 
-	    do a search for the solution to the exact-cover problem. */
-	 if (solveable)
-	    search(k);
+      /* After adding the user puzzle, if it is valid (solvable), 
+	 do a search for the solution to the exact-cover problem. */
+      if (solveable)
+	 search(k);
 
-	 /* If we've found a solution, we must convert the ROW number into
-	    a meaningful value to place in that cell. This will be the opposite
-	    of the formula used above to convert a value+cell into a row. 
-	    (row = cell*9 + value - 1) */
-	 if (solutions > 0)
-	    for (int i = 0; i < 81; i++)
-	       {
-	       int cell = solution[i] / 9;
-	       int value = solution[i] % 9 + 1;
-	       puzzle[cell] = value;
-	       }
+      /* If we've found a solution, we must convert the ROW number into
+	 a meaningful value to place in that cell. This will be the opposite
+	 of the formula used above to convert a value+cell into a row. 
+	 (row = cell*9 + value - 1) */
+      if (solutions > 0)
+	 for (int i = 0; i < 81; i++)
+	    {
+	    int cell = solution[i] / 9;
+	    int value = solution[i] % 9 + 1;
+	    puzzle[cell] = value;
+	    }
 
-	 /* uncover all headers (in case we want to do this again. */
-	 for (int i = k - 1; i >=0; i--)
-	    for (int j = 3; j >= 0; j--)
-	       uncover(matrix[solution[i]][j].header);
+      /* uncover all headers (in case we want to do this again. */
+      for (int i = k - 1; i >=0; i--)
+	 for (int j = 3; j >= 0; j--)
+	    uncover(matrix[solution[i]][j].header);
 
-	 /* return the solution count. */
-	 if (solveable)
-	    return solutions;
-	 else
-	    return -2;
+      /* return the solution count. */
+      if (solveable)
+	 return solutions;
+      else
+	 return -2;
    }
    
 };
 
-int main()
+int main(int argc, char **argv)
 {
    Sudoku sudoku;
    vector<int> puzzle;
    string inpt;
-   std::getline(cin, inpt);
 
-   for (int i = 0; i < inpt.size(); i++)
+   if (argc == 2)
       {
-      if (inpt[i] == '.')
-	 puzzle.push_back(0);
-      else
+      ifstream pfile(argv[1]);
+
+      if (!pfile)
 	 {
-	 int cell = inpt[i]-'0';
-	 puzzle.push_back(cell);
+	 cout << "Invalid puzzle file..?\n";
+	 return 0;
+	 }
+
+      while (std::getline(pfile, inpt))
+	 {
+	 puzzle.resize(81);
+	 for (int i = 0; i < inpt.size(); i++)
+	    {
+	    if (inpt[i] == '.')
+	       puzzle[i] = 0;
+	    else
+	       {
+	       int cell = inpt[i]-'0';
+	       puzzle[i] = cell;
+	       }
+	    }
+
+	 int solutions = sudoku.solve(puzzle);
+	 for (int i = 0; i < puzzle.size(); i++)
+	    cout << puzzle[i]; 
+	 cout << endl;
 	 }
       }
-
-
-   int solutions = sudoku.solve(puzzle);
-
-   /* Output an appropriate header */
-   if (getenv("REQUEST_METHOD"))
-      cout << "Content-Type: text/plain\n\n";
-   else 
-      cout << solutions << " Solutions.\n";
-
-   /* output the solution: */
-   for (int i = 0; i < puzzle.size(); i++)
-      cout << puzzle[i];
-   cout << endl;
-
-   //cout << "Goodbye!\n";
-
-   return 0;
+   else
+      { /* read std in */
+      std::getline(cin, inpt);
+	 
+      for (int i = 0; i < inpt.size(); i++)
+	 {
+	 if (inpt[i] == '.')
+	    puzzle.push_back(0);
+	 else
+	    {
+	    int cell = inpt[i]-'0';
+	    puzzle.push_back(cell);
+	    }
+	 }
+	 
+	
+      int solutions = sudoku.solve(puzzle);
+	 
+      /* Output an appropriate header */
+      if (getenv("REQUEST_METHOD"))
+	 cout << "Content-Type: text/plain\n\n";
+      else 
+	 cout << solutions << " Solutions.\n";
+	 
+      /* output the solution: */
+      for (int i = 0; i < puzzle.size(); i++)
+	 cout << puzzle[i];
+      cout << endl;
+	 
+      //cout << "Goodbye!\n";
+	 
+      return 0;
+      }
 }
