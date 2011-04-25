@@ -708,7 +708,8 @@ int sudoku_table::nishio(int check_steps)
    /* Our guess was wrong. Good thing there were only two possibilities! */
    if (valid_table() == false)
       {
-      cout << "Invalid table! Reverting...\n";
+      if (DEBUG)
+	 cout << "Invalid table! Reverting...\n";
       table = original_table; /* revert the table to the pre-guess state */
       pencil_mark = original_pmark;
       set(cell, possible_values[1]); /* Set the cell to the OTHER 
