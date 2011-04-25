@@ -19,7 +19,7 @@ using namespace std;
 //#define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
 #define PALMS_PUZZLE "....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."
 #define DEBUG 0
-#define MAX_ITERATIONS 100
+#define MAX_ITERATIONS 16
 
 
 template<class V>
@@ -34,10 +34,23 @@ void print_array(vector<V> vec)
 }
 
 struct sudoku_table {
-   int table[81]; /* the table (expressed as a 1d array. */
+
+   enum {ONE = 0x1,
+	 TWO = 0x2,
+	 THREE = 0x4,
+	 FOUR = 0x8,
+	 FIVE = 0x16,
+	 SIX = 0x32,
+	 SEVEN = 0x64,
+	 EIGHT = 0x128,
+	 NINE = 0x256,
+	 TEN = 0x512
+   };
+
+   vector<int> table; /* the table (expressed as a 1d array. */
    vector<vector <int> > rows, cols, subcells;
    
-   unsigned int pencil_mark[81]; /* temp table for scribbling in pencil marks */
+   vector<unsigned int> pencil_mark; /* temp table for scribbling in pencil marks */
 
    unsigned int bit(int val);
    void set(int cell, int value);
@@ -53,6 +66,7 @@ struct sudoku_table {
    void         print_table();
    void         print_web_table();
    bool         is_solved();
+   bool         valid_table();
    int zeros(unsigned int cell);
 
    int do_single_position();
@@ -60,6 +74,7 @@ struct sudoku_table {
    int do_single_occurence_row(); 
    int do_single_occurence_col(); 
    int do_single_occurence_subcell(); 
+   int nishio(int check_steps=16);
 
    int do_doubles();
 
@@ -70,6 +85,9 @@ struct sudoku_table {
 	 an 81 character string is specified, assume each position in 
 	 the string represents a place in the table and initialize it
 	 accordingly. */
+
+      table.resize(81);
+      pencil_mark.resize(81);
 
       /* Invalid input or empty board string. Initialize to 0's */
       if (board == "" || board.size() != 81)
@@ -166,6 +184,28 @@ bool sudoku_table::is_solved()
    return false;
 }
 
+bool sudoku_table::valid_table()
+/* PARAMS: None
+   RETURN: true/false (true if table contains no contradictions)
+   DESCRI: Check all rows/cols/subcells for contradictions */
+{
+   for (int i = 0; i < 81; i++)
+      {
+      if (table[i] == 0 && pencil_mark[i] == 511)
+	 return false;
+
+      try{
+      check_row(i);
+      check_col(i);
+      check_subsquare(i);
+      }
+      catch (logic_error)  {
+      return false;
+      }
+      }
+   return true;
+}
+
 int sudoku_table::zeros(unsigned int cell)
 /* PARAMS: A cell address
    RETURN: Number of zero bits in the pencil_mark[cell]
@@ -217,16 +257,17 @@ unsigned int sudoku_table::check_row(int cell)
    /* For each element in cell's row: */
    for (int x = row; x < row+9; x++)
       {
-      if (table[x]) /* if there is a number in this cell... */
+      if (table[x] == 0) /* if there is no number in this cell... */
+	 continue;
+      
+      if (numbers & 1 << table[x] - 1) /* and it's a duplicate... */
 	 {
-	 if (numbers & 1 << table[x] - 1) /* and it's a duplicate... */
-	    {
-	    print_table();
-	    throw logic_error("Duplicate Number in Row!");
-	    }
-	 /* it's ok, note it. */
-	 numbers |= 1 << table[x] - 1;
+	 print_table();
+	 throw logic_error("Duplicate Number in Row!");
 	 }
+      /* it's ok, note it. */
+      numbers |= 1 << table[x] - 1;
+      
       }
    pencil_mark[cell] |= numbers;
    return numbers;
@@ -555,6 +596,102 @@ int sudoku_table::do_single_occurence_subcell()
    return cells_filled;
 }
 
+int sudoku_table::nishio(int check_steps)
+/* PARAMS: void
+   RETURN: ??
+   DESCRI: Attempt the Nishio technique (guess on a pair and try a few 
+   iterations to see if our guess was correct.) */
+{
+
+
+   if (valid_table() == false)
+      {
+      cout << "Table is in an invalid state. Will not run Nishio on it.\n"; 
+      return -2; // no sense guessing on an invalid table!
+      }
+
+   /* Find a cell with only two possibilities. */
+
+   int cell = -1;
+   vector<int> possible_values;
+
+   for (int i = 0; i < 81 && cell < 0; i++)
+      {
+      if (table[i])
+	 continue; /* This cell is already solved. No point. */
+      
+      if (zeros(i) != 2)
+	 continue; /* there are more than two possibilities. */
+      
+      /* If we've made it this far, we're at a cell with two possibilities! */
+      cell = i; 
+      }
+   
+   if (cell < 0)
+      {
+      cout << "Nishio could find no cells with only two possiblities.\n";
+      return -1; /* no cell found with only two possibilities. */
+      }
+
+   else
+      {
+      cout << "Nishio: Chose cell " << cell << endl;
+      }
+
+   int value; 
+   unsigned int mask ;
+
+   for (value = 1, mask = 1; 
+	mask < TEN;  /* note the available values */
+	mask <<= 1, value++)
+      {
+      if (mask & ~pencil_mark[cell])
+	 possible_values.push_back(value);
+      }
+   
+   vector<int> original_table = table;
+   vector<unsigned int> original_pmark = pencil_mark;
+   
+   set(cell, possible_values[0]); /* Actually setting our "guess" */
+
+   /* Try logic'ing the table. */
+
+   for (int i = 0; i < check_steps; i++)
+      {
+      while (do_single_position())
+	 ;
+      do_single_occurence();
+      }
+
+   /* Our guess was wrong. Good thing there were only two possibilities! */
+   if (valid_table() == false)
+      {
+      cout << "Invalid table! Reverting...\n";
+      table = original_table; /* revert the table to the pre-guess state */
+      pencil_mark = original_pmark;
+      set(cell, possible_values[1]); /* Set the cell to the OTHER 
+					       guess (one MUST be right.) */
+
+      /* Try logic'ing again. */
+      for (int i = 0; i < check_steps; i++)
+	 {
+	 while (do_single_position())
+	    ;
+	 do_single_occurence();
+	 }
+      
+      }
+
+   if (valid_table() == false)
+      {
+      table = original_table; /* something went wrong, put it all back. */
+      pencil_mark = original_pmark;
+      }
+
+   /* If everything is OK after X moves, consider the Nishio a success. */
+}
+
+
 int sudoku_table::do_doubles()
 {
 
@@ -603,27 +740,37 @@ int main()
 
    int max_iterations = MAX_ITERATIONS;
    int step=0;
-   while (!table.is_solved() && max_iterations)
+   while (!table.is_solved() && max_iterations > 0)
       {
+      int modified_cells = 0;
+      int new_cells = 0;
       cout << "Entering do_single_pos()\n";
-      while (table.do_single_position())
-	 {
-	 table.print_table();
-	 cout << endl;
-	 }
+      while ((new_cells = table.do_single_position()))
+	 modified_cells += new_cells;
       
       cout << "Entering do_single_occur()\n";
-      table.do_single_occurence();
-      table.print_table();
+       modified_cells += table.do_single_occurence();
       max_iterations--;
+      
+      if (modified_cells == 0)
+	 table.nishio(MAX_ITERATIONS*3);
+            
       }
 
    cout << endl;
    
-
-   cout << "\nAfter single_position:\n";
+   cout << "\nAfter logic routines:\n";
    table.print_table();
-   int check_cell = 9;
+
+   /*
+   table.nishio();
+   cout << "\nAfter nishio() routine:\n";
+   table.print_table(); 
+   */
+
+   cout << "Table is valid? " << (table.valid_table() ? 'Y' : 'N') << endl;
+
+   int check_cell = 0;
    cout << "\n"
 	<< "Pencil for " << check_cell << ": " << hex << table.pencil_mark[check_cell] << endl
 	<< "Zeros for " << check_cell << ":  " << table.zeros(check_cell) << endl;
@@ -634,6 +781,8 @@ int main()
    cout << table.do_single_occurence() << endl;
    cout << table.do_single_occurence() << endl; */
    table.print_table();
+   cout << "Table is valid? " << (table.valid_table() ? 'Y' : 'N') << endl;
+
 
    int i = 2;
 
