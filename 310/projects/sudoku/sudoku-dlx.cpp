@@ -94,9 +94,9 @@ class Sudoku
 	 3. Choose a row r such that Ar, c = 1 (nondeterministically).
 	 4. Include row r in the partial solution.
 	 5. For each column j such that Ar, j = 1,
-	 for each row i such that Ai, j = 1,
-	 delete row i from matrix A;
-	 delete column j from matrix A.
+     	   for each row i such that Ai, j = 1,
+	     delete row i from matrix A;
+	     delete column j from matrix A.
 	 6. Repeat this algorithm recursively on the reduced matrix A. */
 
       if (root->R == root)
