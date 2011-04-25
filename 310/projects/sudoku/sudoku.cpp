@@ -19,7 +19,7 @@ using namespace std;
 //#define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
 #define PALMS_PUZZLE "....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."
 #define DEBUG 0
-
+#define MAX_ITERATIONS 100
 
 
 template<class V>
@@ -574,9 +574,17 @@ int main()
       string puzzle;
       std::getline(cin, puzzle);
       sudoku_table table(puzzle);
-      while (table.do_single_position())
-	 ;
-      table.do_single_occurence();
+
+      int max_iterations = MAX_ITERATIONS;
+      int step = 0;
+      while(!table.is_solved() && max_iterations)
+	 {
+	 while (table.do_single_position())
+	    ;
+	 table.do_single_occurence();
+	 max_iterations--;
+	 }
+
       table.print_web_table();
 
       return 0; 
@@ -593,7 +601,7 @@ int main()
    //   cout << hex << "pencil_mark: " << table.pencil_mark[64] << endl;
 
 
-   int max_iterations = 1000;
+   int max_iterations = MAX_ITERATIONS;
    int step=0;
    while (!table.is_solved() && max_iterations)
       {
