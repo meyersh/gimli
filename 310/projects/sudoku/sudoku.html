@@ -9,6 +9,23 @@
  *
  */
 
+function raiseError( message)
+{
+    var divObj = document.getElementById("error");
+    divObj.className = "errornote";
+    divObj.innerHTML = message;
+}
+
+function lowerError()
+{
+    var divObj = document.getElementById("error");
+    if (divObj) 
+    {
+        divObj.className = "";
+        divObj.innerHTML = "";
+    }
+}
+
 function getXMLHttpReq()
 { 
     var req = null;
@@ -24,7 +41,18 @@ function getXMLHttpReq()
 function parseData(response)
 {
   for (c = 0; c < response.length; c++)
-    document.getElementById(c).value = response[c];
+    {
+    cell = document.getElementById(c);
+    if (cell.value)
+      cell.className = "s0";
+    else 
+      cell.className = "d0";
+ 
+    if (response[c] == 0)
+      cell.value = "";
+    else 
+      cell.value = response[c];
+    }
 }
 
 function sendData(dataStr, url, method) { 
@@ -71,6 +99,11 @@ function sendData(dataStr, url, method) {
 function solve(cgi)
 {
   var puzzle="";
+  if (!checkTable())
+    {
+      raiseError("Invalid table, will not submit.<br/>");
+      return;
+    }
   for (c = 0; c < 81; c++)
   {
     if (document.getElementById(c).value == "")
@@ -81,9 +114,152 @@ function solve(cgi)
  
   sendData(puzzle, cgi, "POST");
 }
+
+
+function clear_table()
+{
+  for (i = 0; i < 81; i++)
+    {
+    document.getElementById(i).value = '';
+    document.getElementById(i).className = 's0';
+    }
+}
+
+function valid_cell(cell)
+{
+  if (cell > 0 || cell < 10 || cell == ' ' )
+    return true;
+  return false;
+}
+
+function check_valid_row(cell)
+{
+   cell = cell.id;
+  
+   /* give us the first element # for the row cell is in. */
+   row = 9 * Math.floor(cell / 9); 
+
+   /* For each element in cell's row: */
+   for (x = row; x < row+9; x++)
+      {
+      document.getElementById('output').innerHTML += "row: " + row + "\n";
+      document.getElementById('output').innerHTML += "checking " + x + "\n";
+      if (x == cell) continue;
+      if (document.getElementById(x).value != "" && document.getElementById(x).value != "!!") /* if there is a number in this cell... */
+	 {
+         if (document.getElementById(x).value == document.getElementById(cell).value)
+            {
+	      class = document.getElementById(cell).parentNode.className;
+              class.replace("0", "1");
+              document.getElementById(cell).parentNode.className=class;
+              document.getElementById(x).parentNode.className=class;
+
+              break;
+	    }
+	 else /* it's ok, note it. */
+            {
+	      class = document.getElementById(cell).parentNode.classname;
+              class.replace("1", "0");
+              document.getElementById(cell).parentNode.className=class;
+	    }
+	 }
+      }
+      document.getElementById('output').innerHTML += "<br>";
+}
+
+function checkTable()
+{
+  valid_table = true;
+  document.getElementById('output').innerHTML += "Checking table!<br/>\n";
+  for (cell = 0; cell < 81; cell++)
+  { 
+    c = document.getElementById(cell);
+    if (!valid_cell(c.value))
+      {
+      c.value = "!!";
+      valid_table = false;
+      }
+  }
+  if (valid_table)
+    lowerError();
+  return valid_table;
+}
+
+function drawTable() 
+{
+  js_table = document.getElementById('js_table'); 
+  var outp = ""
+  outp = "<TABLE CELLSPACING=0 CELLPADDING=0 CLASS=surround_table>\n";
+  for (y = 0; y < 9; y++)
+  {
+    outp += "<TR>\n";
+    for (x = 0; x < 9; x++)
+    { 
+    /* Determine where to put lines */
+    if (x == 3 || x == 6) /* we need a vertical line */
+      if (y == 2 || y == 5) /* we also need a horizonal line */
+        outp += "<TD CLASS=left_and_bottom_border>\n";
+      else /* ONLY vertical line */
+        outp += "<TD class=left_border>\n";
+    else /* No vertical line needed */
+      if (y == 2 || y == 5) /* but we do need a horizonal line */
+        outp += "<TD CLASS=bottom_border>\n";
+      else /* no line at all. */
+        outp += "<TD CLASS=regular_border>\n";
+    id = y*9 + x;
+    outp += "<INPUT SIZE=2 CLASS=s0 AUTOCOMPLETE=off NAME=foo MAXLENGTH=1 onBlur='checkTable();check_valid_row(this);' ID='" + id + "' VALUE=''>\n";
+    outp += "</TD>\n";
+    }
+    outp += "</TR>\n";
+  }
+  outp += "</TABLE>\n";
+  js_table.innerHTML = outp;
+}
+
+function text_to_puzzle()
+{
+  textObj = document.getElementById('puzzle_input');
+  clear_table();
+  for (c = 0; c < textObj.value.length; c++)
+  {
+    if (textObj.value[c] > 0 && textObj.value[c] < 10)
+    {
+    cell = document.getElementById(c);
+    cell.value = textObj.value[c];    
+    }
+  }
+}
+
+function puzzle_to_text()
+{
+  textObj = document.getElementById('puzzle_input');
+  textObj.value = "";
+  for (c = 0; c < 81; c++)
+  {
+    cell = document.getElementById(c);
+    if (valid_cell(cell.value) && cell.value)
+      textObj.value += cell.value;
+    else
+      textObj.value += '.';
+  }
+}
+
+
+
 </script>
 		<TITLE>Chelsey, Shaun, and Steven's Sudoku Solver</TITLE>
 		<style>
+
+.errornote {
+    font-size: 12px !important;
+    display: block;
+    padding: 4px 5px 4px 25px;
+    margin: 0 0 3px 0;
+    border: 1px solid red;
+    color: red;
+    background: #ffc url(./icon_error.gif) 5px .3em no-repeat;
+}
+
 body {margin:0pt;}
 body,td,.plain {font-family:arial,sans-serif; color:#222222; font-size:9pt;}
 .tm {margin-top: 8pt; margin-bottom:0;}
@@ -227,200 +403,42 @@ a:hover {text-decoration:underline;}
 			
 			<P STYLE="margin:0;"> 
 
-<div id="js_table"></div>
-
-<script>
-
-function clear_table()
-{
-  for (i = 0; i < 81; i++)
-    document.getElementById(i).value = '';
-}
-
-function valid_cell(cell)
-{
-  if (cell > 0 || cell < 10 || cell == ' ' )
-    return true;
-  return false;
-}
-
-function check_valid_row(cell)
-{
-   cell = cell.id;
-  
-   /* give us the first element # for the row cell is in. */
-   row = 9 * Math.floor(cell / 9); 
-
-   /* For each element in cell's row: */
-   for (x = row; x < row+9; x++)
-      {
-      document.getElementById('output').innerHTML += "row: " + row + "\n";
-      document.getElementById('output').innerHTML += "checking " + x + "\n";
-      if (x == cell) continue;
-      if (document.getElementById(x).value != "" && document.getElementById(x).value != "!!") /* if there is a number in this cell... */
-	 {
-         if (document.getElementById(x).value == document.getElementById(cell).value)
-            {
-              document.getElementById(cell).parentNode.className='d1';
-              document.getElementById(x).parentNode.className='d1';
-
-              break;
-	    }
-	 else /* it's ok, note it. */
-            {
-            document.getElementById(cell).parentNode.className='d0';
-	    }
-	 }
-      }
-      document.getElementById('output').innerHTML += "<br>";
-}
-
-function checkTable()
-{
-  document.getElementById('output').innerHTML += "Checking table!<br/>\n";
-  for (cell = 0; cell < 81; cell++)
-  { 
-    c = document.getElementById(cell);
-    if (!valid_cell(c.value))
-      c.value = "!!";
-  }
-}
-
-function drawTable() 
-{
-  js_table = document.getElementById('js_table'); 
-  var outp = ""
-  outp = "<TABLE CELLSPACING=0 CELLPADDING=0 CLASS=surround_table>\n";
-  for (y = 0; y < 9; y++)
-  {
-    outp += "<TR>\n";
-    for (x = 0; x < 9; x++)
-    { 
-    /* Determine where to put lines */
-    if (x == 3 || x == 6) /* we need a vertical line */
-      if (y == 2 || y == 5) /* we also need a horizonal line */
-        outp += "<TD CLASS=left_and_bottom_border>\n";
-      else /* ONLY vertical line */
-        outp += "<TD class=left_border>\n";
-    else /* No vertical line needed */
-      if (y == 2 || y == 5) /* but we do need a horizonal line */
-        outp += "<TD CLASS=bottom_border>\n";
-      else /* no line at all. */
-        outp += "<TD CLASS=regular_border>\n";
-    id = y*9 + x;
-    outp += "<INPUT SIZE=2 CLASS=d0 AUTOCOMPLETE=off NAME=foo MAXLENGTH=1 onBlur='checkTable();check_valid_row(this);' ID='" + id + "' VALUE=''>\n";
-    outp += "</TD>\n";
-    }
-    outp += "</TR>\n";
-  }
-  outp += "</TABLE>\n";
-  js_table.innerHTML = outp;
-}
-
-function text_to_puzzle()
-{
-  textObj = document.getElementById('puzzle_input');
-  clear_table();
-  for (c = 0; c < textObj.value.length; c++)
-  {
-    if (textObj.value[c] > 0 && textObj.value[c] < 10)
-    {
-    cell = document.getElementById(c);
-    cell.value = textObj.value[c];    
-    }
-  }
-}
-
-
-drawTable();
-</script>
-<p>
-  <input type="button" value="Solve!" onClick="solve('sudoku.cgi');"/>
-  <input type="button" value="Solve (Using DLX Algorithm)!" onClick="solve('dlx.cgi');"/>
-  <input type="button" value="Solve (Using Shaun's DLX Algorithm)!" onClick="solve('sudoku-dlx.cgi');"/>
-  <input type="button" value="Clear Board" onClick="clear_table();"/>
-  <input type="button" value="Source Code"/ onClick="window.location='sudoku.cpp.txt'">
-</p>
-
-<input type="text" id='puzzle_input' size=82 maxlength=81/>
-<input type="button" value="Insert puzzle" onClick="text_to_puzzle();"/>
-
-<div id="output" style="width:50%;position:absolute;margin:50px;"></div>
-<!--
+<table>
+<tr>
+<td colspan=2>
+  <h2>Chelsey, Shaun, and Steven's Sudoku Solver Extraordinaire</h2>
+</td>
+</tr>
+  <tr>
+    <td>
+      <div id="error"></div> 
+      <h3>Playing board:</h3>
+      <div id="js_table"></div>
+      <script>drawTable();</script>
+    </td>
+    <td
+       <p><h3>Controls:</h3>
+	 <input type="button" value="Solve (Using Logic Algorithms)!" onClick="solve('sudoku.cgi');"/><br/>
+	 <!--   <input type="button" value="Solve (Using DLX Algorithm)!" onClick="solve('dlx.cgi');"/><br/> -->
+	 <input type="button" value="Solve (Using Shaun's DLX Algorithm)!" onClick="solve('sudoku-dlx.cgi');"/><br/>
+	 <input type="button" value="Clear Board" onClick="clear_table();"/><br/>
+	 <input type="button" value="Source Code (Logic)" onClick="window.location='sudoku.cpp.txt'"><br/>
+	 <input type="button" value="Source Code (DLX)" onClick="window.location='sudoku-dlx.cpp.txt'"><br/>
+       </p>
+			  </td>
+			</tr>
+</tr>
+<td colspan=2>
 <p/>
-<TABLE CELLSPACING=0 CELLPADDING=0 CLASS=t>
-<TR>
-<TD CLASS=g0 ID=c00>
-<INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad11 MAXLENGTH=1 onBlur="" ID=f00 VALUE=F00>
-</TD>
+<h3>Save/load (for easy copy+paste):</h3>
+<input type="text" id='puzzle_input' size=82 maxlength=81/ 
+value="....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."><br/>
+<input type="button" value="Insert puzzle" onClick="text_to_puzzle();"/>
+<input type="button" value="Save board" onClick="puzzle_to_text();"/>
 
-<TD CLASS=f0 ID=c10>
-<INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad21 READONLY VALUE="F10" ID=f10>
-</TD>
-
-<TD CLASS=f0 ID=c20>
-<INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad31 MAXLENGTH=1 onBlur="j8(this)" ID=f20 value=f20> 
-</TD>
-
-<TD CLASS=g0 ID=c30>
-<INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad41 READONLY VALUE="f30" ID=f30 value=f30>
-</TD>
-
-<TD CLASS=f0 ID=c40>
-<INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad51 READONLY  ID=f40 value=f40>
-</TD>
-<TD CLASS=f0 ID=c50>
-<INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad61 READONLY ID=f50 value=f50>
-</TD>
-<TD CLASS=g0 ID=c60>
-<INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad71 MAXLENGTH=1 onBlur="j8(this)" ID=f60 value=f60>
-</TD>
-<TD CLASS=f0 ID=c70>
-<INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad81 READONLY  ID=f70 value=f70>
-</TD>
-<TD CLASS=f0 ID=c80>
-<INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad91 MAXLENGTH=1 onBlur="j8(this)" ID=f80 value=f80>
-</TD>
-</TR>
-<TR>
-<TD CLASS=e0 ID=c01>
-<INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad12 MAXLENGTH=1 onBlur="j8(this)" ID=f01 value=f01>
-</TD>
-<TD CLASS=c0 ID=c11>
-<INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad22 READONLY VALUE="f11" ID=f11>
-</TD>
-<TD CLASS=c0 ID=c21>
-<INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad32 MAXLENGTH=1 onBlur="j8(this)" value="f21" ID=f21>
-</TD>
-
-<TD CLASS=e0 ID=c31><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad42 MAXLENGTH=1 onBlur="j8(this)" ID=f31></TD><TD CLASS=c0 ID=c41><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad52 READONLY VALUE="7" ID=f41></TD><TD CLASS=c0 ID=c51><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad62 MAXLENGTH=1 onBlur="j8(this)" ID=f51></TD><TD CLASS=e0 ID=c61><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad72 MAXLENGTH=1 onBlur="j8(this)" ID=f61></TD><TD CLASS=c0 ID=c71><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad82 MAXLENGTH=1 onBlur="j8(this)" ID=f71></TD><TD CLASS=c0 ID=c81><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad92 MAXLENGTH=1 onBlur="j8(this)" ID=f81></TD></TR><TR><TD CLASS=e0 ID=c02><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad13 MAXLENGTH=1 onBlur="j8(this)" ID=f02></TD><TD CLASS=c0 ID=c12><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad23 MAXLENGTH=1 onBlur="j8(this)" ID=f12></TD><TD CLASS=c0 ID=c22><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad33 READONLY VALUE="5" ID=f22></TD><TD CLASS=e0 ID=c32><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad43 MAXLENGTH=1 onBlur="j8(this)" ID=f32></TD><TD CLASS=c0 ID=c42><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad53 MAXLENGTH=1 onBlur="j8(this)" ID=f42></TD><TD CLASS=c0 ID=c52><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad63 READONLY VALUE="9" ID=f52></TD><TD CLASS=e0 ID=c62><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad73 READONLY VALUE="4" ID=f62></TD><TD CLASS=c0 ID=c72><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad83 MAXLENGTH=1 onBlur="j8(this)" ID=f72></TD><TD CLASS=c0 ID=c82><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad93 MAXLENGTH=1 onBlur="j8(this)" ID=f82></TD></TR><TR><TD CLASS=g0 ID=c03><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad14 MAXLENGTH=1 onBlur="j8(this)" ID=f03></TD><TD CLASS=f0 ID=c13><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad24 READONLY VALUE="2" ID=f13></TD><TD CLASS=f0 ID=c23><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad34 READONLY VALUE="7" ID=f23></TD><TD CLASS=g0 ID=c33><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad44 MAXLENGTH=1 onBlur="j8(this)" ID=f33></TD><TD CLASS=f0 ID=c43><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad54 READONLY VALUE="1" ID=f43></TD><TD CLASS=f0 ID=c53><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad64 READONLY VALUE="5" ID=f53></TD><TD CLASS=g0 ID=c63><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad74 MAXLENGTH=1 onBlur="j8(this)" ID=f63></TD><TD CLASS=f0 ID=c73><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad84 READONLY VALUE="4" ID=f73></TD><TD CLASS=f0 ID=c83><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad94 READONLY VALUE="9" ID=f83></TD></TR><TR><TD CLASS=e0 ID=c04><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad15 READONLY VALUE="9" ID=f04></TD><TD CLASS=c0 ID=c14><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad25 MAXLENGTH=1 onBlur="j8(this)" ID=f14></TD><TD CLASS=c0 ID=c24><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad35 MAXLENGTH=1 onBlur="j8(this)" ID=f24></TD><TD CLASS=e0 ID=c34><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad45 MAXLENGTH=1 onBlur="j8(this)" ID=f34></TD><TD CLASS=c0 ID=c44><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad55 READONLY VALUE="8" ID=f44></TD><TD CLASS=c0 ID=c54><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad65 MAXLENGTH=1 onBlur="j8(this)" ID=f54></TD><TD CLASS=e0 ID=c64><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad75 MAXLENGTH=1 onBlur="j8(this)" ID=f64></TD><TD CLASS=c0 ID=c74><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad85 MAXLENGTH=1 onBlur="j8(this)" ID=f74></TD><TD CLASS=c0 ID=c84><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad95 READONLY VALUE="3" ID=f84></TD></TR><TR><TD CLASS=e0 ID=c05><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad16 READONLY VALUE="1" ID=f05></TD><TD CLASS=c0 ID=c15><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad26 READONLY VALUE="6" ID=f15></TD><TD CLASS=c0 ID=c25><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad36 MAXLENGTH=1 onBlur="j8(this)" ID=f25></TD><TD CLASS=e0 ID=c35><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad46 READONLY VALUE="9" ID=f35></TD><TD CLASS=c0 ID=c45><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad56 READONLY VALUE="4" ID=f45></TD><TD CLASS=c0 ID=c55><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad66 MAXLENGTH=1 onBlur="j8(this)" ID=f55></TD><TD CLASS=e0 ID=c65><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad76 READONLY VALUE="2" ID=f65></TD><TD CLASS=c0 ID=c75><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad86 READONLY VALUE="5" ID=f75></TD><TD CLASS=c0 ID=c85><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad96 MAXLENGTH=1 onBlur="j8(this)" ID=f85></TD></TR><TR><TD CLASS=g0 ID=c06><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad17 MAXLENGTH=1 onBlur="j8(this)" ID=f06></TD><TD CLASS=f0 ID=c16><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad27 MAXLENGTH=1 onBlur="j8(this)" ID=f16></TD><TD CLASS=f0 ID=c26><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad37 READONLY VALUE="2" ID=f26></TD><TD CLASS=g0 ID=c36><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad47 READONLY VALUE="4" ID=f36></TD><TD CLASS=f0 ID=c46><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad57 MAXLENGTH=1 onBlur="j8(this)" ID=f46></TD><TD CLASS=f0 ID=c56><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad67 MAXLENGTH=1 onBlur="j8(this)" ID=f56></TD><TD CLASS=g0 ID=c66><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad77 READONLY VALUE="7" ID=f66></TD><TD CLASS=f0 ID=c76><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad87 MAXLENGTH=1 onBlur="j8(this)" ID=f76></TD><TD CLASS=f0 ID=c86><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad97 MAXLENGTH=1 onBlur="j8(this)" ID=f86></TD></TR><TR><TD CLASS=e0 ID=c07><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad18 MAXLENGTH=1 onBlur="j8(this)" ID=f07></TD><TD CLASS=c0 ID=c17><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad28 MAXLENGTH=1 onBlur="j8(this)" ID=f17></TD><TD CLASS=c0 ID=c27><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad38 MAXLENGTH=1 onBlur="j8(this)" ID=f27></TD><TD CLASS=e0 ID=c37><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad48 MAXLENGTH=1 onBlur="j8(this)" ID=f37></TD><TD CLASS=c0 ID=c47><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad58 READONLY VALUE="5" ID=f47></TD><TD CLASS=c0 ID=c57><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad68 MAXLENGTH=1 onBlur="j8(this)" ID=f57></TD><TD CLASS=e0 ID=c67><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad78 MAXLENGTH=1 onBlur="j8(this)" ID=f67></TD><TD CLASS=c0 ID=c77><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad88 READONLY VALUE="3" ID=f77></TD><TD CLASS=c0 ID=c87><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad98 MAXLENGTH=1 onBlur="j8(this)" ID=f87></TD></TR><TR>
-<TD CLASS=i0 ID=c08>
-<INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad19 MAXLENGTH=1 onBlur="j8(this)" ID=f08 value=f08>
-</TD>
-<TD CLASS=h0 ID=c18><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad29 READONLY VALUE="4" ID=f18></TD><TD CLASS=h0 ID=c28><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad39 MAXLENGTH=1 onBlur="j8(this)" ID=f28></TD><TD CLASS=i0 ID=c38><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad49 READONLY VALUE="1" ID=f38></TD><TD CLASS=h0 ID=c48><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad59 READONLY VALUE="9" ID=f48></TD><TD CLASS=h0 ID=c58><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad69 READONLY VALUE="7" ID=f58></TD><TD CLASS=i0 ID=c68><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad79 MAXLENGTH=1 onBlur="j8(this)" ID=f68></TD><TD CLASS=h0 ID=c78><INPUT CLASS=s0 SIZE=2 AUTOCOMPLETE=off NAME=s5wgad89 READONLY VALUE="6" ID=f78></TD><TD CLASS=h0 ID=c88><INPUT CLASS=d0 SIZE=2 AUTOCOMPLETE=off NAME=5wgad99 MAXLENGTH=1 onBlur="j8(this)" ID=f88></TD></TR></TABLE> 
-				<INPUT NAME=prefix ID="prefix" TYPE=hidden VALUE="5wgad"> 
-				<INPUT NAME=start TYPE=hidden VALUE="1302888181"> 
-				<INPUT NAME=inchallenge TYPE=hidden VALUE=""> 
-				<INPUT NAME=level TYPE=hidden VALUE="1"> 
-				<INPUT NAME=id ID="pid" TYPE=hidden VALUE="10372918453"> 
-				<INPUT NAME=cheat ID="cheat" TYPE=hidden VALUE="479521386681374925235869471327615849954782613168943257512436798796258134843197562"> 
-				<INPUT NAME=options TYPE=hidden VALUE="1"> 
-				<INPUT NAME=errors TYPE=hidden VALUE="0" ID="errors"> 
-				<INPUT NAME=layout TYPE=hidden VALUE=""> 
-
-
-				</P> 
-				&nbsp; <INPUT NAME=pause TYPE=submit VALUE=" Pause " onClick="return j12();"> 
-				&nbsp; <INPUT NAME=printopts TYPE=submit VALUE=" Print... " onClick="return j12();"> 
-				&nbsp; <INPUT NAME=clear TYPE=submit VALUE=" Clear " onClick="j12(); return j7(2);"> 
-				&nbsp; <INPUT NAME=showopts TYPE=submit VALUE=" Options... " onClick="return j12();"> 
-				</P> 
-							</FORM> 
-			</TD></TR> 
-		</TABLE></TD> 
- 
-	</TR></TABLE>
-
--->
+</td>
+</tr>
+</table>
+<div id="output" style="width:50%;position:absolute;margin:50px;"></div>
 </BODY> 
 </HTML>
