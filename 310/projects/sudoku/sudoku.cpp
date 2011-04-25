@@ -672,11 +672,12 @@ int sudoku_table::nishio(int check_steps)
    
    if (cell < 0)
       {
-      cout << "Nishio could find no cells with only two possiblities.\n";
+      if (DEBUG)
+	 cout << "Nishio could find no cells with only two possiblities.\n";
       return -1; /* no cell found with only two possibilities. */
       }
 
-   else
+   else if (DEBUG)
       cout << "Nishio: Chose cell " << cell << endl;
 
    int value; 
@@ -757,13 +758,22 @@ int main()
 
       int max_iterations = MAX_ITERATIONS;
       int step = 0;
-      while(!table.is_solved() && max_iterations)
-	 {
-	 while (table.do_single_position())
-	    ;
-	 table.do_single_occurence();
-	 max_iterations--;
-	 }
+
+   while (!table.is_solved() && max_iterations > 0)
+      {
+      int modified_cells = 0;
+      int new_cells = 0;
+      while ((new_cells = table.do_single_position()))
+	 modified_cells += new_cells;
+      
+      modified_cells += table.do_single_occurence();
+     
+      max_iterations--;
+      
+      if (modified_cells == 0)
+	 table.nishio(MAX_ITERATIONS*3);
+            
+      }
 
       table.print_web_table();
 
