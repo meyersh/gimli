@@ -1,9 +1,24 @@
 /******************************************************************************
-CREATED BY: Shaun Meyer
+sudoku.cpp
+
+CREATED BY: Shaun Meyer, Chelsey Dunivan
 CREATED: 16 APR 2011
+SUBMITTED BY: Shaun Meyer, Chelsey Dunivan, Steven Throne
 
 DESCRIPTION:
 Initial functions + class to interact with a sudoku board.
+
+Logic techniques used:
+1. Solve Single Occurence. 
+   If, among pencil marks in a row / col / subcell there is only a 
+   single place for a given value, insert that value.
+2. Solve Single Possibility
+   If, among pencil marks, there is only one possibility for a row,
+   fill it in.
+3. Noshio guessing
+   When logic fails, if there is a cell with 2 possibilities, guess one
+   and try logic'ing on it. If this results valid table ASSUME it is a
+   correct guess and keep solving. Hit or miss stuff, here.
 
 *****************************************************************************/
 
@@ -16,10 +31,15 @@ Initial functions + class to interact with a sudoku board.
 
 using namespace std;
 
-//#define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
+/*
+ * Awesome test puzzles
+ */
+#define PLATINUM_BLONDE ".......12........3..23..4....18....5.6..7.8.......9.....85.....9...4.5..47...6..."
 #define PALMS_PUZZLE "....3..51..36......2..948......5..7.59.....62.8..2......491..8......24..23..8...."
+#define CHELSEY_PUZZLE "3...2...4.....8.23.784...6.8..1..4...2..8..5...7..9..6.8...614.59.8.....6...3...8"
+
 #define DEBUG 0
-#define MAX_ITERATIONS 16
+#define MAX_ITERATIONS 100
 
 
 template<class V>
@@ -148,6 +168,9 @@ unsigned int bit(int val)
 }
 
 void sudoku_table::set(int cell, int value)
+/* PARAMS: A cell address, and a cell value.
+   RETURN: void
+   DESCRI: Set a cell, and update its pencil marks. */
 {
    table[cell] = value;
    unsigned int mask = (1 << value - 1);
@@ -167,6 +190,9 @@ void sudoku_table::set(int cell, int value)
 }
 
 bool sudoku_table::is_solved()
+/* PARAMS: void
+   RETURN: True if a puzzle is completed.
+   DESCRI: Quick test if a puzzle is solved. */
 {
    int entries = 0;
    for (int i = 0; i < 81; i++)
@@ -227,12 +253,18 @@ int sudoku_table::zeros(unsigned int cell)
 }
 
 int sudoku_table::get_subsquare_address(int subsquare_number)
-{
+/* PARAMS: A subsquare number 0-8
+   RETURN: A subsquare cell address
+   DESCRI: A helper function to convert addresses. */
+  {
   int subsquare_addresses[] = {0, 3, 6, 27, 30, 33, 54, 57, 60};
   return subsquare_addresses[subsquare_number];
 }
 
 int sudoku_table::get_subsquare_from_address(int cell)
+/* PARAMS: A cell address
+   RETURN: The subsquare number (0-8)
+   DESCRI: Reverse get_subsquare_address() helper */
 {
  int subsquare_addresses[] = {0, 3, 6, 27, 30, 33, 54, 57, 60};
  cell = sub_square(cell);
@@ -444,6 +476,9 @@ int sudoku_table::do_single_position()
 }
 
 int sudoku_table::do_single_occurence()
+/* PARAMS: void
+   RETURN: Number of modified cells
+   DESCRI: Wrapper function to solve single occurences. */
 {
    return do_single_occurence_row() +
       do_single_occurence_col() +
@@ -451,6 +486,9 @@ int sudoku_table::do_single_occurence()
 }
 
 int sudoku_table::do_single_occurence_row() 
+/* PARAMS: void
+   RETURN: Number of modified cells
+   DESCRI: Solve single occurences in rows. */
 {
    int cells_filled = 0;
    vector< vector<int> > cells(10);
@@ -498,6 +536,9 @@ int sudoku_table::do_single_occurence_row()
 }
 
 int sudoku_table::do_single_occurence_col()
+/* PARAMS: void
+   RETURN: Number of modified cells
+   DESCRI: Solve single occurences in cols. */
 {
    int cells_filled = 0;
    vector< vector<int> > cells(10);
@@ -547,6 +588,9 @@ int sudoku_table::do_single_occurence_col()
 }
 
 int sudoku_table::do_single_occurence_subcell()
+/* PARAMS: void
+   RETURN: Number of modified cells
+   DESCRI: Solve single occurences in subcells. */
 {
    int cells_filled = 0;
    vector< vector<int> > cells(10);
@@ -598,15 +642,14 @@ int sudoku_table::do_single_occurence_subcell()
 
 int sudoku_table::nishio(int check_steps)
 /* PARAMS: void
-   RETURN: ??
+   RETURN: ?? (error codes. Not used)
    DESCRI: Attempt the Nishio technique (guess on a pair and try a few 
    iterations to see if our guess was correct.) */
 {
-
-
    if (valid_table() == false)
       {
-      cout << "Table is in an invalid state. Will not run Nishio on it.\n"; 
+      if (DEBUG) 
+	 cout << "Table is in an invalid state. Will not run Nishio on it.\n"; 
       return -2; // no sense guessing on an invalid table!
       }
 
@@ -634,9 +677,7 @@ int sudoku_table::nishio(int check_steps)
       }
 
    else
-      {
       cout << "Nishio: Chose cell " << cell << endl;
-      }
 
    int value; 
    unsigned int mask ;
@@ -670,7 +711,7 @@ int sudoku_table::nishio(int check_steps)
       table = original_table; /* revert the table to the pre-guess state */
       pencil_mark = original_pmark;
       set(cell, possible_values[1]); /* Set the cell to the OTHER 
-					       guess (one MUST be right.) */
+					guess (one MUST be right.) */
 
       /* Try logic'ing again. */
       for (int i = 0; i < check_steps; i++)
@@ -693,10 +734,12 @@ int sudoku_table::nishio(int check_steps)
 
 
 int sudoku_table::do_doubles()
+/* PARAMS: void
+   RETURN: ??
+   DESCRI: Do doubles logic technique. */
 {
 
    /* Oh, yeah. */
-
 
 }
 
@@ -729,7 +772,7 @@ int main()
 
    /* Not called as CGI, so do the driver thing. */
 
-   sudoku_table table(PALMS_PUZZLE);
+   sudoku_table table(CHELSEY_PUZZLE);
 
    table.print_table();
 
