@@ -197,7 +197,7 @@ function check_valid_row(cell)
 function check_valid_subcell(cell)
 /* Where cell is between 0-8, inclusive. */
 {
-  subcells = new Array(0, 3, 6, 27, 30, 33, 54, 58, 60);
+  subcells = new Array(0, 3, 6, 27, 30, 33, 54, 57, 60);
   cell = subcells[cell];
   neighbors = new Array();
   for (row = 0; row < 3; row++)
@@ -207,18 +207,22 @@ function check_valid_subcell(cell)
   numbers = 0;
   valid_subcell = true;
 
-  for (i = 0; i < 9 && valid_subcell; i++)
+  for (i = 0; i < 9 && valid_subcell == true; i++)
   {
     cell = neighbors[i];
     val = get_cell(cell);
-    if (!val);
+
+    if (!val)
       continue;
+
     if (numbers & (1 << val - 1))
       valid_subcell = false;
+
     numbers |= (1 << val - 1);
   }
-
+		    
   return valid_subcell;
+  
 }
 
 function check_valid_col(cell)
@@ -267,7 +271,7 @@ function checkTable()
   }
 
   /* Check each row + col + subcell */
-  for (cell = 0; cell < 9 && valid_table == true; cell++) 
+  for (cell = 0; cell < 9 && valid_table; cell++) 
   { 
     if (check_valid_col(cell) == false)
       {
