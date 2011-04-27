@@ -39,7 +39,8 @@ using namespace std;
 #define CHELSEY_PUZZLE "3...2...4.....8.23.784...6.8..1..4...2..8..5...7..9..6.8...614.59.8.....6...3...8"
 
 #define DEBUG 0
-#define MAX_ITERATIONS 100
+#define DEBUG_CHAINS 0
+#define MAX_ITERATIONS 32
 
 
 template<class V>
@@ -89,12 +90,22 @@ struct sudoku_table {
    bool         valid_table();
    int zeros(unsigned int cell);
 
+
+
    int do_single_position();
    int do_single_occurence(); 
    int do_single_occurence_row(); 
    int do_single_occurence_col(); 
-   int do_single_occurence_subcell(); 
+   int do_single_occurence_subcell();
+
+
+   int find_cell_by_pmark(int marks = 2, int start_cell=0);
+   int check_by_logic(int check_steps = MAX_ITERATIONS);
+   vector<int> values_in_pmark(unsigned int pmark);
+
+
    int nishio(int check_steps=16);
+   int force_chain(int start_cell=0);
 
    int do_doubles();
 
@@ -182,9 +193,9 @@ void sudoku_table::set(int cell, int value)
    /* unset that pencil_mark in all of the same row/col/subcell */
    for (int i = 0; i < 9; i++)
       {
-	 pencil_mark[rows[row][i]] |= mask;
-	 pencil_mark[cols[col][i]] |= mask;
-	 pencil_mark[subcells[subcell][i]] |= mask;
+      pencil_mark[rows[row][i]] |= mask;
+      pencil_mark[cols[col][i]] |= mask;
+      pencil_mark[subcells[subcell][i]] |= mask;
       }
 
 }
@@ -205,7 +216,7 @@ bool sudoku_table::is_solved()
 	 entries++;
       }
 
-   if (entries == 80)
+   if (entries == 81)
       return true;
    return false;
 }
@@ -256,9 +267,9 @@ int sudoku_table::get_subsquare_address(int subsquare_number)
 /* PARAMS: A subsquare number 0-8
    RETURN: A subsquare cell address
    DESCRI: A helper function to convert addresses. */
-  {
-  int subsquare_addresses[] = {0, 3, 6, 27, 30, 33, 54, 57, 60};
-  return subsquare_addresses[subsquare_number];
+{
+   int subsquare_addresses[] = {0, 3, 6, 27, 30, 33, 54, 57, 60};
+   return subsquare_addresses[subsquare_number];
 }
 
 int sudoku_table::get_subsquare_from_address(int cell)
@@ -266,11 +277,11 @@ int sudoku_table::get_subsquare_from_address(int cell)
    RETURN: The subsquare number (0-8)
    DESCRI: Reverse get_subsquare_address() helper */
 {
- int subsquare_addresses[] = {0, 3, 6, 27, 30, 33, 54, 57, 60};
- cell = sub_square(cell);
- for (int i = 0; i < 9; i++)
-    if (subsquare_addresses[i] == cell)
-       return i;
+   int subsquare_addresses[] = {0, 3, 6, 27, 30, 33, 54, 57, 60};
+   cell = sub_square(cell);
+   for (int i = 0; i < 9; i++)
+      if (subsquare_addresses[i] == cell)
+	 return i;
 
 }
 
@@ -391,7 +402,7 @@ vector<int> sudoku_table::neighbors(int subsquare)
    of the top-left cell. */
 {
 
-  /* At the end of a subsquare row, add 7 for next row. */
+   /* At the end of a subsquare row, add 7 for next row. */
 
    vector<int> ret;
    for (int row = 0; row < 3; row++)
@@ -640,6 +651,55 @@ int sudoku_table::do_single_occurence_subcell()
    return cells_filled;
 }
 
+int sudoku_table::find_cell_by_pmark(int marks, int start_cell)
+{
+   int cell = -1;
+   for (int i = start_cell; i < 81 && cell < 0; i++)
+      {
+      if (table[i])
+	 continue; /* This cell is already solved. No point. */
+      
+      if (zeros(i) != 2)
+	 continue; /* there are more than two possibilities. */
+      
+      /* If we've made it this far, we're at a cell with two possibilities! */
+      cell = i; 
+      }
+   return cell;
+}
+
+int sudoku_table::check_by_logic(int check_steps)
+{
+   int changes = 0;
+   for (int i = 0; i < check_steps; i++)
+      {
+      int new_changes;
+      while (new_changes = do_single_position())
+	 changes += new_changes;
+      changes += do_single_occurence();
+      }
+
+   return changes;
+}
+
+vector<int> sudoku_table::values_in_pmark(unsigned int pmark)
+{
+
+   unsigned int mask;
+   int value;
+
+   vector<int> ret;
+   for (value = 1, mask = 1; 
+	value < 10;  /* note the available values */
+	mask <<= 1, value++)
+      {
+      if (mask & ~pmark)
+	 ret.push_back(value);
+      }
+
+   return ret;
+}
+
 int sudoku_table::nishio(int check_steps)
 /* PARAMS: void
    RETURN: ?? (error codes. Not used)
@@ -655,21 +715,8 @@ int sudoku_table::nishio(int check_steps)
 
    /* Find a cell with only two possibilities. */
 
-   int cell = -1;
-   vector<int> possible_values;
+   int cell = find_cell_by_pmark();
 
-   for (int i = 0; i < 81 && cell < 0; i++)
-      {
-      if (table[i])
-	 continue; /* This cell is already solved. No point. */
-      
-      if (zeros(i) != 2)
-	 continue; /* there are more than two possibilities. */
-      
-      /* If we've made it this far, we're at a cell with two possibilities! */
-      cell = i; 
-      }
-   
    if (cell < 0)
       {
       if (DEBUG)
@@ -680,30 +727,14 @@ int sudoku_table::nishio(int check_steps)
    else if (DEBUG)
       cout << "Nishio: Chose cell " << cell << endl;
 
-   int value; 
-   unsigned int mask ;
-
-   for (value = 1, mask = 1; 
-	mask < TEN;  /* note the available values */
-	mask <<= 1, value++)
-      {
-      if (mask & ~pencil_mark[cell])
-	 possible_values.push_back(value);
-      }
-   
+   vector<int> possible_values = values_in_pmark(pencil_mark[cell]);
    vector<int> original_table = table;
    vector<unsigned int> original_pmark = pencil_mark;
    
    set(cell, possible_values[0]); /* Actually setting our "guess" */
 
    /* Try logic'ing the table. */
-
-   for (int i = 0; i < check_steps; i++)
-      {
-      while (do_single_position())
-	 ;
-      do_single_occurence();
-      }
+   check_by_logic(check_steps);
 
    /* Our guess was wrong. Good thing there were only two possibilities! */
    if (valid_table() == false)
@@ -716,13 +747,7 @@ int sudoku_table::nishio(int check_steps)
 					guess (one MUST be right.) */
 
       /* Try logic'ing again. */
-      for (int i = 0; i < check_steps; i++)
-	 {
-	 while (do_single_position())
-	    ;
-	 do_single_occurence();
-	 }
-      
+      check_by_logic(check_steps);
       }
 
    if (valid_table() == false)
@@ -734,6 +759,86 @@ int sudoku_table::nishio(int check_steps)
    /* If everything is OK after X moves, consider the Nishio a success. */
 }
 
+int sudoku_table::force_chain(int start_cell)
+/* PARAMS: void
+   RETURN: number of changes
+   DESCRI: Finds a cell with only two possibilities, makes the change and 
+   checks to see what cells stay the same with either possibility. */
+{
+   int changes = 0;
+   int cell = -1;
+   while ((cell = find_cell_by_pmark(2, cell+1)) >= 0)
+      {
+      if (DEBUG_CHAINS)
+	 cout << "Trying forced chains with cell " << cell << " ";
+
+
+      bool table_ok = true; 
+
+      vector<vector<int> > states;
+      vector<vector<unsigned int> > pmark_states;
+      
+      states.push_back(table);
+      pmark_states.push_back(pencil_mark);
+      
+      if (cell < 0)
+	 return 0; /* no appropriate cells. Nothing to do. */
+
+      vector<int> values = values_in_pmark(pencil_mark[cell]);
+
+      if (DEBUG_CHAINS)
+	 {
+	 cout << "(values:";
+	 for (int i = 0; i < values.size(); i++)
+	    cout << setw(3) << values[i];
+	 cout << ")" << endl;
+	 }
+   
+      /* Create and try a table of each potential. */
+      for (int i = 0; i < 3 && table_ok; i++)
+	 {
+	 /* Set possibility. */
+	 set(cell, values[i]);
+	 check_by_logic();
+	 
+	 if (!valid_table())
+	    {
+	    table_ok = false;
+	    }
+	 else /* table is ok, store its state. */
+	    {
+	    states.push_back(table);
+	    pmark_states.push_back(pencil_mark);
+	    }
+
+	 /* Revert global state. */
+	 table = states[0];
+	 pencil_mark = pmark_states[0];
+	 }
+
+      /* Tables don't make sense, skip. */
+      if (!table_ok)
+	 continue;
+
+      /* Compare all three tables to see which cells are the same... */
+      vector<int> unchanged_cells;
+      for (int i = 0; i < 81; i++)
+	 {
+	 if (states[0][i])
+	    continue; /* this cell is already filled in! */
+      
+	 /* If the number, in each of the two possibilities,
+	    matches, it is a sure thing. Set it. */
+	 if (states[1][i] && states[2][i] && states[1][i] == states[2][i])
+	    {
+	    set(cell, states[1][i]);
+	    changes++;
+	    cout << "Cell match! " << cell << endl;
+	    }
+	 }
+      }
+   return changes;
+}
 
 int sudoku_table::do_doubles()
 /* PARAMS: void
@@ -760,21 +865,22 @@ int main()
       int max_iterations = MAX_ITERATIONS;
       int step = 0;
 
-   while (!table.is_solved() && max_iterations > 0)
-      {
-      int modified_cells = 0;
-      int new_cells = 0;
-      while ((new_cells = table.do_single_position()))
-	 modified_cells += new_cells;
+      while (!table.is_solved() && max_iterations > 0)
+	 {
+	 int modified_cells = 0;
+	 int new_cells = 0;
+	 while ((new_cells = table.do_single_position()))
+	    modified_cells += new_cells;
       
-      modified_cells += table.do_single_occurence();
+	 modified_cells += table.do_single_occurence();
      
-      max_iterations--;
+	 max_iterations--;
       
-      if (modified_cells == 0)
-	 table.nishio(MAX_ITERATIONS*3);
+	 if (modified_cells == 0)
+	    //table.nishio(MAX_ITERATIONS*3);
+	    table.force_chain();
             
-      }
+	 }
 
       table.print_web_table();
 
@@ -783,7 +889,7 @@ int main()
 
    /* Not called as CGI, so do the driver thing. */
 
-   sudoku_table table(CHELSEY_PUZZLE);
+   sudoku_table table(PALMS_PUZZLE);
 
    table.print_table();
 
@@ -796,19 +902,19 @@ int main()
    int step=0;
    while (!table.is_solved() && max_iterations > 0)
       {
-      int modified_cells = 0;
-      int new_cells = 0;
-      cout << "Entering do_single_pos()\n";
-      while ((new_cells = table.do_single_position()))
-	 modified_cells += new_cells;
-      
-      cout << "Entering do_single_occur()\n";
-       modified_cells += table.do_single_occurence();
-      max_iterations--;
-      
+      int modified_cells = table.check_by_logic();
+
       if (modified_cells == 0)
-	 table.nishio(MAX_ITERATIONS*3);
-            
+	 //table.nishio(MAX_ITERATIONS*3);
+	 modified_cells += table.force_chain();
+
+      if (modified_cells == 0)
+	 {
+	 cout << "Trying nishio()...\n";
+	 table.nishio();
+	 }
+
+      max_iterations--;
       }
 
    cout << endl;
@@ -817,9 +923,9 @@ int main()
    table.print_table();
 
    /*
-   table.nishio();
-   cout << "\nAfter nishio() routine:\n";
-   table.print_table(); 
+     table.nishio();
+     cout << "\nAfter nishio() routine:\n";
+     table.print_table(); 
    */
 
    cout << "Table is valid? " << (table.valid_table() ? 'Y' : 'N') << endl;
@@ -832,8 +938,8 @@ int main()
    cout << "Doing single_occurence (it's going to be great!)\n";
    cout << "Cells modified: " << dec << table.do_single_occurence() << endl;
    /*   cout << table.do_single_occurence() << endl;
-   cout << table.do_single_occurence() << endl;
-   cout << table.do_single_occurence() << endl; */
+	cout << table.do_single_occurence() << endl;
+	cout << table.do_single_occurence() << endl; */
    table.print_table();
    cout << "Table is valid? " << (table.valid_table() ? 'Y' : 'N') << endl;
 
