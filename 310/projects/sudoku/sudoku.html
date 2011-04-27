@@ -57,6 +57,7 @@ function getXMLHttpReq()
 
 function parseData(response)
 {
+  puzzle = response.split('\n')[0];
   for (c = 0; c < response.length; c++)
     {
     cell = document.getElementById(c);
@@ -65,15 +66,18 @@ function parseData(response)
     else 
       cell.className = "d0";
  
-    if (response[c] == 0)
+    if (puzzle[c] == 0)
       cell.value = "";
     else 
-      cell.value = response[c];
+      cell.value = puzzle[c];
     }
 }
 
 function sendData(dataStr, url, method) { 
-    raiseNotice("Waiting for solution... (If this takes a long time, the resulting solution may be invalid (unfindable with LOGIC) or Gimli is very busy.)");
+    raiseNotice("Waiting for solution... (If this takes a long time, the " +
+                "resulting solution may be invalid (unfindable with LOGIC) " +
+                "or Gimli is very busy.)");
+
     var req = getXMLHttpReq();
 
     if (req == null)
@@ -137,6 +141,7 @@ function solve(cgi)
 
 function clear_table()
 {
+  lowerError();
   for (i = 0; i < 81; i++)
     {
     document.getElementById(i).value = '';
@@ -145,62 +150,148 @@ function clear_table()
 }
 
 function valid_cell(cell)
+/* given a cell address, return its value as an integer. Failures are
+   returned as 0. */
 {
   if (cell > 0 || cell < 10 || cell == ' ' )
     return true;
   return false;
 }
 
+function get_cell(cell)
+{
+  val = parseInt(document.getElementById(cell).value);
+  if (val > 0 && val <= 9)
+    return val;
+  
+  return 0;
+}
+
 function check_valid_row(cell)
 {
-   cell = cell.id;
-  
+   valid_row = true;
+   
    /* give us the first element # for the row cell is in. */
    row = 9 * Math.floor(cell / 9); 
-
+//   document.getElementById('output').innerHTML += "row: " + row + ": \n";
+   numbers = 0;
    /* For each element in cell's row: */
-   for (x = row; x < row+9; x++)
+   for (x = row; x < row+9 && valid_row; x++)
       {
-      document.getElementById('output').innerHTML += "row: " + row + "\n";
-      document.getElementById('output').innerHTML += "checking " + x + "\n";
-      if (x == cell) continue;
-      if (document.getElementById(x).value != "" && document.getElementById(x).value != "!!") /* if there is a number in this cell... */
-	 {
-         if (document.getElementById(x).value == document.getElementById(cell).value)
-            {
-	      class = document.getElementById(cell).parentNode.className;
-              class.replace("0", "1");
-              document.getElementById(cell).parentNode.className=class;
-              document.getElementById(x).parentNode.className=class;
 
-              break;
-	    }
-	 else /* it's ok, note it. */
-            {
-	      class = document.getElementById(cell).parentNode.classname;
-              class.replace("1", "0");
-              document.getElementById(cell).parentNode.className=class;
-	    }
-	 }
+      val = get_cell(x);
+      if (!val) 
+        continue;
+
+ //     document.getElementById('output').innerHTML += x + "(" + val + ")\n";
+
+      if (numbers & (1 << val - 1))
+        valid_row = false;
+
+      numbers |= (1 << val - 1);
       }
-      document.getElementById('output').innerHTML += "<br>";
+//      document.getElementById('output').innerHTML += "<br>";
+      return valid_row;
 }
+
+function check_valid_subcell(cell)
+/* Where cell is between 0-8, inclusive. */
+{
+  subcells = new Array(0, 3, 6, 27, 30, 33, 54, 58, 60);
+  cell = subcells[cell];
+  neighbors = new Array();
+  for (row = 0; row < 3; row++)
+    for (col = 0; col < 3; col++)
+      neighbors.push(cell+col + 9*row);
+
+  numbers = 0;
+  valid_subcell = true;
+
+  for (i = 0; i < 9 && valid_subcell; i++)
+  {
+    cell = neighbors[i];
+    val = get_cell(cell);
+    if (!val);
+      continue;
+    if (numbers & (1 << val - 1))
+      valid_subcell = false;
+    numbers |= (1 << val - 1);
+  }
+
+  return valid_subcell;
+}
+
+function check_valid_col(cell)
+{
+   valid_col = true;
+   
+   /* give us the first element # for the col the cell is in. */
+   col = cell ? 9 % cell : 0;
+   numbers = 0;
+   //document.getElementById('output').innerHTML += "col: " + col + ": \n";
+
+   for (x = col; x <= 72+col; x += 9)
+   {
+    //document.getElementById('output').innerHTML += x + "\n";
+    val = get_cell(x); 
+    if (!val)
+      continue;
+
+    if (numbers & (1 << val - 1))
+      {
+      valid_col = false;
+      break;
+      }
+    numbers |= (1 << val - 1);
+    }
+   //document.getElementById('output').innerHTML += "</br>\n";
+   return valid_col;
+}
+     
+
 
 function checkTable()
 {
   valid_table = true;
-  document.getElementById('output').innerHTML += "Checking table!<br/>\n";
+  //document.getElementById('output').innerHTML += "Checking table!<br/>\n";
+
+  /* Check each cell for valid contents */
   for (cell = 0; cell < 81; cell++)
   { 
     c = document.getElementById(cell);
     if (!valid_cell(c.value))
       {
-      c.value = "!!";
+      c.value = "!";
       valid_table = false;
       }
   }
-  if (valid_table)
+
+  /* Check each row + col + subcell */
+  for (cell = 0; cell < 9 && valid_table == true; cell++) 
+  { 
+    if (check_valid_col(cell) == false)
+      {
+      valid_table = false;
+      raiseError("Invalid column.");
+      break;
+      }
+   if (check_valid_row(cell*9) == false)
+      {
+      valid_table = false;
+      raiseError("Invalid row.");
+      break;
+      }
+   if (check_valid_subcell(cell) == false)
+     {
+     valid_table = false;
+     raiseError("Invalid subcell.");
+     break;
+     }
+  }
+
+  if (valid_table == true)
     lowerError();
+
   return valid_table;
 }
 
@@ -226,7 +317,8 @@ function drawTable()
       else /* no line at all. */
         outp += "<TD CLASS=regular_border>\n";
     id = y*9 + x;
-    outp += "<INPUT SIZE=2 CLASS=s0 AUTOCOMPLETE=off NAME=foo MAXLENGTH=1 onBlur='checkTable();check_valid_row(this);' ID='" + id + "' VALUE=''>\n";
+    outp += "<INPUT SIZE=2 CLASS=s0 AUTOCOMPLETE=off NAME=foo MAXLENGTH=1 " +
+            "onKeyUp='checkTable();' ID='" + id + "' VALUE=''>\n";
     outp += "</TD>\n";
     }
     outp += "</TR>\n";
@@ -453,6 +545,7 @@ a:hover {text-decoration:underline;}
        <p><h3>Controls:</h3>
 	 <input type="button" value="Solve (Using Logic Algorithms)!" onClick="solve('sudoku.cgi');"/><br/>
 	 <!--   <input type="button" value="Solve (Using DLX Algorithm)!" onClick="solve('dlx.cgi');"/><br/> -->
+	 <input type="button" value="Check!" onClick="checkTable();"/><br/>
 	 <input type="button" value="Solve (Using Shaun's DLX Algorithm)!" onClick="solve('sudoku-dlx.cgi');"/><br/>
 	 <input type="button" value="Clear Board" onClick="clear_table();"/><br/>
 	 <input type="button" value="Source Code (Logic)" onClick="window.location='sudoku.cpp.txt'"><br/>
