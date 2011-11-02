@@ -366,6 +366,15 @@ function puzzle_to_text()
 		<TITLE>Chelsey, Shaun, and Steven's Sudoku Solver</TITLE>
 		<style>
 
+body {
+  background: url(./background.jpg) no-repeat;
+}
+
+table {
+  background-color: transparent;
+  opacity: .9;
+}
+
 .errornote {
     font-size: 12px !important;
     display: block;
@@ -531,6 +540,7 @@ a:hover {text-decoration:underline;}
 <tr>
 <td colspan=2>
   <h2>Chelsey, Shaun, and Steven's Sudoku Solver Extraordinaire</h2>
+  Any puzzle left incomplete is probably un-solvable. 
 </td>
 </tr>
   <tr>
@@ -547,13 +557,17 @@ a:hover {text-decoration:underline;}
     </td>
     <td
        <p><h3>Controls:</h3>
-	 <input type="button" value="Solve (Using Logic Algorithms)!" onClick="solve('sudoku.cgi');"/><br/>
+<input type="button" value="Solve (Grade Me)!" onClick="solve('sudoku-hybrid.cgi');"/><br/>
+	 <input type="button" value="Solve (Just Using Logic Algorithms)!" onClick="solve('sudoku.cgi');"/><br/>
+
+
 	 <!--   <input type="button" value="Solve (Using DLX Algorithm)!" onClick="solve('dlx.cgi');"/><br/> -->
-	 <input type="button" value="Check!" onClick="checkTable();"/><br/>
-	 <input type="button" value="Solve (Using Shaun's DLX Algorithm)!" onClick="solve('sudoku-dlx.cgi');"/><br/>
+	 <input type="button" value="Solve (Just Shaun's DLX Algorithm)!" onClick="solve('sudoku-dlx.cgi');"/><br/>
+<!--	 <input type="button" value="Check!" onClick="checkTable();"/><br/> -->
 	 <input type="button" value="Clear Board" onClick="clear_table();"/><br/>
-	 <input type="button" value="Source Code (Logic)" onClick="window.location='sudoku.cpp.txt'"><br/>
-	 <input type="button" value="Source Code (DLX)" onClick="window.location='sudoku-dlx.cpp.txt'"><br/>
+	 <input type="button" value="Source(Grade Me)" onClick="window.location='sudoku-hybrid.cpp.txt'">
+	 <input type="button" value="Source(Logic)" onClick="window.location='sudoku.cpp.txt'">
+	 <input type="button" value="Source(DLX)" onClick="window.location='sudoku-dlx.cpp.txt'"><br/>
        <p></p>
 <h3>Sample Puzzles</h3>
 <ul>

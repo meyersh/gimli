@@ -16,14 +16,14 @@ TABLE OF CONTENTS:
 :: Applies PURE logic to solve nearly any human-solvable puzzle.
 :: may guess with Nishio or Force Chains (but doesn't have to.)
 
-Logic techniques used:
+Logic techniques Available:
 1. Solve Single Occurence. 
    If, among pencil marks in a row / col / subcell there is only a 
    single place for a given value, insert that value.
 2. Solve Single Possibility
    If, among pencil marks, there is only one possibility for a row,
    fill it in.
-3. Noshio guessing
+3. Noshio guessing 
    When logic fails, if there is a cell with 2 possibilities, guess one
    and try logic'ing on it. If this results valid table ASSUME it is a
    correct guess and keep solving. Hit or miss stuff, here.
