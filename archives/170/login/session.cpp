@@ -15,12 +15,12 @@ using namespace std;
 #include "randomStr.hpp"
 
 #define SESSION_SUFFIX ".session"
-#define SESSION_PATH "/home/meyersh/private/"
-#define SESSION_FILE "/home/meyersh/private/sessions.txt"
+#define SESSION_PATH "/home/staff/meyersh/private/"
+#define SESSION_FILE "/home/staff/meyersh/private/sessions.txt"
 
-#define REGISTRATION_FILE "/home/meyersh/private/user_registrations.txt"
+#define REGISTRATION_FILE "/home/staff/meyersh/private/user_registrations.txt"
 #define USER_SUFFIX ".user"
-#define USER_PATH "/home/meyersh/private/"
+#define USER_PATH "/home/staff/meyersh/private/"
 
 
 /*

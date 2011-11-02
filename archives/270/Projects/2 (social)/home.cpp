@@ -40,7 +40,7 @@ using namespace std;
 #include "shaunscgi.hpp"
 #include "messaging.cpp"
 
-#define REGISTRATION_FILE "/home/meyersh/private/user_registrations.txt"
+#define REGISTRATION_FILE "/home/staff/meyersh/private/user_registrations.txt"
 
 int
 main()
@@ -730,7 +730,7 @@ main()
   cout << renderHttpHeaders(response);
   cout << output.str();
 
-  ofstream logfile ("/home/meyersh/error_log.txt");
+  ofstream logfile ("/home/staff/meyersh/error_log.txt");
   logfile << renderHttpHeaders(response);
   logfile << output.str() << endl;
   logfile.close();

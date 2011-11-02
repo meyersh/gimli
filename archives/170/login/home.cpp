@@ -16,7 +16,7 @@ listUsers()
 {
   stringstream output;
   ifstream usersfile;
-  usersfile.open("/home/meyersh/private/user_registrations.txt");
+  usersfile.open("/home/staff/meyersh/private/user_registrations.txt");
 
   string user;
 

@@ -11,9 +11,9 @@
 #include "cookies.hpp"
 #include "session.hpp"
 
-#define REGISTRATION_FILE "/home/meyersh/private/user_registrations.txt"
+#define REGISTRATION_FILE "/home/staff/meyersh/private/user_registrations.txt"
 #define USER_SUFFIX ".user"
-#define USER_PATH "/home/meyersh/private/"
+#define USER_PATH "/home/staff/meyersh/private/"
 
 /*
  * Forcibly set the password for "username"
@@ -136,7 +136,7 @@ main()
 	else
 	  cout << "Location: " << "https://gimli.morningside.edu/~meyersh/home.cgi" << "\n\n";
       else
-	output << returnHtmlFile("/home/meyersh/public_html/login.html");
+	output << returnHtmlFile("/home/staff/meyersh/public_html/login.html");
     }
   else if ( request.META["REQUEST_METHOD"] == "POST" )
     {

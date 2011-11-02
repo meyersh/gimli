@@ -53,7 +53,7 @@ using namespace std;
 
  */
 
-#define MSG_PATH "/home/meyersh/private/messages/"
+#define MSG_PATH "/home/staff/meyersh/private/messages/"
 #define MSG_SUFFIX ".messages"
 
 class message {

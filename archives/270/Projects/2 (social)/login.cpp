@@ -26,9 +26,9 @@
 
 #include "database.hpp"
 
-#define REGISTRATION_FILE "/home/meyersh/private/user_registrations.txt"
+#define REGISTRATION_FILE "/home/staff/meyersh/private/user_registrations.txt"
 #define USER_SUFFIX ".user"
-#define USER_PATH "/home/meyersh/private/"
+#define USER_PATH "/home/staff/meyersh/private/"
 
 /*
  * Forcibly set the password for "username"
@@ -135,7 +135,7 @@ main()
 	       << "https://gimli.morningside.edu/~meyersh/270/social/home.cgi" 
 	       << "\n\n";
       else
-	output << returnHtmlFile("/home/meyersh/public_html/270/social/login.html");
+	output << returnHtmlFile("/home/staff/meyersh/public_html/270/social/login.html");
     }
   else if ( request.META["REQUEST_METHOD"] == "POST" )
     {

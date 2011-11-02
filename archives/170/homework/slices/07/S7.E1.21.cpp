@@ -24,7 +24,7 @@ using namespace std;
 int
 main() 
 {
-    const char* filename = "/home/meyersh/fivenumbers.txt";
+    const char* filename = "/home/staff/meyersh/fivenumbers.txt";
     
     ifstream f;
 

@@ -17,7 +17,7 @@
 
 #define LONGEST_COMMAND 255 /* limit input to 255 bytes */
 #define HISTORY 1000 /* number of games per session to remember */
-#define SESSION_PATH "/home/meyersh/private/prs/"
+#define SESSION_PATH "/home/staff/meyersh/private/prs/"
 
 /* Definitions and et cetera */
 

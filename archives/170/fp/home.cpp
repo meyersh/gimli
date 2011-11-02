@@ -36,7 +36,7 @@ using namespace std;
 #include "shaunscgi.hpp"
 #include "messaging.cpp"
 
-#define REGISTRATION_FILE "/home/meyersh/private/user_registrations.txt"
+#define REGISTRATION_FILE "/home/staff/meyersh/private/user_registrations.txt"
 
 
 string
@@ -45,7 +45,7 @@ listUsers(bool newline = false) /* setting this to true will
 {
   stringstream output;
   ifstream usersfile;
-  usersfile.open("/home/meyersh/private/user_registrations.txt");
+  usersfile.open("/home/staff/meyersh/private/user_registrations.txt");
 
   string user;
 

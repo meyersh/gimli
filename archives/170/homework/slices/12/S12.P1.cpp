@@ -10,9 +10,9 @@
 
 using namespace std;
 
-#define INDEX_FILE     "/home/meyersh/public_html/S12.P1.html"
-#define GUESTBOOK_FILE "/home/meyersh/private/guestbook.txt"
-#define PASSWORD_FILE  "/home/meyersh/private/password.txt"
+#define INDEX_FILE     "/home/staff/meyersh/public_html/S12.P1.html"
+#define GUESTBOOK_FILE "/home/staff/meyersh/private/guestbook.txt"
+#define PASSWORD_FILE  "/home/staff/meyersh/private/password.txt"
 #define SEP ':' /* Guestbook field separator character */
 
 /*

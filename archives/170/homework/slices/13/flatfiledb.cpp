@@ -4,7 +4,7 @@
 
 using namespace std;
 
-#define DB_BASE "/home/meyersh/db/"
+#define DB_BASE "/home/staff/meyersh/db/"
 
 /* Prototypes */
 bool fileExists(string file, string base=DB_BASE);

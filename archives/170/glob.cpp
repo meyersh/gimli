@@ -5,7 +5,7 @@ include <wordexp.h>
 using namespace std;
 
 #define SESSION_SUFFIX ".session"
-#define SESSION_PATH "/home/meyersh/private"
+#define SESSION_PATH "/home/staff/meyersh/private"
 
 
 int main(int argc, char* argv[])
