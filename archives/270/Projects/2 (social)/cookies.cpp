@@ -38,6 +38,7 @@ setHttpRequestMeta(HttpRequest &request)
 {
   char **ep;
   string key,val;
+  extern char** environ;
 
   for (ep = environ; *ep; ep++)
     {
