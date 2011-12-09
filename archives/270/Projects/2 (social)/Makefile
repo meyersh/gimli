@@ -5,39 +5,32 @@
 ############## REV OCT, 2010
 #
 
-CPP=g++ -g
+#CPP=g++ -g
 SLICE=S13
 OBJECTS=database.o cookies.o session.o randomStr.o messaging.o
 INSTALL_PATH=~/public_html/270/social
 
-# MYSQL STUFF:
-CPPFLAGS=-g -L/usr/lib/mysql -I/usr/include/mysql -lmysqlclient
-mysql=$(CPPFLAGS)
-
+CXXFLAGS += -Wall -g -L/usr/local/lib/mysql -I/usr/local/include/mysql
+LDFLAGS += -lmysqlclient
 # This is a cool inference, compile all *.hpp & *.cpp into *.o files:
-%.o: %.cpp %.hpp
-	$(CPP) $(CPPFLAGS) -O2 -c $<
+#%.o: %.cpp %.hpp
+#$(CPP) $(CPPFLAGS) -O2 -c $<
 
 all: logout.cgi checksession.cgi login.cgi home.cgi db-drv
 
 logout.cgi: $(OBJECTS) logout.o
-	$(CPP) $(mysql) logout.o $(OBJECTS) -o logout.cgi
 
 checksession.cgi: $(OBJECTS) checksession.o 
-	$(CPP) $(mysql) checksession.o $(OBJECTS) -o checksession.cgi
 
-login.cgi: $(OBJECTS)
-	$(CPP) $(mysql) $(OBJECTS) login.cpp -o login.cgi
+login.cgi: login.o cookies.o session.o database.o
 
 home.cgi: $(OBJECTS) home.o
-	$(CPP) $(mysql) $(OBJECTS) home.o -o home.cgi
 
 db-drv: db.cpp db.hpp database.hpp database.o
-	$(CPP)  $(mysql) db.cpp database.o -o db-drv
 
 # remove all *.o files - need to sometimes.
 clean:
-	rm *.o
+	-rm *.o
 
 # install all cgi's. This will also build dependencies
 install: all
