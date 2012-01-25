@@ -360,7 +360,6 @@ bool run_program(
 {
 
    int current_state_index = 0;
-   int head_position = 0;
    char read_head = NULL;
    int step = 0;
    while (current_state_index >= 0) 
