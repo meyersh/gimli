@@ -22,6 +22,7 @@
  * described machine and returns true for YES and false for NO.
  *
  * TODO:
+ *  - Add support for '|' as state separator in config files.
  *  - Add character validation (right now we trust that the input tape
  *    is correct and it is undefined how we'll handle an inappropriate 
  *    character.
