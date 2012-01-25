@@ -28,6 +28,12 @@ struct transition {
    }
 };
 
+bool run_program(
+				 transition **state_table, 
+				 string tape_symbols, 
+				 string input_characters);
+
+
 std::vector<std::string> split(const std::string line, 
                                const std::string split_pattern=" ")
 /* DESCR: Split a string `line` on `split_pattern` 
@@ -92,21 +98,9 @@ int main(int argc, char** argv)
    int states = 0;
 
    /* Get the tape symbols. */
-   if (!getline(config_file, tape_symbols))
-	  {
-	  cout << "Read error.\n";
-	  exit(1);
-	  }
-
-   /* Get the input_characters */
-   if (!getline(config_file, input_characters))
-	  {
-	  cout << "Read error.\n";
-	  exit(1);
-	  }
-
-   /* Read and convert line to number of states. */
-   if (!getline(config_file, line))
+   if (!getline(config_file, tape_symbols)
+	   || !getline(config_file, input_characters) 
+	   || !getline(config_file, line)) // number of states
 	  {
 	  cout << "Read error.\n";
 	  exit(1);
@@ -127,13 +121,16 @@ int main(int argc, char** argv)
    /* state_table explanation:
 	  (transition)state_table[read_value][current_state] = the transition
    */ 
-   transition **state_table = new transition*[tape_symbols.length()];
-   for (int i = 0; i < tape_symbols.length(); i++)
+   transition **state_table = new transition*[255];
+   for (int i = 0; i < 255; i++)
 	  state_table[i] = new transition[states];
 
+   /*
+	* Read in the states lines
+	*/
    while (getline(config_file, line))  
 	  {
-	  states_read++;
+
 	  vector<string> temp_states = split(line);
 	  if (temp_states.size() > states) 
 		 {
@@ -141,29 +138,83 @@ int main(int argc, char** argv)
 		 cout << "Line with too many states.\n";
 		 exit(1);
 		 }
+
+	  /* 
+	   * Read each state from a line
+	   */
 	  for (int i = 0; i < temp_states.size(); i++)
 		 {
-		 cout << "Reading " << temp_states[i] << endl;
+		 char symbol = tape_symbols[i];
+		 cout << "Reading symbol " << symbol 
+			  << " (q" << states_read << ") ==> " << temp_states[i] << endl;
 		 vector<string> state = split(temp_states[i], ":");
-		 state_table[i][states_read].delta = true ? state[2] == "+" : false;
-		 state_table[i][states_read].write = state[1][0];
+
+		 /* delta is true if +, false otherwise. */
+		 state_table[symbol][states_read].delta = (state[2] == "+");
+
+		 state_table[symbol][states_read].write = state[1][0];
+
 		 if (state[0] == "Y" || state[0] == "N")
-			state_table[i][states_read].next_state = QY ? state[0] == "Y" : QN;
+			state_table[symbol][states_read].next_state = 
+			   state[0] == "Y" ? QY : QN;
 		 else
-			state_table[i][states_read].next_state = atoi(state[0].c_str());
+			state_table[tape_symbols[i]][states_read].next_state = 
+			   atoi(state[0].c_str());
 		 }
+	  states_read++;
 	  }
 
-   printf("\nConfig summary:\n %d {%s} symbols\n %d states\n.", 
+   printf("\nConfig summary:\n %d {%s} symbols\n %d states\n", 
 		  tape_symbols.length(), 
 		  tape_symbols.c_str(), 
 		  states);
 
+   printf("Input characters: {%s}\n", input_characters.c_str());
 
+   if (run_program(state_table,
+				   tape_symbols,
+				   input_characters) )
+	  cout << "\nSOLUTION: YES\n";
+   else
+	  cout << "\nSOLUTION: NO\n";
 
    return 0;
 }
 
-bool run_program(transition **state_table, string tape_symbols, string input_characters)
+bool run_program(
+				 transition **state_table, 
+				 string tape_symbols, 
+				 string input_characters)
 {
+   /* oversight: string cannot go -1, -2, etc. */
+
+   int current_state = 0;
+   int head_position = 0;
+   char read_head = NULL;
+   int step = 0;
+   while (current_state >= 0) 
+	  {
+	  /* read the tape. */
+	  read_head = input_characters[head_position];
+
+	  printf("%3d: STATE: Q%d  HEADPOS: %d  TAPE: r'%c' w'%c' NEXT: Q%d DELTA: %d1\n", 
+			 step, current_state, head_position,read_head, 
+			 state_table[read_head][current_state].write, 
+			 state_table[read_head][current_state].next_state,
+			 state_table[read_head][current_state].delta ? '+' : '-');
+
+	  /* write according to our state instruction */
+	  input_characters[head_position] = state_table[read_head][current_state].write;
+
+	  /* move the tape as instructed */
+	  head_position += state_table[read_head][current_state].delta ? 1 : -1;
+
+	  /* make a decision based on our state. */
+	  current_state = state_table[read_head][current_state].next_state;
+
+	  step++;
+	  }
+
+   return current_state == QY ? true : false;
+
 }
