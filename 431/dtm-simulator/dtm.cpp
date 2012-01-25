@@ -1,3 +1,37 @@
+/*
+ * Determinate Turing Machine Simulator
+ * Shaun Meyer, Jan 2012
+ *
+ * Overview:
+ * Tape struct manages the tape, including all read, write, and move
+ * operations.
+ *
+ * A transition struct is used to describe the transitions.
+ *
+ * The finite state table is kept in memory as a two dimensional array
+ * of `transition` objects. The row represents the 'trigger' character,
+ * as in what we've just read from the tape.
+ *   The column represents the specific Q (state) that we are in. I.e., 
+ * if we are in state Q0 and have read a '3' from the tape, we'll want
+ * the ['3'][0] transition from the table which will describe what to 
+ * do next.
+ *
+ * The main() function calls all code to read + validate the file.
+ * 
+ * The runprogram() function actually runs a given program against the
+ * described machine and returns true for YES and false for NO.
+ *
+ * TODO:
+ *  - Add character validation (right now we trust that the input tape
+ *    is correct and it is undefined how we'll handle an inappropriate 
+ *    character.
+ *  - Add output file handling for machine runs.
+ *  - Add input file handling for tape contents
+ *  - Add input option for tape contents.
+ *  - ?
+ * 
+ */
+
 #include <iostream>
 #include <fstream>
 #include <vector>
