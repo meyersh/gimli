@@ -22,19 +22,13 @@
  * described machine and returns true for YES and false for NO.
  *
  * TODO:
- *  - Add support for '|' as state separator in config files.
- *  - Add character validation (right now we trust that the input tape
- *    is correct and it is undefined how we'll handle an inappropriate 
- *    character.
- *  - Add output file handling for machine runs.
- *  - Add input file handling for tape contents
- *  - Add input option for tape contents.
  *  - ?
  * 
  */
 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include <vector>
 #include <string>
 
@@ -82,6 +76,7 @@ struct Tape {
 	  read_head = beg;
    }
 
+
    string toString()
    {
 	  string ret;
@@ -107,6 +102,24 @@ struct Tape {
 
 	  tape_length++; 
 	  
+   }
+
+   void clear() {
+	  Cell *t;
+	  for (t = beg; t; t = t->next)
+		 delete t;
+
+	  beg = end = read_head = NULL;
+	  tape_length = read_head_pos = 0;
+   }
+
+   void set(string t)
+   {
+	  clear();
+	  for (int i = 0; i < t.length(); i++)
+		 append(t[i]);
+
+	  rewind();
    }
 
    void prepend(char d=' ')
@@ -190,6 +203,17 @@ struct transition {
    }
 };
 
+bool haschar(string s, char c)
+/* Search s for instances of c, returning true on the
+   first match. */
+{
+   for (int i = 0; i < s.length(); i++)
+	  if (s[i] == c)
+		 return true;
+   return false;
+}
+
+
 bool run_program(
 				 transition **state_table, 
 				 string tape_symbols, 
@@ -234,7 +258,7 @@ int main(int argc, char** argv)
    /* Validate arguments */
    if (argc != 2)
 	  {
-	  printf("Syntax: %s <config file>\n", argv[0]);
+	  cout << "Syntax: %s" << argv[0] << " <config file>\n";
 	  exit(1);
 	  }
    
@@ -263,7 +287,7 @@ int main(int argc, char** argv)
 
    states = atoi(line.c_str()) + 1; // +1 because we have the implied blank.
    tape_symbols += ' '; // add the space symbol.
-   Tape tape(input_characters); /* convert the input_characters string into our tape object. */
+   Tape tape; 
 
    /* Validate number of states */
    if (states < 1)
@@ -294,7 +318,7 @@ int main(int argc, char** argv)
    while (getline(config_file, line))  
 	  {
 
-	  vector<string> temp_states = split(line);
+	  vector<string> temp_states = split(line, "|");
 	  if (temp_states.size() > states) 
 		 {
 		 cout << line << endl;
@@ -338,18 +362,104 @@ int main(int argc, char** argv)
 	  exit(1);
 	  }
 
-   printf("\nConfig summary:\n %d {%s} symbols\n %d states\n tape: {%s}\n\n", 
-		  tape_symbols.length(), 
-		  tape_symbols.c_str(), 
-		  states,
-		  tape.toString().c_str());
 
-   printf("Program run:\n");
+   /*
+	* Prepare + handle tape input sources (stdin or stdin filename)
+	*/
 
-   if (run_program(state_table, tape_symbols, tape))
+   line = "";
+   cout << "Tape input? (Press enter for file)> ";
+
+   getline(cin,line);
+
+   if (line == "")
+	  {
+	  cout << "Filename: (default: " << argv[1] << ".tape)> ";
+	  getline(cin,line);
+
+	  ifstream tape_file;
+	  string tape_file_path;
+	  if (line == "")
+		 tape_file_path = string(argv[1]) + ".tape";
+	  else
+		 tape_file_path = line;
+
+	  tape_file.open(tape_file_path.c_str());
+
+	  if (!tape_file)
+		 {
+		 cout << "Unable to open tapefile '" << tape_file_path << "'\n";
+		 exit(1);
+		 }
+	  getline(tape_file, line);
+	  }
+   
+   /* validate line */
+   for (int i = 0; i < line.length(); i++)
+	  {
+	  if (!haschar(input_characters, line[i]))
+		 {
+		 cout << "Error: invalid character '" << line[i] 
+			  <<"' found on tape.\n";
+		 exit(1);
+		 }
+	  }
+
+   /* Actually set the tape */
+   tape.set(line+" ");
+
+   /* 
+	* Prepare + Handle tape output source 
+	*/
+   line = "";
+   cout << "Tracefile? (press enter for console) Filename> ";
+   getline(cin, line);
+
+   /* 
+	* This is pretty cool, all we do if a file is specified is
+	* redirect cout to the file buffer. So no other code is changed.
+	*/
+   ofstream tracefile;
+   streambuf *console = cout.rdbuf();
+   if (line != "") {
+	  tracefile.open(line.c_str());
+
+	  if (tracefile.good())
+		 cout.rdbuf(tracefile.rdbuf());
+
+	  }
+   
+   cout << endl 
+		<< "Config summary:\n"
+		<< tape_symbols.length() << " {" << tape_symbols << "}" << endl
+		<< states << " states.\n"
+		<< "tape value: {" << tape.toString() << "}" << endl << endl;
+	  
+   cout << "Program Run:" << endl;
+
+   bool result = run_program(state_table, tape_symbols, tape);
+
+   /* return cout to console */
+   cout.rdbuf(console);
+   if (result)
+	  {
 	  cout << "\nSOLUTION: YES\n";
+	  if (tracefile.good())
+		 {
+		 tracefile << "\nSOLUTION: YES" << endl;
+		 tracefile.close();
+		 }
+	  }
+		 
    else
+	  {
 	  cout << "\nSOLUTION: NO\n";
+	  if (tracefile.good())
+		 {
+		 tracefile << "\nSOLUTION: NO" << endl;
+		 tracefile.close();
+		 }
+	  }
 
    return 0;
 }
@@ -361,13 +471,9 @@ bool run_program(
 {
 
    int current_state_index = 0;
-   char read_head = NULL;
    int step = 0;
    while (current_state_index >= 0) 
 	  {
-	  /* read the tape. */
-	  read_head = tape.read();
-
 	  /* Fetch the present transition-state */
 	  transition state = state_table[tape.read()][current_state_index];
 
@@ -381,11 +487,10 @@ bool run_program(
 	  else 
 		 human_next_state = state.next_state + '0';
 
-	  printf("%3d: STATE: Q%d  HEADPOS: %02d TAPE: (r'%c') (w'%c') NEXT: Q%c DELTA: %c1\n", 
-			 step, current_state_index, tape.read_head_pos, tape.read(), 
-			 state.write, 
-			 human_next_state,
-			 state.delta ? '+' : '-');
+	  cout << setfill('0') << setw(3) << step << ": STATE: Q" << current_state_index
+		   << " HEADPOS: " << setw(2) << tape.read_head_pos 
+		   << " TAPE: (r'" << tape.read() << "') (w'" << state.write << "')"
+		   << " NEXT: Q" << human_next_state << " DELTA: " << (state.delta ? '+' : '-') << endl;
 
 	  /* write according to our state instruction */
 	  tape.write(state.write);
