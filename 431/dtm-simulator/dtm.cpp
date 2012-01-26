@@ -356,6 +356,8 @@ int main(int argc, char** argv)
 
 	  }
 
+   states_file.close();
+
    if (states_read < states-1)
 	  {
 	  printf("Error: Read %d states, expected %d.\n", states_read, states-1);
@@ -392,6 +394,7 @@ int main(int argc, char** argv)
 		 exit(1);
 		 }
 	  getline(tape_file, line);
+	  tape_file.close();
 	  }
    
    /* validate line */
