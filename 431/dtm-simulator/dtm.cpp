@@ -22,7 +22,7 @@
  * described machine and returns true for YES and false for NO.
  *
  * TODO:
- *  - ?
+ *   - ?
  * 
  */
 
@@ -39,6 +39,13 @@ using namespace std;
 
 #define FORWARD true
 #define BACKWARD false
+
+
+
+/***
+ * Tape structure, handles all tape operations by using a linked-list 
+ * for tape squares. This allows any arbitrary moves prev & next.
+ ***/
 
 struct Tape {
    struct Cell {
@@ -185,6 +192,11 @@ struct Tape {
    }
 };
 
+/***
+ * transition structure - This holds the three pieces of a state for
+ * easy access later. 
+ **/
+
 struct transition {
    int next_state; // -1 = QY, -2 = QN
    char write;
@@ -204,25 +216,23 @@ struct transition {
 };
 
 bool haschar(string s, char c)
-/* Search s for instances of c, returning true on the
+/* Search (string)s for instances of (char)c, returning true on the
    first match. */
 {
    for (int i = 0; i < s.length(); i++)
 	  if (s[i] == c)
 		 return true;
+
    return false;
 }
 
 
-bool run_program(
-				 transition **state_table, 
-				 string tape_symbols, 
-				 Tape tape);
+
 
 std::vector<std::string> split(const std::string line, 
                                const std::string split_pattern=" ")
 /* DESCR: Split a string `line` on `split_pattern` 
- * RETURNS: a vector containing the result. */
+ * RETURNS: a vector<string> containing the result. */
 {
    std::vector<std::string> ret;
    int start,
@@ -251,9 +261,49 @@ std::vector<std::string> split(const std::string line,
    return ret;
 }
 
+/* 
+ *function prototypes
+ */
+
+bool run_program(
+				 transition **state_table, 
+				 string tape_symbols, 
+				 Tape tape);
+
+
+/*
+ * The big show!
+ */
 
 int main(int argc, char** argv)
 {
+
+   /* All file objects we may need */
+   ifstream config_file(argv[1]);
+   ifstream tape_file;
+   ofstream tracefile;
+
+
+   // Save the console rdbuf pointer for later. 
+   streambuf *console = cout.rdbuf();
+
+
+   string tape_symbols; // The list of all symbols we'll work with 
+   string input_characters; // the symbols which may be initially on the tape
+   string line; /* Throw away line read variable. */
+   
+   int states = 0; // Number of states advertised in file.
+   int states_read = 0;
+
+   Tape tape; // tape object to store our data.
+
+
+   /* initialize state table (2d array). */
+   transition **state_table = new transition*[255]; /* 255 is abitrary, largest a CHAR can be. */
+   for (int i = 0; i < 255; i++)
+	  state_table[i] = new transition[states];
+
+
 
    /* Validate arguments */
    if (argc != 2)
@@ -261,20 +311,14 @@ int main(int argc, char** argv)
 	  cout << "Syntax: %s" << argv[0] << " <config file>\n";
 	  exit(1);
 	  }
-   
-   fstream config_file(argv[1]);
+     
 
    /* Validate file readable */
    if (!config_file)
 	  {
-	  printf("Error opening config file '%s'.\n", argv[1]);
+	  cout << "Error opening config file '" << argv[1] << "'.\n";
 	  exit(1);
 	  }
-
-   string tape_symbols;
-   string input_characters;
-   string line; /* Throw away line read variable. */
-   int states = 0;
 
    /* Get and validate tape_symbols, input_characters, and the int. */
    if (!getline(config_file, tape_symbols)
@@ -285,9 +329,8 @@ int main(int argc, char** argv)
 	  exit(1);
 	  }
 
-   states = atoi(line.c_str()) + 1; // +1 because we have the implied blank.
+   states = atoi(line.c_str()) + 1; // +1 for the implied blank.
    tape_symbols += ' '; // add the space symbol.
-   Tape tape; 
 
    /* Validate number of states */
    if (states < 1)
@@ -295,21 +338,6 @@ int main(int argc, char** argv)
 	  cout << "Non-positive number of states.\n";
 	  exit(1);
 	  }
-
-   /* Attempt to read in the states. */
-   int states_read = 0;
-
-   /* state_table explanation:
-	  (transition):state_table[read_value][current_state_index] = a transition
-	  eg: read a ' ', goto state_table[' '], current state 'Q2': state_table[' '][2]
-   */ 
-
-   /* 
-	* initialize state table. 
-	*/
-   transition **state_table = new transition*[255]; /* 255 is abitrary, largest character. */
-   for (int i = 0; i < 255; i++)
-	  state_table[i] = new transition[states];
 
    /*
 	* Read in the states lines
@@ -319,10 +347,12 @@ int main(int argc, char** argv)
 	  {
 
 	  vector<string> temp_states = split(line, "|");
+
+	  // Validate number of states on this line 
 	  if (temp_states.size() > states) 
 		 {
-		 cout << line << endl;
-		 cout << "Line has too many states.\n";
+		 cout << line << endl 
+			  << "Line has too many states.\n";
 		 exit(1);
 		 }
 
@@ -332,10 +362,20 @@ int main(int argc, char** argv)
 	  for (int i = 0; i < temp_states.size(); i++)
 		 {
 		 char symbol = tape_symbols[i];
-		 cout << "Reading symbol '" << symbol 
+		 cout << "Reading transition for '" << symbol 
 			  << "' (q" << states_read << ") ==> " << temp_states[i] << endl;
 
 		 vector<string> state = split(temp_states[i], ":");
+
+		 /* Validate state "write-next" field, it 
+			should be a member of tape_symbols. */
+		 if (!haschar(tape_symbols, state[1][0]))
+			{
+			cout << "Invalid state: '" << temp_states[i] << "' has symbol '" 
+				 << state[1][0] << "' which is not in\n"
+				 << "the alphabet {" << tape_symbols << "}.\n";
+			exit(1);
+			}
 
 		 /* delta is true if +, false otherwise. */
 		 state_table[symbol][states_read].delta = (state[2] == "+");
@@ -356,11 +396,13 @@ int main(int argc, char** argv)
 
 	  }
 
-   states_file.close();
+   config_file.close();
 
+   /* Validate states read matches expected number */
    if (states_read < states-1)
 	  {
-	  printf("Error: Read %d states, expected %d.\n", states_read, states-1);
+	  cout << "Error: Read " << states_read 
+		   << " states, expected " << states-1 << endl;
 	  exit(1);
 	  }
 
@@ -370,16 +412,15 @@ int main(int argc, char** argv)
 	*/
 
    line = "";
-   cout << "Tape input? (Press enter for file)> ";
-
+   cout << "\nInitial tape input? (Press enter for file)> ";
    getline(cin,line);
 
    if (line == "")
 	  {
 	  cout << "Filename: (default: " << argv[1] << ".tape)> ";
 	  getline(cin,line);
-
-	  ifstream tape_file;
+	  
+	  /* Offer default path option */
 	  string tape_file_path;
 	  if (line == "")
 		 tape_file_path = string(argv[1]) + ".tape";
@@ -388,11 +429,13 @@ int main(int argc, char** argv)
 
 	  tape_file.open(tape_file_path.c_str());
 
+	  /* Validate tape_file path */
 	  if (!tape_file)
 		 {
 		 cout << "Unable to open tapefile '" << tape_file_path << "'\n";
 		 exit(1);
 		 }
+
 	  getline(tape_file, line);
 	  tape_file.close();
 	  }
@@ -408,11 +451,10 @@ int main(int argc, char** argv)
 		 }
 	  }
 
-   /* Actually set the tape */
-   tape.set(line+" ");
+   tape.set(line+" "); // Actually set the tape contents!
 
    /* 
-	* Prepare + Handle tape output source 
+	* Prepare + Handle tape output source (file/console)
 	*/
    line = "";
    cout << "Tracefile? (press enter for console) Filename> ";
@@ -422,8 +464,6 @@ int main(int argc, char** argv)
 	* This is pretty cool, all we do if a file is specified is
 	* redirect cout to the file buffer. So no other code is changed.
 	*/
-   ofstream tracefile;
-   streambuf *console = cout.rdbuf();
    if (line != "") {
 	  tracefile.open(line.c_str());
 
@@ -440,30 +480,26 @@ int main(int argc, char** argv)
 	  
    cout << "Program Run:" << endl;
 
+   /* Run the program and record the result */
    bool result = run_program(state_table, tape_symbols, tape);
 
    /* return cout to console */
    cout.rdbuf(console);
-   if (result)
+
+   /*
+	* Return the results to the screen and any output file. 
+	*/
+   string report("\nSOLUTION: ");
+   report += (result == true) ? "YES" : "NO";
+
+   cout << report << endl;
+   if (tracefile.good())
 	  {
-	  cout << "\nSOLUTION: YES\n";
-	  if (tracefile.good())
-		 {
-		 tracefile << "\nSOLUTION: YES" << endl;
-		 tracefile.close();
-		 }
-	  }
-		 
-   else
-	  {
-	  cout << "\nSOLUTION: NO\n";
-	  if (tracefile.good())
-		 {
-		 tracefile << "\nSOLUTION: NO" << endl;
-		 tracefile.close();
-		 }
+	  tracefile << "\nSOLUTION: YES" << endl;
+	  tracefile.close();
 	  }
 
+		 
    return 0;
 }
 
@@ -475,6 +511,7 @@ bool run_program(
 
    int current_state_index = 0;
    int step = 0;
+
    while (current_state_index >= 0) 
 	  {
 	  /* Fetch the present transition-state */
@@ -495,7 +532,7 @@ bool run_program(
 		   << " TAPE: (r'" << tape.read() << "') (w'" << state.write << "')"
 		   << " NEXT: Q" << human_next_state << " DELTA: " << (state.delta ? '+' : '-') << endl;
 
-	  /* write according to our state instruction */
+	  /* write tape according to our state instruction */
 	  tape.write(state.write);
 
 	  /* move the tape as instructed */
@@ -507,6 +544,6 @@ bool run_program(
 	  step++;
 	  }
 
-   return current_state_index == QY ? true : false;
+   return (current_state_index == QY);
 
 }
