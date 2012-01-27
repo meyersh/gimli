@@ -309,7 +309,7 @@ int main(int argc, char** argv)
    /* Validate arguments */
    if (argc != 2)
 	  {
-	  cout << "Syntax: %s" << argv[0] << " <config file>\n";
+	  cout << "Syntax: " << argv[0] << " <config file>\n";
 	  exit(1);
 	  }
      
