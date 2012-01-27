@@ -31,6 +31,7 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <cstdlib> // for exit();
 
 using namespace std;
 
