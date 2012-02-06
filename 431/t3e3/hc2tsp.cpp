@@ -48,6 +48,7 @@ int main(int argc, char** argv) {
    ifstream hc_problem_file;
    ofstream tsp_problem_file;
    triary<int> adj_matrix;
+   int linenum = 0; 
    
    /* 2 command line parameters. */
    if (argc != 3)
@@ -59,7 +60,7 @@ int main(int argc, char** argv) {
 	  }
 
 
-   /* Open and validate our files */
+   /* Open our files */
    hc_problem_file.open(argv[1]);
    if (!hc_problem_file)
 	  {
@@ -96,22 +97,34 @@ int main(int argc, char** argv) {
 	  for (int j = i+1; j < num_vertices; j++)
 		 adj_matrix.access(i,j) = 0;
 
-   /* adj_matrix is ready, we have vertices, start connecting edges until we 
-	  run out. Just skip errors . */
+   /* adj_matrix is ready and we have vertices so start connecting edges 
+	  until we run out. Just skip errors loudly. */
    while (getline(hc_problem_file, line))
 	  {
+	  linenum++;
 	  char separator = ':';
 	  int vertice_a = 0;
 	  int vertice_b = 0;
-	  int *number = &vertice_a;
+	  int *number = &vertice_a; // point at the number currently being read.
 
 	  for (int i = 0; i < line.size(); i++) 
 		 {
-		 if (line[i] == separator)
-			number = &vertice_b;
+		 if (line[i] == separator) 
+			if (number != &vertice_b)
+			   number = &vertice_b;
+			else
+			   {
+			   cout << "Line " << linenum << ": Extra colon. Ignoring.\n";
+			   continue;
+			   }
+		 
 
 		 else if (!isdigit(line[i]))
+			{
+			cout << "Line " << linenum << ": Ignoring invalid character '" 
+				 << line[i] << "'.\n";
 			continue;
+			}
 
 		 else 
 			{
@@ -122,13 +135,16 @@ int main(int argc, char** argv) {
 	  
 	  if (number != &vertice_b) // no colon in this line.
 		 {
-		 cout << "Invalid line: " << line << endl;
+		 cout << "Line " << linenum 
+			  << ": Mal-formed line (Missing colon?)" << endl;
 		 continue;
 		 }
 
 	  if (vertice_a >= num_vertices || vertice_b >= num_vertices)
 		 {
-		 cout << "Invalid vertice number on " << line << endl;
+		 cout << "Line " << linenum << 
+			": Vertice number out-of-range. (>= " 
+			  << num_vertices << ") Skipping.\n";
 		 continue;
 		 }
 
@@ -136,9 +152,7 @@ int main(int argc, char** argv) {
 	  
 	  }
 
-   cout << "Done reading file...\n";
-
-   /* Convert problem form */
+   /* Convert+write problem form */
 
    for (int i = 0; i < num_vertices; i++)
 	  for (int j = i+1; j < num_vertices; j++)
@@ -147,16 +161,15 @@ int main(int argc, char** argv) {
 		 else
 			tsp_problem_file << i << ":" << j << " (2) " << endl;
 
-   /* .... */
-
-
-   /* Write out tsp_problem */
-
-   /* ... */
-
    /* Clean up */
    hc_problem_file.close();
    tsp_problem_file.close();
+
+   cout << "All done.\n";
+
+   cout << "Processed " << linenum << " lines and " 
+		<< num_vertices << " vertices." << endl;
+
 
    return 0; 
    
