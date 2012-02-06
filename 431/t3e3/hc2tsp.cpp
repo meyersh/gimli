@@ -37,6 +37,7 @@ Team: Shaun + Stephen
 #include <cctype>
 #include <fstream>
 #include <vector>
+#include "triary.hpp" // perfect for undirected graphs.
 
 using namespace std;
 
@@ -46,7 +47,7 @@ int main(int argc, char** argv) {
    string line; /* reusable string for file reading */
    ifstream hc_problem_file;
    ofstream tsp_problem_file;
-   vector< vector<int> > adj_matrix;
+   triary<int> adj_matrix;
    
    /* 2 command line parameters. */
    if (argc != 3)
@@ -89,13 +90,11 @@ int main(int argc, char** argv) {
 	  }
 
    adj_matrix.resize(num_vertices);
-   for (int i = 0; i < num_vertices; i++)
-	  adj_matrix[i].resize(num_vertices);
 
    /* zero it out... */
    for (int i = 0; i < num_vertices; i++)
-	  for (int j = 0; j < num_vertices; j++)
-		 adj_matrix[i][j] = 0;
+	  for (int j = i+1; j < num_vertices; j++)
+		 adj_matrix.access(i,j) = 0;
 
    /* adj_matrix is ready, we have vertices, start connecting edges until we 
 	  run out. Just skip errors . */
@@ -133,8 +132,7 @@ int main(int argc, char** argv) {
 		 continue;
 		 }
 
-	  adj_matrix[vertice_a][vertice_b] = 1;
-	  adj_matrix[vertice_b][vertice_a] = 1;
+	  adj_matrix.access(vertice_a, vertice_b) = 1;
 	  
 	  }
 
@@ -143,9 +141,11 @@ int main(int argc, char** argv) {
    /* Convert problem form */
 
    for (int i = 0; i < num_vertices; i++)
-	  for (int j = 0; j < num_vertices; j++)
-		 if (adj_matrix[i][j])
-			cout << i << " <-> " << j << endl;
+	  for (int j = i+1; j < num_vertices; j++)
+		 if (adj_matrix.access(i,j))
+			tsp_problem_file << i << ":" << j << " (1) " << endl;
+		 else
+			tsp_problem_file << i << ":" << j << " (2) " << endl;
 
    /* .... */
 
