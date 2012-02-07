@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
 	  if (vertice_a >= num_vertices || vertice_b >= num_vertices)
 		 {
 		 cout << "Line " << linenum << 
-			": Skipping out-of-range vertix index. (>= " 
+			": Skipping out-of-range vertex index. (>= " 
 			  << num_vertices << ")\n";
 		 continue;
 		 }
