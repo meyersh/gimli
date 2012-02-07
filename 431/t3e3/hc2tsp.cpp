@@ -44,11 +44,14 @@ using namespace std;
 int main(int argc, char** argv) {
    
    unsigned int num_vertices = 0;
+   unsigned int max_vertices = 1000; // Abort for too many vertices.
+   unsigned int min_vertices = 3;
    string line; /* reusable string for file reading */
    ifstream hc_problem_file;
    ofstream tsp_problem_file;
    triary<int> adj_matrix;
-   int linenum = 0; 
+   int linenum = 1; // n+1 for compensate for first line.
+
    
    /* 2 command line parameters. */
    if (argc != 3)
@@ -83,10 +86,16 @@ int main(int argc, char** argv) {
    getline(hc_problem_file, line);
    num_vertices = atoi(line.c_str());
 
-   if (num_vertices < 1) 
+   if (num_vertices < min_vertices) 
 	  {
-	  cout << "Invalid number of vertices. "
-		   << "Please specify a positive number.\n";
+	  cout << "Indicated number of vertices (" << num_vertices 
+		   << ") is below vertice minimum (" << min_vertices << ").\n";
+	  exit(1);
+	  }
+   else if (num_vertices > max_vertices)
+	  {
+	  cout << "Indicated number of vertices (" << num_vertices
+		   << ") is above vertice max (" << max_vertices << ").\n";
 	  exit(1);
 	  }
 
@@ -104,7 +113,7 @@ int main(int argc, char** argv) {
 	  linenum++;
 	  char separator = ':';
 	  int vertice_a = 0;
-	  int vertice_b = 0;
+	  int vertice_b = -1;
 	  int *number = &vertice_a; // point at the number currently being read.
 
 	  for (int i = 0; i < line.size(); i++) 
@@ -114,7 +123,7 @@ int main(int argc, char** argv) {
 			   number = &vertice_b;
 			else
 			   {
-			   cout << "Line " << linenum << ": Extra colon. Ignoring.\n";
+			   cout << "Line " << linenum << ": Ignoring extra colon.\n";
 			   continue;
 			   }
 		 
@@ -126,25 +135,32 @@ int main(int argc, char** argv) {
 			continue;
 			}
 
+
 		 else 
 			{
+			if (*number == -1) // we have found our first digit for this number.
+			   *number = 0;
+			
 			(*number) *= 10;
 			(*number) += (line[i] - '0');
 			}
-		 }
+
+		 } // done with line, now validate results:
 	  
-	  if (number != &vertice_b) // no colon in this line.
+	  if (number != &vertice_b /* no colon or missing numbers around colon */ 
+		  || vertice_a == -1 
+		  || vertice_b == -1) 
 		 {
 		 cout << "Line " << linenum 
-			  << ": Mal-formed line (Missing colon?)" << endl;
+			  << ": Skipped mal-formed line." << endl;
 		 continue;
 		 }
 
 	  if (vertice_a >= num_vertices || vertice_b >= num_vertices)
 		 {
 		 cout << "Line " << linenum << 
-			": Vertice number out-of-range. (>= " 
-			  << num_vertices << ") Skipping.\n";
+			": Skipping out-of-range vertix index. (>= " 
+			  << num_vertices << ")\n";
 		 continue;
 		 }
 
@@ -167,7 +183,7 @@ int main(int argc, char** argv) {
 
    cout << "All done.\n";
 
-   cout << "Processed " << linenum << " lines and " 
+   cout << "Processed " << linenum << " lines for " 
 		<< num_vertices << " vertices." << endl;
 
 
