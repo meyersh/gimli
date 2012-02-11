@@ -3,8 +3,8 @@
 
 #include <string>
 
-#define QY -1
-#define QN -2
+#define QY 1
+#define QN 2
 
 #define FORWARD true
 #define BACKWARD false

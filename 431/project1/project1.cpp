@@ -99,8 +99,6 @@ int main(int argc, char** argv)
    char_set tape_symbols;
    char_set input_characters;
 
-   //   string tape_symbols; // The list of all symbols we'll work with 
-   //   string input_characters; // the symbols which may be initially on the tape
    string line; /* Throw away line read variable. */
    
    int states = 0; // Number of states advertised in file.
@@ -142,6 +140,8 @@ int main(int argc, char** argv)
    for (int i = 0; i < line.size(); i++)
 	  tape_symbols.insert(line[i]);
    
+   tape_symbols.insert(' ');
+
    if (!getline(config_file, line)) 
 	  {
 	  cout << "Error reading input_characters.\n";
@@ -157,7 +157,7 @@ int main(int argc, char** argv)
 	  exit(1);
 	  }
 
-   states = atoi(line.c_str()) + 1; // +1 for the implied blank.
+   states = atoi(line.c_str()); // +1 for the implied blank.
    tape_symbols.insert(' '); // add the space symbol.
 
    /* Validate number of states */
@@ -170,10 +170,23 @@ int main(int argc, char** argv)
    /*
 	* Read in the states lines
 	*/
-   printf("Input:\n");
 
-   while (getline(config_file, line))  
+   cout << "Reading " << states << " states." << endl;
+
+   /* states-2 because QY and QN are implicit. */
+   for (states_read = 0; states_read < states; states_read++)
 	  {
+
+	  if (states_read == 1) // skip QY QN fields.
+		 {
+		 states_read = 3;
+		 }
+
+	  if (!getline(config_file, line))
+		 {
+		 cout << "Error reading state!\n";
+		 exit(1);
+		 }
 	  cout << "Readling line " << line << endl;
 
 	  /* 
@@ -247,7 +260,8 @@ int main(int argc, char** argv)
 					<< endl;
 
 			   state_table[symbol][states_read] = t;
-			   cout << t.next_state << ":" << t.write << ":" << t.delta << endl;
+			   cout << t.next_state << ":" << t.write << ":" 
+					<< t.delta << endl;
 
 			   s = LOOKING_FOR_Q;
 			   state_idx++;
@@ -260,13 +274,26 @@ int main(int argc, char** argv)
 					 
 
 		 }
-	  states_read++;
+
+
+	  /* Validate the line just read in */
+	  if (state_idx  != input_characters.length())
+		 {
+		 cout << "Line " << setw(2) << setfill('0')
+			  << states_read + 4
+			  << ": Invalid number of transitions states." << endl
+			  << "         (read " << state_idx << ", expected " 
+			  << input_characters.length() << ")" << endl;
+
+		 exit(1);
+		 }
+
 	  }
 
-   config_file.close();
-
-   /* Validate states read matches expected number */
-   if (states_read < states-1)
+   /* Validate states read matches expected number 
+	+1 because states_read is zero-indexed and -2 
+   because of implicit QY and QN. */
+   if (states_read+1 < states-2)
 	  {
 	  cout << "Error: Read " << states_read 
 		   << " states, expected " << states-1 << endl;
@@ -278,35 +305,8 @@ int main(int argc, char** argv)
 	* Prepare + handle tape input sources (stdin or stdin filename)
 	*/
 
-   line = "";
-   cout << "\nInitial tape input? (Press enter for file)> ";
-   getline(cin,line);
+   getline(config_file,line);
 
-   if (line == "")
-	  {
-	  cout << "Filename: (default: " << argv[1] << ".tape)> ";
-	  getline(cin,line);
-	  
-	  /* Offer default path option */
-	  string tape_file_path;
-	  if (line == "")
-		 tape_file_path = string(argv[1]) + ".tape";
-	  else
-		 tape_file_path = line;
-
-	  tape_file.open(tape_file_path.c_str());
-
-	  /* Validate tape_file path */
-	  if (!tape_file)
-		 {
-		 cout << "Unable to open tapefile '" << tape_file_path << "'\n";
-		 exit(1);
-		 }
-
-	  getline(tape_file, line);
-	  tape_file.close();
-	  }
-   
    /* validate line */
    for (int i = 0; i < line.length(); i++)
 	  {
@@ -320,25 +320,6 @@ int main(int argc, char** argv)
 
    tape.set(line+" "); // Actually set the tape contents!
 
-   /* 
-	* Prepare + Handle tape output source (file/console)
-	*/
-   line = "";
-   cout << "Tracefile? (press enter for console) Filename> ";
-   getline(cin, line);
-
-   /* 
-	* This is pretty cool, all we do if a file is specified is
-	* redirect cout to the file buffer. So no other code is changed.
-	*/
-   if (line != "") {
-   tracefile.open(line.c_str());
-
-   if (tracefile.good())
-	  cout.rdbuf(tracefile.rdbuf());
-
-   }
-   
    cout << endl 
 		<< "Config summary:\n"
 		<< tape_symbols.length() << " {" << tape_symbols.string() << "}" << endl
@@ -379,14 +360,17 @@ bool run_program(
    int current_state_index = 0;
    int step = 0;
 
-   while (current_state_index >= 0) 
+   while (!(current_state_index == QY) &&
+		  !(current_state_index == QN)) 
 	  {
 	  /* Fetch the present transition-state */
 	  transition state = state_table[tape.read()][current_state_index];
 
 
 	  /* Render some nice output for humans */
-	  char human_next_state; // a human-readable description of the upcoming state.
+	  char human_next_state; /* a human-readable description of the 
+								upcoming state. */
+
 	  if (state.next_state == QY)
 		 human_next_state = 'Y';
 	  else if (state.next_state == QN)
