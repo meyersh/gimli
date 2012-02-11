@@ -1,3 +1,11 @@
+/* 
+ * DTM constructs:
+ * - Tape structure
+ * - Transition structure
+ *
+ * Shaun Meyer, Feb 2012
+ */
+
 #ifndef __DTM_HPP__
 #define __DTM_HPP__
 

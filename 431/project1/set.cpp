@@ -1,3 +1,7 @@
+/* Simple tests for set class 
+   Shaun Meyer, Feb 2012
+*/
+
 #include <iostream>
 #include "set.hpp"
 
@@ -7,13 +11,13 @@ int main() {
 
    char_set set;
 
-   cout << set.contains('l') << endl;
+   cout << "This should be false: " << set.contains('s') << endl;
    
-   set.insert('l');
+   set.insert('s');
 
-   cout << set.contains('l') << endl;
+   cout << "This should be true:  " << set.contains('s') << endl;
 
-   cout << set.string() << endl;
+   cout << "This should be 's':   " << set.string() << endl;
 
    return 0;
 

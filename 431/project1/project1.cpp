@@ -22,6 +22,8 @@
  * described machine and returns true for YES and false for NO.
  *
  * TODO:
+ *   - 'polynomial' parser for p(n) line.
+ *   - grok what the output should actually look like
  *   - ?
  * 
  */
@@ -173,14 +175,13 @@ int main(int argc, char** argv)
 
    cout << "Reading " << states << " states." << endl;
 
-   /* states-2 because QY and QN are implicit. */
    for (states_read = 0; states_read < states; states_read++)
+	  /* Read in a line for each state we're expecting */
 	  {
 
 	  if (states_read == 1) // skip QY QN fields.
-		 {
 		 states_read = 3;
-		 }
+
 
 	  if (!getline(config_file, line))
 		 {
@@ -194,7 +195,7 @@ int main(int argc, char** argv)
 	   */
 
 	  int number = 0; // general field for storing numbers
-	  char c = NULL; // the current character we're scanning
+	  char c = NULL; // the current character being scanning
 	  transition t; // the present transition we're filling in
 
 	  enum { LOOKING_FOR_Q, 
@@ -208,69 +209,76 @@ int main(int argc, char** argv)
 	  char symbol = input_characters.string()[state_idx];
 
 	  for (int i=0 ; i < line.length(); i++)
+		 /* Parse the line for transition-markers */
 		 {
 		 c = line[i]; // the character being scanned
-		 switch (s) {
-		 case LOOKING_FOR_Q:
 
-			if (toupper(c) == 'Y' || toupper(c) == 'N') 
-			   {
-			   t.next_state = (toupper(c) == 'Y') ? QY : QN;
-			   s = LOOKING_FOR_COLON;
-			   }
+		 switch (s) 
+			{
+			case LOOKING_FOR_Q:
 
-			else if (isdigit(c))
-			   {
-			   number *= 10;
-			   number += c - '0';
-			   }
+			   if (toupper(c) == 'Y' || toupper(c) == 'N') 
+				  {
+				  t.next_state = (toupper(c) == 'Y') ? QY : QN;
+				  s = LOOKING_FOR_COLON;
+				  }
+
+			   else if (isdigit(c))
+				  {
+				  number *= 10;
+				  number += c - '0';
+				  }
 			
-			else if (c == ':') 
-			   {
-			   s = LOOKING_FOR_CHAR;
-			   t.next_state = number;
-			   number = 0;
-			   }
+			   else if (c == ':') 
+				  {
+				  s = LOOKING_FOR_CHAR;
+				  t.next_state = number;
+				  number = 0;
+				  }
 		   
-			break;
+			   break;
 
-		 case LOOKING_FOR_COLON:
+			case LOOKING_FOR_COLON:
 
-			if (c == ':')
-			   s = LOOKING_FOR_CHAR;
+			   if (c == ':')
+				  s = LOOKING_FOR_CHAR;
 
-			break;
+			   break;
 			
-		 case LOOKING_FOR_CHAR:
+			case LOOKING_FOR_CHAR:
 
-			t.write = c;
-			s = LOOKING_FOR_DELTA;
+			   t.write = c;
+			   s = LOOKING_FOR_DELTA;
 
-			break;
+			   break;
 			
 
-		 case LOOKING_FOR_DELTA:
+			case LOOKING_FOR_DELTA:
 			
-			if (c == '+' || c == '-')
-			   {
-			   t.delta = (c == '+');
+			   if (c == '+' || c == '-')
+				  {
+				  t.delta = (c == '+');
 
-			   cout << "Read state for symbol: '" 
-					<< symbol << "' states_read: " << states_read
-					<< endl;
+				  cout << "Read state for symbol: '" 
+					   << symbol << "' states_read: " << states_read
+					   << endl;
 
-			   state_table[symbol][states_read] = t;
-			   cout << t.next_state << ":" << t.write << ":" 
-					<< t.delta << endl;
+				  /* update our state_table */
+				  state_table[symbol][states_read] = t;
 
-			   s = LOOKING_FOR_Q;
-			   state_idx++;
-			   symbol = input_characters.string()[state_idx];
-			   }
+				  cout << t.next_state << ":" << t.write << ":" 
+					   << t.delta << endl;
 
-			break;
+				  s = LOOKING_FOR_Q;
 
-		 }
+				  state_idx++;
+
+				  symbol = input_characters.string()[state_idx];
+				  }
+
+			   break;
+
+			}
 					 
 
 		 }
@@ -291,8 +299,8 @@ int main(int argc, char** argv)
 	  }
 
    /* Validate states read matches expected number 
-	+1 because states_read is zero-indexed and -2 
-   because of implicit QY and QN. */
+	  +1 because states_read is zero-indexed and -2 
+	  because of implicit QY and QN. */
    if (states_read+1 < states-2)
 	  {
 	  cout << "Error: Read " << states_read 
@@ -343,7 +351,7 @@ int main(int argc, char** argv)
    cout << report << endl;
    if (tracefile.good())
 	  {
-	  tracefile << "\nSOLUTION: YES" << endl;
+	  tracefile << report << endl;
 	  tracefile.close();
 	  }
 

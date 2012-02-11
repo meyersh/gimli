@@ -1,4 +1,7 @@
-// Allow constant-time set manipulation
+/* Constant time char-set.
+   Algorithm: http://research.swtch.com/sparse
+   Code: Shaun Meyer, Feb 2012
+*/
 
 #ifndef __SET_HPP__
 #define __SET_HPP__
