@@ -32,7 +32,7 @@
 #include <vector>
 #include <string>
 #include <cstdlib> // for exit();
-
+#include <cctype>
 #include "set.hpp"
 #include "dtm.hpp"
 
@@ -172,57 +172,96 @@ int main(int argc, char** argv)
 	* Read in the states lines
 	*/
    printf("Input:\n");
+
    while (getline(config_file, line))  
 	  {
-
-	  vector<string> temp_states = split(line, "|");
-
-	  // Validate number of states on this line 
-	  if (temp_states.size() > states) 
-		 {
-		 cout << line << endl 
-			  << "Line has too many states.\n";
-		 exit(1);
-		 }
+	  cout << "Readling line " << line << endl;
 
 	  /* 
-	   * Read each state from a line
+	   * Read each transition state from a line
 	   */
-	  for (int i = 0; i < temp_states.size(); i++)
+
+	  int number = 0; // general field for storing numbers
+	  char c = NULL; // the current character we're scanning
+	  transition t; // the present transition we're filling in
+
+	  enum { LOOKING_FOR_Q, 
+			 LOOKING_FOR_COLON, 
+			 LOOKING_FOR_CHAR,
+			 LOOKING_FOR_DELTA };
+
+	  int s = LOOKING_FOR_Q; // our search state
+	  int state_idx = 0; // the current state-transition we're reading.
+
+	  char symbol = input_characters.string()[state_idx];
+
+	  for (int i=0 ; i < line.length(); i++)
 		 {
-		 char symbol = tape_symbols.string()[i];
-		 cout << "Reading transition for '" << symbol 
-			  << "' (q" << states_read << ") ==> " << temp_states[i] << endl;
+		 c = line[i]; // the character being scanned
+		 switch (s) {
+		 case LOOKING_FOR_Q:
 
-		 vector<string> state = split(temp_states[i], ":");
+			if (toupper(c) == 'Y' || toupper(c) == 'N') 
+			   {
+			   t.next_state = (toupper(c) == 'Y') ? QY : QN;
+			   s = LOOKING_FOR_COLON;
+			   }
 
-		 /* Validate state "write-next" field, it 
-			should be a member of tape_symbols. */
-		 if (!tape_symbols.contains(state[1][0]))
-			{
-			cout << "Invalid state: '" << temp_states[i] << "' has symbol '" 
-				 << state[1][0] << "' which is not in\n"
-				 << "the alphabet {" << tape_symbols.string() << "}.\n";
-			exit(1);
-			}
+			else if (isdigit(c))
+			   {
+			   number *= 10;
+			   number += c - '0';
+			   }
+			
+			else if (c == ':') 
+			   {
+			   s = LOOKING_FOR_CHAR;
+			   t.next_state = number;
+			   number = 0;
+			   }
+		   
+			break;
 
-		 /* delta is true if +, false otherwise. */
-		 state_table[symbol][states_read].delta = (state[2] == "+");
+		 case LOOKING_FOR_COLON:
 
-		 /* write value */
-		 state_table[symbol][states_read].write = state[1][0];
+			if (c == ':')
+			   s = LOOKING_FOR_CHAR;
 
-		 /* Handle exceptions of 'Y' and 'N' */
-		 if (state[0] == "Y" || state[0] == "N")
-			state_table[symbol][states_read].next_state = 
-			   state[0] == "Y" ? QY : QN;
-		 else
-			state_table[tape_symbols.string()[i]][states_read].next_state = 
-			   atoi(state[0].c_str());
+			break;
+			
+		 case LOOKING_FOR_CHAR:
+
+			t.write = c;
+			s = LOOKING_FOR_DELTA;
+
+			break;
+			
+
+		 case LOOKING_FOR_DELTA:
+			
+			if (c == '+' || c == '-')
+			   {
+			   t.delta = (c == '+');
+
+			   cout << "Read state for symbol: '" 
+					<< symbol << "' states_read: " << states_read
+					<< endl;
+
+			   state_table[symbol][states_read] = t;
+			   cout << t.next_state << ":" << t.write << ":" << t.delta << endl;
+
+			   s = LOOKING_FOR_Q;
+			   state_idx++;
+			   symbol = input_characters.string()[state_idx];
+			   }
+
+			break;
+
 		 }
+					 
 
+		 }
 	  states_read++;
-
 	  }
 
    config_file.close();
@@ -294,12 +333,12 @@ int main(int argc, char** argv)
 	* redirect cout to the file buffer. So no other code is changed.
 	*/
    if (line != "") {
-	  tracefile.open(line.c_str());
+   tracefile.open(line.c_str());
 
-	  if (tracefile.good())
-		 cout.rdbuf(tracefile.rdbuf());
+   if (tracefile.good())
+	  cout.rdbuf(tracefile.rdbuf());
 
-	  }
+   }
    
    cout << endl 
 		<< "Config summary:\n"
