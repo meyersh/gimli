@@ -32,7 +32,7 @@
 #include <vector>
 #include <string>
 #include <cstdlib> // for exit();
-#include <cctype>
+#include <cctype> // for isdigit();
 #include "set.hpp"
 #include "dtm.hpp"
 
@@ -95,7 +95,6 @@ int main(int argc, char** argv)
 
    // Save the console rdbuf pointer for later. 
    streambuf *console = cout.rdbuf();
-
 
    char_set tape_symbols;
    char_set input_characters;
@@ -395,7 +394,8 @@ bool run_program(
 	  else 
 		 human_next_state = state.next_state + '0';
 
-	  cout << setfill('0') << setw(3) << step << ": STATE: Q" << current_state_index
+	  cout << setfill('0') << setw(3) << step << ": STATE: Q" 
+		   << current_state_index
 		   << " HEADPOS: " << setw(2) << tape.read_head_pos 
 		   << " TAPE: (r'" << tape.read() << "') (w'" << state.write << "')"
 		   << " NEXT: Q" << human_next_state << " DELTA: " 
