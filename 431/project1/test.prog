@@ -1,0 +1,10 @@
+# Tape symbols (L)
+# Input characters (subset of tape symbols)
+# unsigned int (number of states) (QY=1, QN=2, etc)
+# transition info for state i=0
+# transition info for state 3 (skip QY + QN)
+# transition info for state 4 
+# ... each state has |L|+1 transition markers (|L| + 1 for blank)
+# Transition marker: (next-state-q || Y || N):(char-to-write):delta ({+,-})
+# 2nd-to-last-line: Input string
+# last line: polynomial for n
