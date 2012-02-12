@@ -174,7 +174,7 @@ struct Tape {
  **/
 
 struct transition {
-   int next_state; // -1 = QY, -2 = QN
+   int next_state; // 1 = QY, 2 = QN
    char write;
    bool delta; // TRUE == +1, FALSE == -1
    transition() {
