@@ -195,8 +195,8 @@ int main(int argc, char** argv)
 	   */
 
 	  int number = 0; // general field for storing numbers
-	  char c = NULL; // the current character being scanning
-	  transition t; // the present transition we're filling in
+	  char c = NULL;  // the current character being scanning
+	  transition t;   // the present transition we're filling in
 
 	  enum { LOOKING_FOR_Q, 
 			 LOOKING_FOR_COLON, 
@@ -208,7 +208,9 @@ int main(int argc, char** argv)
 
 	  char symbol = input_characters.string()[state_idx];
 
-	  for (int i=0 ; i < line.length(); i++)
+	  cout << "Reading for state " << states_read << endl;
+
+	  for (int i=0 ; i < line.length() ; i++)
 		 /* Parse the line for transition-markers */
 		 {
 		 c = line[i]; // the character being scanned
@@ -259,15 +261,14 @@ int main(int argc, char** argv)
 				  {
 				  t.delta = (c == '+');
 
-				  cout << "Read state for symbol: '" 
-					   << symbol << "' states_read: " << states_read
-					   << endl;
-
 				  /* update our state_table */
 				  state_table[symbol][states_read] = t;
 
-				  cout << t.next_state << ":" << t.write << ":" 
-					   << t.delta << endl;
+				  cout << " " 
+					   << state_table[symbol][states_read].next_state << ":" 
+					   << state_table[symbol][states_read].write << ":" 
+					   << state_table[symbol][states_read].delta
+					   << ",";
 
 				  s = LOOKING_FOR_Q;
 
@@ -283,6 +284,7 @@ int main(int argc, char** argv)
 
 		 }
 
+	  cout << endl;
 
 	  /* Validate the line just read in */
 	  if (state_idx  != input_characters.length())
