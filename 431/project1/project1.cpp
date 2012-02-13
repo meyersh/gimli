@@ -37,6 +37,7 @@
 #include <cctype> // for isdigit();
 #include "set.hpp"
 #include "dtm.hpp"
+#include "clauses.hpp"
 
 using namespace std;
 
