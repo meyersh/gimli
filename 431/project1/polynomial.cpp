@@ -14,9 +14,9 @@ int main(int argc, char** argv)
 
    string polynomial = argv[2];
    int n = atoi(argv[1]);
+   cout << "n+2 = " << n+2 << endl;
    cout << "n: " << n << endl
 		<< "p: " << polynomial << endl
-		<< "=: " << p(polynomial, n) << endl;
+		<< "=: " << eval_polynomial(polynomial, n) << endl;
    
-
 }

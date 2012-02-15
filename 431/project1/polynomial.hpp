@@ -55,7 +55,7 @@ bool is_operator(const char c)
    return (c == '+' || c == '-' || c == '*' || c == '^');
 }
 
-long long int p(std::string polynomial, int n)
+long long int eval_polynomial(std::string polynomial, int n)
 /* Parse and evaluate a polynomial contained in the string using Dijkstra's 
  * Shunting-yard algorithm. */
 {
@@ -71,7 +71,10 @@ long long int p(std::string polynomial, int n)
 	  char c = polynomial[i]; // the character we're currently scanning
 
 	  if (c == 'n' || c == 'N') // substitute for 'n'
+		 {
 		 numbers.push(n);
+		 continue;
+		 }
 
 	  else if (!(isdigit(c) || is_operator(c))) // non number, non operator
 		 continue; 

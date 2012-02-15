@@ -38,6 +38,7 @@
 #include "set.hpp"
 #include "dtm.hpp"
 #include "clauses.hpp"
+#include "polynomial.hpp"
 
 using namespace std;
 
@@ -106,6 +107,10 @@ int main(int argc, char** argv)
    
    int states = 0; // Number of states advertised in file.
    int states_read = 0;
+
+   int pn = 0; // p(n)
+   int n = 0;
+   string polynomial; 
 
    Tape tape; // tape object to store our data.
 
@@ -331,32 +336,41 @@ int main(int argc, char** argv)
 
    tape.set(line+" "); // Actually set the tape contents!
 
+   getline(config_file, polynomial); // read in the last line, the polynomial.
+   
+
+   n = tape.tape_length;
+   pn = eval_polynomial(polynomial, n);
+   
+
    cout << endl 
 		<< "Config summary:\n"
 		<< tape_symbols.length() << " {" << tape_symbols.string() << "}" << endl
 		<< states << " states.\n"
-		<< "tape value: {" << tape.toString() << "}" << endl << endl;
+		<< "tape value: {" << tape.toString() << "}" << endl 
+		<< "Polynomial P = " << polynomial << endl
+		<< "P(" << n << ") = " << pn << endl << endl;
 	  
-   cout << "Program Run:" << endl;
+
+
+
+   //cout << "Program Run:" << endl;
 
    /* Run the program and record the result */
-   bool result = run_program(state_table, tape_symbols, tape);
-
-   /* return cout to console */
-   cout.rdbuf(console);
+   //bool result = run_program(state_table, tape_symbols, tape);
 
    /*
 	* Return the results to the screen and any output file. 
 	*/
-   string report("\nSOLUTION: ");
-   report += (result == true) ? "YES" : "NO";
+   //string report("\nSOLUTION: ");
+   //report += (result == true) ? "YES" : "NO";
 
-   cout << report << endl;
-   if (tracefile.good())
-	  {
-	  tracefile << report << endl;
-	  tracefile.close();
-	  }
+   //cout << report << endl;
+   //if (tracefile.good())
+   //	  {
+   //  tracefile << report << endl;
+   //  tracefile.close();
+   //  }
 
 		 
    return 0;
