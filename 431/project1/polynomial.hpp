@@ -73,6 +73,7 @@ long long int eval_polynomial(std::string polynomial, int n)
 	  if (c == 'n' || c == 'N') // substitute for 'n'
 		 {
 		 numbers.push(n);
+		 scanning_number = false;
 		 continue;
 		 }
 
