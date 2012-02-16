@@ -5,8 +5,10 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <cmath> // for floor
 
 #define WIDTH 5
+#define SCREEN_WIDTH 80 // only 80-character wide terminal.
 
 /* Q[i,j] variable:
    0<=i<=p(n), 0<=k<=r
@@ -23,17 +25,27 @@ int p(int n)
 
 void pretty_print_vector(std::vector<std::string> v, std::string desc="") 
 {
+   int w = 0; // the width of our widest field
+   int width = 0; // where to wrap.
+
+   for (int i = 0; i < v.size(); i++)
+	  if (v[i].length() > w)
+		 w = v[i].length();
+
+   w += 4; // add a little room on either side.
+   
+   width = 80 / (w+2);
 
    if (desc != "")
 	  std::cout << desc << " = {" << std::endl;
 
    for (int i = 0; i < v.size(); i++)
 	  {
-	  if (i && i  % WIDTH == 0)
+	  if (i && i % width == 0)
 		 std::cout << std::endl;
-	  std::cout << std::setw(20) << std::setfill(' ') << v[i];
+	  std::cout << std::setw(w) << std::setfill(' ') << v[i];
 	  if (i != v.size() - 1)
-		 std::cout << ", ";
+		 std::cout << ",";
 		
 	  }
 
@@ -53,7 +65,7 @@ std::vector<std::string> G1a(int r)
 	  for (int s = 0; s <= r; s++)
 		 {
 		 std::stringstream ss;
-		 ss << "Q[" << i << "," << s << "]";
+		 ss << "Q[" << i << "," <<  s << "]";
 		 g1a.push_back(ss.str());
 		 }
    
@@ -88,11 +100,75 @@ std::vector<std::string> G2a(int r)
 	  for (int n = -p(n); n <= p(n) + 1; n++)
 		 {
 		 std::stringstream ss;
-		 ss << "H[" << i << ", " << n << "]";
+		 ss << "H[" << i << ", " << std::setw(2) << n << "]";
 		 g2_a.push_back(ss.str());
 
 		 }
 
    return g2_a;
 }
+
+
+std::vector<std::string> G2b(int r)
+/* G2a: {H[i, -p(n)], H[i, -p(n)+1], ..., H[i,p(n)+1]}, 0 <= i <= p(n)
+   G2b: {!H[i,j], !H[i,j']}, 0<= i <= p(n), -p(n) <= j < j' <= p(n) +1
+*/
+{
+   std::vector<std::string> g2b;
+
+   for (int i = 0; i <= p(n); i++)
+	  for (int j=-p(n), jp = j+1; j < jp && jp <= p(n); j++, jp++)
+		 {
+		 std::stringstream ss;
+		 ss << "{!H[" << i << "," << j << "], " << "!H[" << i << "," << jp << "]}";
+		 g2b.push_back(ss.str());
+		 }
+
+   return g2b;
+
+}
+
+
+std::vector<std::string> G3a(int r)
+/* G3a: {S[i,j,n], S[i,j,n+1], ... , S[i,j,v]}, 0 <= i <= p(n), -p(n) <= j <= p(n)+1
+   G3b: {!S[i,j,n], !S[i,j',n']}, 0 <= i <= p(n), -p(n) <= j <= p(n)+1, 0 <= n < n' <= v
+*/
+{
+
+   // TODO.
+   std::vector<std::string> g3_a;
+   for (int i = 0; i <= p(n); i++)
+	  for (int n = -p(n); n <= p(n) + 1; n++)
+		 {
+		 std::stringstream ss;
+		 ss << "H[" << i << ", " << std::setw(2) << n << "]";
+		 g3_a.push_back(ss.str());
+
+		 }
+
+   return g3_a;
+}
+
+
+std::vector<std::string> G3b(int r)
+/* G3a: {S[i,j,n], S[i,j,n+1], ... , S[i,j,v]}, 0 <= i <= p(n), -p(n) <= j <= p(n)+1
+   G3b: {!S[i,j,n], !S[i,j',n']}, 0 <= i <= p(n), -p(n) <= j <= p(n)+1, 0 <= n < n' <= v
+*/
+{
+   // TODO.
+   std::vector<std::string> g3b;
+
+   for (int i = 0; i <= p(n); i++)
+	  for (int j=-p(n), jp = j+1; j < jp && jp <= p(n); j++, jp++)
+		 {
+		 std::stringstream ss;
+		 ss << "{!H[" << i << "," << j << "], " << "!H[" << i << "," << jp << "]}";
+		 g3b.push_back(ss.str());
+		 }
+
+   return g3b;
+
+}
+
+
 #endif
