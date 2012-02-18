@@ -97,7 +97,7 @@ int main(int argc, char** argv)
    /* All file objects we may need */
    ifstream config_file(argv[1]);
    ifstream tape_file;
-   ofstream tracefile;
+   ofstream tracefile(argv[2]);
 
 
    // Save the console rdbuf pointer for later. 
@@ -120,7 +120,6 @@ int main(int argc, char** argv)
 
    Tape tape; // tape object to store our data.
 
-
    /* initialize state table (2d array). */
    transition **state_table = new transition*[255]; /* 255 is abitrary, 
 													   largest a CHAR can be. */
@@ -130,19 +129,26 @@ int main(int argc, char** argv)
    stats.transition_table = state_table;
 
    /* Validate arguments */
-   if (argc != 2)
+   if (argc != 3)
 	  {
-	  cout << "Syntax: " << argv[0] << " <config file>\n";
+	  cout << "Syntax: " << argv[0] << " <in file> <out file>\n";
 	  exit(1);
 	  }
-     
-
+   
    /* Validate file readable */
    if (!config_file)
 	  {
 	  cout << "Error opening config file '" << argv[1] << "'.\n";
 	  exit(1);
 	  }
+
+   /* Validate output file */
+   if (!tracefile.good())
+	  {
+	  cout << "No dice on that output file '" << argv[1] <<"'. Bailing out.\n";
+	  exit(1);
+	  }
+   
 
    /* Get and validate tape_symbols, input_characters, and the int. */
    if (!getline(config_file, line)) 
@@ -369,7 +375,10 @@ int main(int argc, char** argv)
 		<< "v = " << stats.v << ", r = " << stats.r << endl
 		<< endl;
 	  
-   cout << "Clauses:" << endl;
+   cout << "Writing clauses to file..." << endl;
+
+   // redirect to the tracefile
+   cout.rdbuf(tracefile.rdbuf());
 
    pretty_print_vector(G1a(stats), "G1_a");
    pretty_print_vector(G1b(stats), "G1_b");
@@ -391,29 +400,13 @@ int main(int argc, char** argv)
    pretty_print_vector(G6b(stats), "G6_b");
 
 
-
+   cout.rdbuf(console); // restore cout.
 
 	// end clauses
 
+   cout << " All done. " << endl;
 
-   //cout << "Program Run:" << endl;
-
-   /* Run the program and record the result */
-   //bool result = run_program(state_table, tape_symbols, tape);
-
-   /*
-	* Return the results to the screen and any output file. 
-	*/
-   //string report("\nSOLUTION: ");
-   //report += (result == true) ? "YES" : "NO";
-
-   //cout << report << endl;
-   //if (tracefile.good())
-   //	  {
-   //  tracefile << report << endl;
-   //  tracefile.close();
-   //  }
-
+   tracefile.close();
 		 
    return 0;
 }
