@@ -59,7 +59,20 @@ struct Tape {
 	  read_head = beg;
    }
 
-   int length() 
+   char index(int i)
+   /* move the tape head to index i */
+   {
+	  while (read_head_pos != i)
+		 if (i > read_head_pos)
+			move(true); // right
+		 else
+			move(false); //left
+	  
+	  return read_head->data;
+		 
+   }
+
+   int length() const 
    {
 	  return tape_length;
    }
@@ -200,6 +213,7 @@ struct transition {
 struct Stats {
    int pn, n, r, v;
    Tape tape;
+   transition **transition_table;
 }; // the universe of dtm stats.
 
 #endif

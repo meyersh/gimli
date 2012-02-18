@@ -207,6 +207,25 @@ std::vector<std::string> G4b(const Stats &stats)
    return ret;
 }
 
+std::vector<std::string> G4c(const Stats &stats)
+/* {Q[0,0]}, {H[0,1]}, {S[0,0,0]},
+   {S[0,1,k_1],S[0,2,k_2], ... , S[0,n,k_n]}},
+   {S[0,n+1]},{S[0,n+2,0]}, ... , {S[0,p(n)+1,0]},
+   where x = s_k[1], s_k[2], ... , s_k[n]
+*/
+{
+   // essentually, printing the input tape.
+   std::vector<std::string> ret;
+
+   for (int i = stats.tape.length(); i <= stats.pn+1; i++)
+	  {
+	  std::stringstream ss;
+	  ss << "S[0," << i << "," << 0 << "]";
+	  ret.push_back(ss.str());
+	  }
+   return ret;
+}
+
 
 std::vector<std::string> G5a(const Stats &stats)
 /* Q[p(n), 1] */
@@ -221,5 +240,73 @@ std::vector<std::string> G5a(const Stats &stats)
    return ret;
 }
 
+std::vector<std::string> G6a(const Stats &stats)
+/* {!S[i,j,l], H[i,j], S[i+1, j, l]}, 0<= i < p(n), -p(n) <= j <= p(n) +1, 0<=l<= v
+   
+   // (i, j, k, l), 0 <= i < p(n), -p(n) <= j <= p(n)+1, 0 <= k <= r
+   {!H[i,j], !Q[i,k], !S[i,j,l], H[i+1, j+delta]}
+   {!H[i,j], !Q[i,k], !S[i,j,l], Q[i+1, k']}
+   {!H[i,j], !Q[i,k], !S[i,j,l], S[i+1, j, l']}
+*/
+{
+   std::vector<std::string> ret;
+   std::string t = stats.tape.toString();
+   
+   for (int i = 0; i <= stats.pn; i++)
+	  for (int j = -stats.pn; j <= stats.pn+1; j++)
+		 for (int l = 0; l <= stats.v; l++)
+			{
+			std::stringstream ss;
+			ss << "{!S[" << i << ", " << j << ", " << l << "],"
+			   << " H[" << i << ", " << j << "],"
+			   << " S[" << i+1 << ", " << j << ", " << l << "]}";
+			ret.push_back(ss.str());
+			}
+   return ret;
+}
+
+std::vector<std::string> G6b( Stats &stats)
+/* {!S[i,j,l], H[i,j], S[i+1, j, l]}, 0<= i < p(n), -p(n) <= j <= p(n) +1, 0<=l<= v
+   
+   // (i, j, k, l), 0 <= i < p(n), -p(n) <= j <= p(n)+1, 0 <= k <= r
+   {!H[i,j], !Q[i,k], !S[i,j,l], H[i+1, j+delta]}
+   {!H[i,j], !Q[i,k], !S[i,j,l], Q[i+1, k']}
+   {!H[i,j], !Q[i,k], !S[i,j,l], S[i+1, j, l']}
+*/
+{
+   std::vector<std::string> ret;
+   for (int i = 0; i <= stats.pn; i++)
+	  for (int j = -stats.pn; j < stats.pn + 1; j++)
+		 for (int k = 0; k <= stats.r; k++)
+			for (int l = 0; l<=stats.v; l++)
+			{
+			std::stringstream sa, sb, sc;
+			int delta = 
+			   stats.transition_table[stats.tape.index(j)][k].delta ? 1 : -1;
+			char kp = stats.transition_table[stats.tape.index(j)][k].write;
+			int lp = stats.transition_table[stats.tape.index(j)][k].next_state;
+
+			sa << "{!H[" << i << ", " << j << "], " 
+			   << "!Q[" << i << ", " << k << "], "
+			   << "!S[" << i << ", " << j << ", " << l<< "], "
+			   << "H[" << i+1 << ", " << j + delta << "]}";
+			
+			sb << "{!H[" << i << ", " << j << "], " 
+			   << "!Q[" << i << ", " << k << "], "
+			   << "!S[" << i << ", " << j << ", " << l<< "], "
+			   << "Q[" << i+1 << ", " << kp << "]}";
+
+			sc << "{!H[" << i << ", " << j << "], " 
+			   << "!Q[" << i << ", " << k << "], "
+			   << "!S[" << i << ", " << j << ", " << l<< "], "
+			   << "S[" << i+1 << ", " << j << ", " << lp << "]}";
+
+
+			ret.push_back(sa.str());
+			ret.push_back(sb.str());
+			ret.push_back(sc.str());
+			}
+   return ret;
+}
 
 #endif

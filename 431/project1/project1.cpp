@@ -115,8 +115,8 @@ int main(int argc, char** argv)
    stats.n = 0;
    string polynomial; 
 
-   stats.r = 0; // number of states + 1
-   stats.v = 0; // number of input characters + 1
+   stats.r = 0; // number of states - 1
+   stats.v = 0; // number of input characters - 1
 
    Tape tape; // tape object to store our data.
 
@@ -127,7 +127,7 @@ int main(int argc, char** argv)
    for (int i = 0; i < 255; i++)
 	  state_table[i] = new transition[states];
 
-
+   stats.transition_table = state_table;
 
    /* Validate arguments */
    if (argc != 2)
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
 	  exit(1);
 	  }
 
-   stats.r = states + 1;
+   stats.r = states - 1;
 
    /*
 	* Read in the states lines
@@ -345,7 +345,7 @@ int main(int argc, char** argv)
    tape.set(line+" "); // Actually set the tape contents!
    
    stats.tape = tape;
-   stats.v = tape.length() + 1;
+   stats.v = tape.length() - 1;
 
    getline(config_file, polynomial); // read in the last line, the polynomial.
    
@@ -353,6 +353,11 @@ int main(int argc, char** argv)
    stats.n = tape.tape_length;
    stats.pn = eval_polynomial(polynomial, n);
    
+   if (stats.pn < stats.n)
+	  {
+	  cout << "\nError: p(n) is less than your tape length.\n";
+	  exit(1);
+	  }
 
    cout << endl 
 		<< "Config summary:\n"
@@ -365,7 +370,7 @@ int main(int argc, char** argv)
 		<< endl;
 	  
    cout << "Clauses:" << endl;
-   /*
+
    pretty_print_vector(G1a(stats), "G1_a");
    pretty_print_vector(G1b(stats), "G1_b");
 
@@ -377,11 +382,16 @@ int main(int argc, char** argv)
 
    pretty_print_vector(G4a(stats), "G4_a");
    pretty_print_vector(G4b(stats), "G4_b");
+   pretty_print_vector(G4c(stats), "G4_c");
 
    pretty_print_vector(G5a(stats), "G5_a");
-   */
 
-   pretty_print_vector(G4c(stats), "G4_c");
+   pretty_print_vector(G6a(stats), "G6_a");
+
+   pretty_print_vector(G6b(stats), "G6_b");
+
+
+
 
 	// end clauses
 
