@@ -52,7 +52,7 @@ void pretty_print_vector(std::vector<std::string> v, std::string desc="")
 	  }
 
    if (desc != "")
-	  std::cout << "}";
+	  std::cout << "\n}";
 
    std::cout << std::endl;
 }
@@ -172,12 +172,40 @@ std::vector<std::string> G3b(const Stats &stats)
 
 }
 
+std::vector<std::string> G4a(const Stats &stats)
+/* {Q[0,0]}, {H[0,1]}, {S[0,0,0]},
+   {S[0,1,k_1],S[0,2,k_2], ... , S[0,n,k_n]}},
+   {S[0,n+1]},{S[0,n+2,0]}, ... , {S[0,p(n)+1,0]},
+   where x = s_k[1], s_k[2], ... , s_k[n]
+*/
+{
+   std::vector<std::string> ret;
+   ret.push_back("{Q[0,0]}");
+   ret.push_back("{H[0,1]}");
+   ret.push_back("{S[0,0,0]}");
+   return ret;
 
+}
 
+std::vector<std::string> G4b(const Stats &stats)
+/* {Q[0,0]}, {H[0,1]}, {S[0,0,0]},
+   {S[0,1,k_1],S[0,2,k_2], ... , S[0,n,k_n]}},
+   {S[0,n+1]},{S[0,n+2,0]}, ... , {S[0,p(n)+1,0]},
+   where x = s_k[1], s_k[2], ... , s_k[n]
+*/
+{
+   // essentually, printing the input tape.
+   std::vector<std::string> ret;
+   std::string t = stats.tape.toString();
 
-
-
-
+   for (int i = 0; i < t.length(); i++)
+	  {
+	  std::stringstream ss;
+	  ss << "S[0," << i+1 << "," << t[i] << "]";
+	  ret.push_back(ss.str());
+	  }
+   return ret;
+}
 
 
 std::vector<std::string> G5a(const Stats &stats)

@@ -64,11 +64,13 @@ struct Tape {
 	  return tape_length;
    }
 
-   std::string toString()
+   std::string toString() const
    {
 	  std::string ret;
+
 	  for (Cell *i = beg; i; i = i->next)
 		 ret += i->data;
+
 	  return ret;
    }
 
@@ -197,6 +199,7 @@ struct transition {
 
 struct Stats {
    int pn, n, r, v;
-}; // the universe of stats.
+   Tape tape;
+}; // the universe of dtm stats.
 
 #endif

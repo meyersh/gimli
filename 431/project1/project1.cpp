@@ -86,7 +86,7 @@ bool run_program(
 
 
 
-Stats stats; // A struct to hold pn, n, r, and v. Defined in dtm.hpp.
+Stats stats; // A global struct to hold pn, n, r, and v. Defined in dtm.hpp.
 /*
  * The big show!
  */
@@ -343,6 +343,8 @@ int main(int argc, char** argv)
 	  }
 
    tape.set(line+" "); // Actually set the tape contents!
+   
+   stats.tape = tape;
    stats.v = tape.length() + 1;
 
    getline(config_file, polynomial); // read in the last line, the polynomial.
@@ -373,9 +375,14 @@ int main(int argc, char** argv)
    pretty_print_vector(G3a(stats), "G3_a");
    pretty_print_vector(G3b(stats), "G3_b");
 
+   pretty_print_vector(G4a(stats), "G4_a");
+   pretty_print_vector(G4b(stats), "G4_b");
 
    pretty_print_vector(G5a(stats), "G5_a");
    */
+
+   pretty_print_vector(G4c(stats), "G4_c");
+
 	// end clauses
 
 
