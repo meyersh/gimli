@@ -84,6 +84,9 @@ bool run_program(
 				 Tape tape);
 
 
+
+
+Stats stats; // A struct to hold pn, n, r, and v. Defined in dtm.hpp.
 /*
  * The big show!
  */
@@ -108,9 +111,12 @@ int main(int argc, char** argv)
    int states = 0; // Number of states advertised in file.
    int states_read = 0;
 
-   int pn = 0; // p(n)
-   int n = 0;
+   stats.pn = 0; // p(n)
+   stats.n = 0;
    string polynomial; 
+
+   stats.r = 0; // number of states + 1
+   stats.v = 0; // number of input characters + 1
 
    Tape tape; // tape object to store our data.
 
@@ -174,6 +180,8 @@ int main(int argc, char** argv)
 	  cout << "Non-positive number of states.\n";
 	  exit(1);
 	  }
+
+   stats.r = states + 1;
 
    /*
 	* Read in the states lines
@@ -335,12 +343,13 @@ int main(int argc, char** argv)
 	  }
 
    tape.set(line+" "); // Actually set the tape contents!
+   stats.v = tape.length() + 1;
 
    getline(config_file, polynomial); // read in the last line, the polynomial.
    
 
-   n = tape.tape_length;
-   pn = eval_polynomial(polynomial, n);
+   stats.n = tape.tape_length;
+   stats.pn = eval_polynomial(polynomial, n);
    
 
    cout << endl 
@@ -349,9 +358,25 @@ int main(int argc, char** argv)
 		<< states << " states.\n"
 		<< "tape value: {" << tape.toString() << "}" << endl 
 		<< "Polynomial P = " << polynomial << endl
-		<< "P(" << n << ") = " << pn << endl << endl;
+		<< "P(" << stats.n << ") = " << stats.pn << endl 
+		<< "v = " << stats.v << ", r = " << stats.r << endl
+		<< endl;
 	  
+   cout << "Clauses:" << endl;
+   /*
+   pretty_print_vector(G1a(stats), "G1_a");
+   pretty_print_vector(G1b(stats), "G1_b");
 
+   pretty_print_vector(G2a(stats), "G2_a");
+   pretty_print_vector(G2b(stats), "G2_b");
+
+   pretty_print_vector(G3a(stats), "G3_a");
+   pretty_print_vector(G3b(stats), "G3_b");
+
+
+   pretty_print_vector(G5a(stats), "G5_a");
+   */
+	// end clauses
 
 
    //cout << "Program Run:" << endl;

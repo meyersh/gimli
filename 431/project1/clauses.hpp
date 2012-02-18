@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <cmath> // for floor
 
+#include "dtm.hpp" // for stats structure.
+
 #define WIDTH 5
 #define SCREEN_WIDTH 80 // only 80-character wide terminal.
 
@@ -55,14 +57,14 @@ void pretty_print_vector(std::vector<std::string> v, std::string desc="")
    std::cout << std::endl;
 }
 
-std::vector<std::string> G1a(int r)
+std::vector<std::string> G1a(const Stats &stats)
 /* G1a: {Q[i,0], Q[i,1], ... , Q[i,r]}, 0<=i<=p(n)
    G1b: {!Q{i,j], !Q[i,j'}, 0<= i <= p(n), 0<= j < j' <= r */
 {
    std::vector<std::string> g1a;
 
-   for (int i = 0; i <= p(n); i++)
-	  for (int s = 0; s <= r; s++)
+   for (int i = 0; i <= stats.pn; i++)
+	  for (int s = 0; s <= stats.r; s++)
 		 {
 		 std::stringstream ss;
 		 ss << "Q[" << i << "," <<  s << "]";
@@ -72,17 +74,17 @@ std::vector<std::string> G1a(int r)
    return g1a;
 }
 
-std::vector<std::string> G1b(int r)
+std::vector<std::string> G1b(const Stats &stats)
 /* G1a: {Q[i,0], Q[i,1], ... , Q[i,r]}, 0<=i<=p(n)
    G1b: {!Q{i,j], !Q[i,j'}, 0<= i <= p(n), 0<= j < j' <= r */
 {
    std::vector<std::string> g1b;
 
-   for (int i = 0; i <= p(n); i++)
-	  for (int j=0, jp = 1; j < jp && jp <= r; j++, jp++)
+   for (int i = 0; i <= stats.pn; i++)
+	  for (int j=0; j < stats.r; j++)
 		 {
 		 std::stringstream ss;
-		 ss << "{!Q[" << i << "," << j << "], " << "!Q[" << i << "," << jp << "]}";
+		 ss << "{!Q[" << i << "," << j << "], " << "!Q[" << i << "," << (j+1) << "]}";
 		 g1b.push_back(ss.str());
 		 }
 
@@ -90,14 +92,14 @@ std::vector<std::string> G1b(int r)
 
 }
 
-std::vector<std::string> G2a(int r)
+std::vector<std::string> G2a(const Stats &stats)
 /* G2a: {H[i, -p(n)], H[i, -p(n)+1], ..., H[i,p(n)+1]}, 0 <= i <= p(n)
    G2b: {!H[i,j], !H[i,j']}, 0<= i <= p(n), -p(n) <= j < j' <= p(n) +1
 */
 {
    std::vector<std::string> g2_a;
-   for (int i = 0; i <= p(n); i++)
-	  for (int n = -p(n); n <= p(n) + 1; n++)
+   for (int i = 0; i <= stats.pn; i++)
+	  for (int n = -stats.pn; n <= stats.pn + 1; n++)
 		 {
 		 std::stringstream ss;
 		 ss << "H[" << i << ", " << std::setw(2) << n << "]";
@@ -109,15 +111,15 @@ std::vector<std::string> G2a(int r)
 }
 
 
-std::vector<std::string> G2b(int r)
+std::vector<std::string> G2b(const Stats &stats)
 /* G2a: {H[i, -p(n)], H[i, -p(n)+1], ..., H[i,p(n)+1]}, 0 <= i <= p(n)
    G2b: {!H[i,j], !H[i,j']}, 0<= i <= p(n), -p(n) <= j < j' <= p(n) +1
 */
 {
    std::vector<std::string> g2b;
 
-   for (int i = 0; i <= p(n); i++)
-	  for (int j=-p(n), jp = j+1; j < jp && jp <= p(n); j++, jp++)
+   for (int i = 0; i <= stats.pn; i++)
+	  for (int j=-stats.pn, jp = j+1; j < jp && jp <= stats.pn+1; j++, jp++)
 		 {
 		 std::stringstream ss;
 		 ss << "{!H[" << i << "," << j << "], " << "!H[" << i << "," << jp << "]}";
@@ -129,19 +131,20 @@ std::vector<std::string> G2b(int r)
 }
 
 
-std::vector<std::string> G3a(int r)
-/* G3a: {S[i,j,n], S[i,j,n+1], ... , S[i,j,v]}, 0 <= i <= p(n), -p(n) <= j <= p(n)+1
+std::vector<std::string> G3a(const Stats &stats)
+/* 
+   r = states - 1, v = input symbols - 1
+   G3a: {S[i,j,n], S[i,j,n+1], ... , S[i,j,v]}, 0 <= i <= p(n), -p(n) <= j <= p(n)+1
    G3b: {!S[i,j,n], !S[i,j',n']}, 0 <= i <= p(n), -p(n) <= j <= p(n)+1, 0 <= n < n' <= v
 */
 {
 
-   // TODO.
    std::vector<std::string> g3_a;
-   for (int i = 0; i <= p(n); i++)
-	  for (int n = -p(n); n <= p(n) + 1; n++)
+   for (int i = 0; i <= stats.pn; i++)
+	  for (int n = -stats.pn; n <= stats.pn + 1; n++)
 		 {
 		 std::stringstream ss;
-		 ss << "H[" << i << ", " << std::setw(2) << n << "]";
+		 ss << "S[" << i << ", " << std::setw(2) << n << "]";
 		 g3_a.push_back(ss.str());
 
 		 }
@@ -150,16 +153,15 @@ std::vector<std::string> G3a(int r)
 }
 
 
-std::vector<std::string> G3b(int r)
+std::vector<std::string> G3b(const Stats &stats)
 /* G3a: {S[i,j,n], S[i,j,n+1], ... , S[i,j,v]}, 0 <= i <= p(n), -p(n) <= j <= p(n)+1
    G3b: {!S[i,j,n], !S[i,j',n']}, 0 <= i <= p(n), -p(n) <= j <= p(n)+1, 0 <= n < n' <= v
 */
 {
-   // TODO.
    std::vector<std::string> g3b;
 
-   for (int i = 0; i <= p(n); i++)
-	  for (int j=-p(n), jp = j+1; j < jp && jp <= p(n); j++, jp++)
+   for (int i = 0; i <= stats.pn; i++)
+	  for (int j=-stats.pn, jp = j+1; j < jp && jp <= stats.pn+1; j++, jp++)
 		 {
 		 std::stringstream ss;
 		 ss << "{!H[" << i << "," << j << "], " << "!H[" << i << "," << jp << "]}";
@@ -168,6 +170,27 @@ std::vector<std::string> G3b(int r)
 
    return g3b;
 
+}
+
+
+
+
+
+
+
+
+
+std::vector<std::string> G5a(const Stats &stats)
+/* Q[p(n), 1] */
+{
+   std::vector<std::string> ret;
+   std::stringstream ss;
+
+   ss << "Q[" << stats.pn << ", 1]";
+
+   ret.push_back(ss.str());
+
+   return ret;
 }
 
 

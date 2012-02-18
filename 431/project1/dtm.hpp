@@ -59,6 +59,10 @@ struct Tape {
 	  read_head = beg;
    }
 
+   int length() 
+   {
+	  return tape_length;
+   }
 
    std::string toString()
    {
@@ -190,5 +194,9 @@ struct transition {
 	  delta = todelta;
    }
 };
+
+struct Stats {
+   int pn, n, r, v;
+}; // the universe of stats.
 
 #endif
