@@ -30,7 +30,7 @@ void pretty_print_vector(std::vector<std::string> v, std::string desc="")
    int w = 0; // the width of our widest field
    int width = 0; // where to wrap.
 
-   for (int i = 0; i < v.size(); i++)
+   for (int i = 0; i < v.size() && w < 40; i++)
 	  if (v[i].length() > w)
 		 w = v[i].length();
 
