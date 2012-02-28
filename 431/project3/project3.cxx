@@ -1,4 +1,4 @@
-#include <iostream.
+#include <iostream>
 #include "wlm.hxx"
 
 using namespace std;

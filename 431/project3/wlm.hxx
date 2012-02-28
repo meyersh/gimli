@@ -35,9 +35,8 @@ struct State
    vector<int> x;
 
    State(initializer_list<int> initial_values) {
-	  vector<int> new_x = initial_values;
-	  x = new_x;
-
+	  x = initial_values;
+	  
    }
 
    
