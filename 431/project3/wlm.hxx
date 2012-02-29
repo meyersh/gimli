@@ -39,13 +39,25 @@ struct State
 	  
    }
 
-   
 };
 
-int V(State b) {
+struct Weight
+{
+
+   vector<int> w;
+
+   Weight(string filename) {
+	  w = initial_values;
+	  
+   }
+}
+
+int Vhat(State b) {
 
    return -1;
 
 }
+
+
 
 #endif
