@@ -19,7 +19,7 @@ for (var y = 0; y < board_size; y++) {
   for (var x = 0; x < board_size; x++) {
 	var img = "";
   
-    else if (y == 0 && x==0)
+    if (y == 0 && x==0)
       img = "0.gif";
 	else if (x == (board_size-1)/2 && y == (board_size-1)/2)
       img = "9.gif";
