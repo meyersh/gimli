@@ -32,15 +32,15 @@ int main() {
 
 
    // Filter out blank params.
-   if (param == "")
+   if (instr == "")
 	  die("msg: Expected parameter.");
 
-   if (param == "SETUP")
+   if (instr == "SETUP")
 	  {
 	  // check for four characters, noting all options
 	  // are size() == 4, begin with h and end with 1 or 2.
 	  
-	  if (param.size() != 4 || param[0] != 'h')
+	  if (param.size() != 3 || param[0] != 'h')
 		 die("msg: Invalid parameter: " + param);
 
 	  if (param[1] == 'h')
@@ -61,7 +61,7 @@ int main() {
 	  // TODO: Create a game, files, sessions, etc.
 	  }
 
-   else if (param == "JOIN")
+   else if (instr == "JOIN")
 	  {
 
 	  // TODO: Check that param is a valid gameid.
@@ -70,14 +70,14 @@ int main() {
 
 	  }
 
-   else if (param == "MOVE")
+   else if (instr == "MOVE")
 	  {
 
 	  // TODO: Validate gameid, sessionid, and feed the computer a move.
 
 	  }
 
-   else if (param == "CHECK")
+   else if (instr == "CHECK")
 	  {
 
 	  // TODO: Return computer (or other player) move.
