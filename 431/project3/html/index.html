@@ -1,1 +1,41 @@
-Hello World!
+<html>
+<head>
+<title>Project3: Machine Learning and Pente</title>
+</head>
+<body>
+<table class="board" cellpadding=5 cellspacing=0 border=1>
+<script language="JavaScript">
+for (var y = 0; y < 19; y++) {
+  document.write("<tr>");
+  for (var x = 0; x < 19; x++) {
+	var img = "";
+    if (y == 0 && x==0)
+      img = "0.gif";
+    else if (y == 0 && x < 19-1)
+      img = "1.gif";
+    else if (y == 0 && x < 19)
+      img = "2.gif";
+    else if (y < 19-1 && x == 0)
+      img = "3.gif";
+    else if (y < 19-1 && x < 19-1)
+      img = "4.gif";
+    else if (y < 19-1 && x < 19)
+      img = "5.gif";
+    else if (y == 19-1 && x == 0)
+	  img = "6.gif";
+    else if (y == 19-1 && x < 19-1)
+      img = "7.gif";
+	else if (y == 19-1 && x == 19-1)
+      img = "8.gif";
+
+
+    document.write("<td><input type='image' border='0' name='" + y + "" + x  
+					  + "' src='images/" + img +"' height=30 width=30></td>");
+  }
+  document.write("</tr>");
+} 
+</script>
+</table>
+</body>
+</html>
+
