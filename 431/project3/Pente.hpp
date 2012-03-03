@@ -28,6 +28,7 @@ class Pente {
 
     Pente() { _initBoard_(); }
     ~Pente();
+    void _initBoard_();
     int fillCell(int r, int c, char color);
     int clearCell(int r, int c);
     int getFilled(char color, vector<cell*> &filled);
