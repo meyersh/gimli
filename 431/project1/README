@@ -1,0 +1,10 @@
+CSCI NP-Completeness Project 1
+Shaun Meyer, Feb 2012
+
+`make project1` to build it. ./project1 <infile> <outfile> to run it.
+
+`make set` to build set-unit-tests. ./set to run.
+
+`make clauses` unit-tests no longer work.
+
+`make depends` to refresh hpp dependencies.
