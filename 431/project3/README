@@ -1,0 +1,31 @@
+Project 3: Machine learning (Pente webapp)
+
+session.hpp:
+  - This library provides session functions to easily load/edit/describe the game sessions.
+  
+session.cpp:
+  - This is a simple test program which demonstrates functions from session.hpp
+
+wlm.hpp
+  - This header file describes the State and Weight objects as well as the
+    Vhat() and learning routines.
+
+wlm.cpp
+  - This is a simple test program for testing wlm.hpp
+
+project3.cgi:
+  - This will be the cgi which is called from the web. It will integrate 
+    sessions, games, and provide the API to the client. 
+
+Pente.hpp:
+  - This describes the game configuration and interfaces with the learning 
+    machine by providing an interface to state(). We provice a make_move()
+    function by passing in the Vhat() function as a reference.
+  - All Xi variables are defined here.
+
+- games are stored in GAMES_DIRECTORY (defined in wlm.hpp) as "games/"
+- "weights.txt" stores the persistent 'weights'. It is defined in wlm.hpp
+
+
+
+
