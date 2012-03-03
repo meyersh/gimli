@@ -9,39 +9,96 @@
 #define __SESSION_HPP__
 
 #include <fstream>
+#include <stdexcept>
+#include <vector>
 #include <string>
-#include <boost/filesystem/operations.hpp>
 #include <ctime>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
+
+
 
 using namespace std;
 
-#define GAMEID_LIST_FILE "games.txt"
+// The trailing slash is required.
 #define GAMEID_DIRECTORY "games/"
+                          
 
-boost::filesystem::path gameid_file_path(string gameid) {
+// ProtoTypes
+const char* gameid_file_path(const string);
+void remove_game(string);
+vector<string> list_games();
+bool gameid_exists(string);
+int gameid_age(string);
+template<class T> int save_game(string gameid, T game);
+
+// 
+// Definitions here:
+//
+
+const char* gameid_file_path(const string gameid) {
    // Render the file path for a gameid. 
    
    string path = string(GAMEID_DIRECTORY) + gameid;
-   return boost::filesystem::path( path.c_str() ) ;
+   return path.c_str();
+}
+
+void remove_game(string gameid) {
+   // delete a gameid file.
+   
+   if (gameid_exists( gameid ))
+	  unlink(gameid_file_path(gameid));
+
+}
+
+vector<string> list_games() {
+   // List the games in GAMEID_DIRECTORY
+ 
+   vector<string> ret;
+
+   DIR *dp;
+   struct dirent *ep;     
+   dp = opendir(GAMEID_DIRECTORY);
+   
+   if (dp == NULL)
+	  throw runtime_error("Couldn't open the directory");
+
+   while (ep = readdir (dp))
+	  {
+	  string file = ep->d_name;
+	  if (file != "." 
+		  && file != "..")
+		 ret.push_back(file);
+	  }
+   (void) closedir (dp);
+
+   return ret;
 }
 
 bool gameid_exists(string gameid) {
    // Check if a game exists.
-
-   return boost::filesystem::exists( gameid_file_path(gameid) );
+   ifstream gameid_file( gameid_file_path(gameid) );
+   return gameid_file; // nz for ok to write.
 
 }
 
 int gameid_age(string gameid) {
    // how old is a file in seconds?
 
-   std::time_t t = boost::filesystem::last_write_time( gameid_file_path(gameid) );
+   struct stat s;
+
+   stat( gameid_file_path(gameid), &s);
+
+   std::time_t t   = s.st_mtime;
    std::time_t now = std::time(NULL);
    
    return now-t;
 }
 
-int save_game(string gameid, template<T> game) {
+template<class T> 
+int save_game(string gameid, T game) {
    // Serialize and save a game.
 
    ofstream gameid_file(gameid_file_path(gameid));
