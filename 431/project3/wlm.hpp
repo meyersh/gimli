@@ -1,6 +1,8 @@
 #ifndef __WLM_HPP__
 #define __WLM_HPP__
 
+#define WEIGHTS_FILE "weights.txt"
+
 /*
  * Weighted Learning Machine . hpp
  * Shaun Meyer, Mar 2012
@@ -9,7 +11,8 @@
  * Where in RL, V is our PERFECT function, and \hat{v} is an approximation
  * we shall consider V to be the best we can do.
  * 
- * It is made up of weights, such as w0 + x1w1 + xiwi + x(i+1)w(i+1) + ... + xnwn.
+ * It is made up of weights, such as
+ *  w0 + x1w1 + xiwi + x(i+1)w(i+1) + ... + xnwn.
  * which are determined by the least mean squares method:
  * 
  * (Vtrain(b) - V(b))^2; 
@@ -28,6 +31,8 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
+
 
 using namespace std;
 
@@ -98,6 +103,7 @@ struct Weight
 
    Weight(string);
    ~Weight();
+   int size() {return w.size();};
    int& operator[] (const int);
    int save();
    int load(); 
@@ -172,8 +178,30 @@ string Weight::toString() {
 	  
 
 int Vhat(State b) {
+   Weight w(WEIGHTS_FILE);
 
-   return -1;
+   // empty w or b is exceptional.
+   if (!b.size() || !w.size())
+	  throw logic_error("Weight or B is empty.");
+
+   // We have dynamic-length state & weight,
+   // calculate for the shorter.
+   int len = 0;
+
+   if (b.size() < w.size())
+	  len = b.size();
+   else 
+	  len = w.size() - 1;
+
+
+   // Implicit w0 var.
+   int result = w[0];
+   
+   // Multiply up the rest of the xi*wi vars.
+   for (int i = 0; i < len; i++)
+	  result += b[i] * w[i+1];
+
+   return result;
 
 }
 

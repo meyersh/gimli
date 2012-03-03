@@ -23,8 +23,9 @@ int main() {
 
    // b2[5] // this would segfault!
 
-   cout << b[1] << endl;
-   cout << b.toString() << endl;
+   cout << "b[1] = " << b[1] << endl
+		<< "b.toString() -> " << b.toString() << endl
+		<< endl;
 
    //
    // Weights
@@ -43,8 +44,13 @@ int main() {
 	  w.insert(5);
 	  }
 
-   cout << w[1] << endl;
-   cout << w.toString() << endl;
+   cout << "w[1] = " << w[1] << endl;
+   cout << "w.toString -> " << w.toString() << endl
+		<< endl;
+
+   cout << "Vhat(b) where b = " << b.toString() << endl
+		<< "       and w = " << w.toString() << endl
+		<< "Vhat(b) -> " << Vhat(b) << endl;
 
    /* We haven't saved our weights object! That's OK, the 
 	  destructor calls save() for us. Whew. */
