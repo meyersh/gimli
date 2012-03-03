@@ -1,4 +1,4 @@
-CXX=g++47
+CXX=g++
 
-project3: wlm.hxx project3.cxx
-	LANG=C $(CXX) -std=c++0x project3.cxx
+#project3: wlm.hpp project3.cpp
+#	LANG=C $(CXX) project3.cpp -o project3
