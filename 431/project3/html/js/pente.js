@@ -1,14 +1,18 @@
 function draw_board() {
 	var board_size = 19;
-	var board = document.getElementById('board');
+	var board_elem = document.getElementById('board');
+	var board = ""
 
-	board.innerHTML += '<table class="board" '
-		+ 'cellpadding=0 cellspacing=0 border=0>';
+	board = '<table class="board" cellpadding=0 cellspacing=0 border=0>\n';
 
 	for (var y = 0; y < board_size; y++) {
-		board.innerHTML += "<tr>";
+
+		board += "<tr>\n";
+
 		for (var x = 0; x < board_size; x++) {
 			var img = "";
+			var name = x + ' ' + y;
+
 			
 			if (y == 0 && x==0)
 				img = "0.gif";
@@ -32,15 +36,37 @@ function draw_board() {
 				img = "8.gif";
 
 
-			board.innerHTML += "<td><input type='image' border='0' name='" 
-				+ y + "" + x  
-				+ "' src='images/" + img +"' height=30 width=30></td>";
-		}
 
-		board.innerHTML += "</tr>";
-	} 
+			board += '<td><input type="image" border="0" name="'
+				+ name  
+				+ '" src="images/' + img +'" height=30 width=30></td>\n';
+			
+		} 
+		board += "</tr>\n";
+	} // 
 
-	board.innerHTML += "</table>";
+	board += "</table>";
 	
+	board_elem.innerHTML = board;
 
+}
+
+var myMessages = ['info','warning','error','success']; // define the messages types		 
+function hideAllMessages()
+{
+		 var messagesHeights = new Array(); // this array will store height for each
+	 
+		 for (i=0; i<myMessages.length; i++)
+		 {
+				  messagesHeights[i] = $('.' + myMessages[i]).outerHeight();
+				  $('.' + myMessages[i]).css('top', -messagesHeights[i]); //move element outside viewport	  
+		 }
+}
+
+function showMessage(type)
+{
+	$('.'+ type +'-trigger').click(function(){
+		  hideAllMessages();				  
+		  $('.'+type).animate({top:"0"}, 500);
+	});
 }

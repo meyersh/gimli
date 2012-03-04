@@ -7,6 +7,11 @@
 <link 
    href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" 
    rel="stylesheet" type="text/css"/>
+
+<link
+   href="css/pente.css"
+   rel="stylesheet" type="text/css"/>
+
 <script 
    src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js">
 </script>
@@ -24,50 +29,65 @@
 
   <input type="hidden" id="white_positions"/>
   <input type="hidden" id="black_positions"/>
-  
-<div id="accordion">
-	<h3><a href="#">Create a Game</a></h3>
+
+<div class="info message">
+		 <h3>FYI, something just happened!</h3>
+		 <p>This is just an info notification message.</p>
+</div>
+
+<div class="error message">
+		 <h3>Ups, an error ocurred</h3>
+		 <p>This is just an error notification message.</p>
+
+</div>
+
+<div class="warning message">
+		 <h3>Wait, I must warn you!</h3>
+		 <p>This is just a warning notification message.</p>
+</div>
+
+<div class="success message">
+		 <h3>Congrats, you did it!</h3>
+		 <p>This is just a success notification message.</p>
+
+</div>
+
+
+
+<div id="accordion" style="margin-top:80px;">
+	<h3><a href="JavaScript:;">Create a Game</a></h3>
 	<div id="title">
-	  <p>Oh yeah, creating a game</p>
-	</div>
+	  <p>Oh yeah, creating a game.</p>
+	  <p>Once you choose a color, you'll be ready!</p>
+	  <form> 
+		<select>
+		  <option>Play as White and go first</option>
+		  <option>Play as Black and go second</option>
+		</select>
+		<input type="button" value="Create Game" class="trigger success-trigger"/>
+	  </form>
+	</div><!-- end of create-a-game -->
 
 	<h3><a href="#">Join a game</a></h3>
-	<div class="content" id="board"></div>
+	<div class="content" style="height:900px;">
+	  <form>
+		<input type="text" class="defaultText" id="gameid" title="gameid"/>
+		<input type="hidden" id="sessionid"/>
+		<input type="button" value="Join" class="trigger info-trigger"/>
+		<input type="button" value="Forfeit" class="trigger warning-trigger"/>
+		<input type="button" value="Refresh board"/>
+	  </form>
+	  
+	  <div class="content" id="board"></div>
 
-	<h3><a href="#">Section 1</a></h3>
+	</div><!-- end of join-a-game -->
+
+	<h3><a href="#">Credits</a></h3>
 	<div>
-		<p>
-		Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer
-		ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit
-		amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut
-		odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.
-		</p>
-	</div>
-	<h3><a href="#">Section 2</a></h3>
-	<div>
-		<p>
-		Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet
-		purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor
-		velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In
-		suscipit faucibus urna.
-		</p>
-	</div>
-	<h3><a href="#">Section 3</a></h3>
-	<div>
-		<p>
-		Nam enim risus, molestie et, porta ac, aliquam ac, risus. Quisque lobortis.
-		Phasellus pellentesque purus in massa. Aenean in pede. Phasellus ac libero
-		ac tellus pellentesque semper. Sed ac felis. Sed commodo, magna quis
-		lacinia ornare, quam ante aliquam nisi, eu iaculis leo purus venenatis dui.
-		</p>
-		<ul>
-			<li>List item one</li>
-			<li>List item two</li>
-			<li>List item three</li>
-		</ul>
-	</div>
-	<h3><a href="#">Section 4</a></h3>
-	<div>
+	  <p><a href="http://www.red-team-design.com/wp-content/uploads/2011/07/cool-notification-messages-with-css3-and-jquery-demo.html">Cool notification messages</a></p>
+	  <p><a href="http://docs.jquery.com/UI/Accordion">jQuery accordion</a></p>
+	  <p><a href="http://www.pente.net/">Pente Board</a></p>
+
 		<p>
 		Cras dictum. Pellentesque habitant morbi tristique senectus et netus
 		et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in
@@ -87,10 +107,52 @@
   <script>
   /* This took WAY TO LONG to work out. */
   $(document).ready(function() {
-    $("#accordion").accordion({active:false, collapsible:true});
+    $("#accordion").accordion(
+      {
+       active:false, 
+       collapsible:true,
+       fillSpace:true
+      });
+
     draw_board();
+
+    $(".defaultText").focus(function(srcc)
+    {
+        if ($(this).val() == $(this)[0].title)
+        {
+            $(this).removeClass("defaultTextActive");
+            $(this).val("");
+        }
+    });
+    
+    $(".defaultText").blur(function()
+    {
+        if ($(this).val() == "")
+        {
+            $(this).addClass("defaultTextActive");
+            $(this).val($(this)[0].title);
+        }
+    });
+    
+    $(".defaultText").blur();    
+
+  hideAllMessages();
+
+  // Show message
+  for(var i=0;i<myMessages.length;i++)
+	 {
+	showMessage(myMessages[i]);
+	 }
+  
+  // When message is clicked, hide it
+  $('.message').click(function(){			  
+  $(this).animate({top: -$(this).outerHeight()}, 500);
+  });	
+
+
   });
   </script>
+
 
 </body>
 </html>
