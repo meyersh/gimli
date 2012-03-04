@@ -19,7 +19,7 @@ using namespace std;
 enum {N, NE, E, SE, S, SW, W, NW};
 int inverse_dir[] = {S, SW, W, NW, N, NE, E, SE}; // inverse mapping
 
-enum {EMPTY, WHITE, BLACK};
+enum {EMPTY, WHITE, BLACK}; // Cell contents
 
 class Pente {
   struct cell {
@@ -59,7 +59,7 @@ public:
 
   int fillCell(int r, int c, int contents);
   int clearCell(int r, int c);
-  int getFilled(int search, vector<cell*> &filled);
+  vector<cell*> getAll(int search);
   string toString();
 
 };
@@ -114,19 +114,19 @@ int Pente::clearCell(int r, int c) {
   return 0;
 }
 
-int Pente::getFilled(int search, vector<cell*> &filled) {
+vector<Pente::cell*> Pente::getAll(int search) {
+  // Return cells matching a search (EMPTY, WHITE, BLACK).
+  vector<Pente::cell*> results;
 
-  if(search != WHITE || search != BLACK)
-	return 1;
-
-  int sum = 0;
+  if(search != WHITE && search != BLACK && search != EMPTY)
+	return results;
   
   for(int r=0;r<Board.size();r++) 
 	for (int c=0;c<Board.size();c++)
 	  if (Board[r][c].contents == search)
-		sum++;
+		results.push_back( &Board[r][c] );
   
-  return 0;
+  return results;
 }
 
 string Pente::toString() {
