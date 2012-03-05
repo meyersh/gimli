@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <ctime>
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -24,7 +25,7 @@ using namespace std;
 
 // The trailing slash is required.
 #define GAMEID_DIRECTORY "games/"
-                          
+#define SESSION_WORDS_FILE "session-words.txt"
 
 // ProtoTypes
 const char* gameid_file_path(const string);
@@ -33,6 +34,7 @@ vector<string> list_games();
 bool gameid_exists(string);
 int gameid_age(string);
 template<class T> int save_game(string gameid, T game);
+string get_word(string index);
 
 // 
 // Definitions here:
@@ -112,7 +114,21 @@ int save_game(string gameid, T game) {
    return 0;
 }
 
+string get_word(int index) {
 
+   ifstream dict(SESSION_WORDS_FILE);
+   string word;
+
+   index = index % 329; // the number of words
+
+   for (int i = 0; i < index; i++)
+	  getline(dict, word);
+
+   dict.close();
+
+   return word;
+
+}
 
 
 #endif

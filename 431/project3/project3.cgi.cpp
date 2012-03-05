@@ -15,7 +15,7 @@
 using namespace std;
 
 void die(string msg) {
-   cout << "ERROR_CONDITION_THINGER" << endl
+   cout << "ERROR_CAUSED_SHUTDOWN" << endl
 		<< msg << endl;
    exit(1);
 }
@@ -29,6 +29,8 @@ int main() {
 
    getline(cin, instr); // all requests are by POST.
    getline(cin, param); 
+
+   cout << "Content-Type: text/plain\n\n";
 
 
    // Filter out blank params.
@@ -67,6 +69,14 @@ int main() {
 	  // TODO: Check that param is a valid gameid.
 	  // TODO: Assign a valid session ID otherwise.
 	  // TODO: Or report that the game is full.
+
+	  /*
+		JOIN\n<gameid>	JOIN\n<gameid>\n<sessionid>	
+		JOIN\n<gameid>	JOIN\n<gameid>\nGAME_UNDERWAY	
+	  */
+
+	  if (!gameid_exists("param"))
+		 die("No game identified by '" + gameid + "'");
 
 	  }
 
