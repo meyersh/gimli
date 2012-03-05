@@ -14,6 +14,20 @@ int main() {
 
 
    cout << p.toString() << endl;
+   cout << p.serialize() << endl;
+
+   ifstream infile("game.txt");
+   p.deserialize(infile);
+   infile.close();
+   cout << p.serialize() << endl;
+
+
+   ofstream outfile("game.txt");
+
+   outfile << p.serialize() << endl;
+
+   outfile.close();
+
 
    return 0;
 }

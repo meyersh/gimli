@@ -9,6 +9,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <fstream>
 #include <cstdlib>
 #include <cstdio>
 #include <cctype>
@@ -24,10 +25,10 @@ enum {EMPTY, WHITE, BLACK}; // Cell contents
 class Pente {
   struct cell {
 	int r, c;
+	
 
-
-	cell *CL, *TL, *TC, *TR;
-	cell *CR, *BR, *BC, *BL;
+	cell *CL, *TL, *TC, *TR; // Not sure what
+	cell *CR, *BR, *BC, *BL; // these are for. 
 
 	cell *neighbors[8]; // Cardinal directions, NW, NE, etc.
 	int contents; // contain one of {EMPTY, WHITE, BLACK}
@@ -47,12 +48,16 @@ class Pente {
 
 public:
 
+  int turn;
+
   Pente() {
 	Board.resize(19);
 	for (int i = 0; i < Board.size(); i++)
 	  Board[i].resize(19);
 
 	_initBoard_(); 
+
+	turn = EMPTY;
 }
   ~Pente() {};
   void _initBoard_();
@@ -61,6 +66,9 @@ public:
   int clearCell(int r, int c);
   vector<cell*> getAll(int search);
   string toString();
+  string serialize();
+  void deserialize(ifstream &f);
+  State toState();
 
 };
 
@@ -148,4 +156,70 @@ string Pente::toString() {
  
   return ss.str();
 	  
+}
+
+string Pente::serialize() {
+  // A simple string serialization of the board.
+  // All of the occupied cells in {W|B} <row> <col> format seems fine.
+
+  stringstream ss;
+
+  ss << turn << endl;
+
+  for (int r = 0; r < Board.size(); r++)
+	for (int c = 0; c < Board.size(); c++)
+	  {
+		int contents = Board[r][c].contents;
+		if (contents) // non-zero for WHITE or BLACK...
+		  ss << ( contents == BLACK ? 'B' : 'W' ) 
+			 << " " << r << " " << c << endl;
+	  }
+
+  return ss.str();
+}
+
+void Pente::deserialize(ifstream &f) {
+  // read the file `f` (already open) for our serial format:
+  // {W|B} <row> <col>
+
+  string line;
+  string color, srow, scol;
+  int row, col, contents;
+
+  f >> turn; // first line is the turn.
+
+  while (getline(f, line)) {
+	stringstream ss(line);
+	
+	ss >> color >> row >> col; // space separated...
+
+	if (color != "W" && color != "B")
+	  continue; // invalid row.
+
+	contents = (color == "B" ? BLACK : WHITE);
+
+	//	row = atoi( srow.c_str() );
+	//	col = atoi( scol.c_str() );
+
+	if (row < 0 || row >= Board.size())
+	  continue; // invalid row.
+
+	if (col < 0 || col >= Board.size())
+	  continue; // invalid col.
+
+	
+	// Everything is good. Insert the piece.
+	Board[row][col].contents = contents;
+	
+  }
+
+}
+
+
+State Pente::toState() {
+  // Construct and return the state of the game.
+  State s;
+  s.insert(getAll(EMPTY).size());
+
+  return s;
 }
