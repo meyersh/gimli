@@ -32,7 +32,6 @@ int main() {
 
    cout << "Content-Type: text/plain\n\n";
 
-
    // Filter out blank params.
    if (instr == "")
 	  die("msg: Expected parameter.");
@@ -77,6 +76,17 @@ int main() {
 
 	  if (!gameid_exists("param"))
 		 die("No game identified by '" + gameid + "'");
+
+	  Pente game;
+	  
+	  ifstream game_file( gameid_file_path(gameid) );
+	  game.deserialize(game_file);
+	  game_file.close();
+
+	  cout << "JOIN" << endl
+		   << gameid << endl;; 
+	  // TODO: figure out session ID.
+
 
 	  }
 

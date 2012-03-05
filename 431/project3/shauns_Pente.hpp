@@ -49,6 +49,8 @@ class Pente {
 public:
 
   int turn;
+  string white_player;
+  string black_player;
 
   Pente() {
 	Board.resize(19);
@@ -165,6 +167,8 @@ string Pente::serialize() {
   stringstream ss;
 
   ss << turn << endl;
+  ss << white_player << endl;
+  ss << black_player << endl;
 
   for (int r = 0; r < Board.size(); r++)
 	for (int c = 0; c < Board.size(); c++)
@@ -183,10 +187,12 @@ void Pente::deserialize(ifstream &f) {
   // {W|B} <row> <col>
 
   string line;
-  string color, srow, scol;
+  string color;
   int row, col, contents;
 
   f >> turn; // first line is the turn.
+  f >> white_player; // second line is session id (or COMPUTER) of the white player.
+  f >> black_player; //third line is the session id (or COMPUTER) of the black player.
 
   while (getline(f, line)) {
 	stringstream ss(line);
@@ -197,9 +203,6 @@ void Pente::deserialize(ifstream &f) {
 	  continue; // invalid row.
 
 	contents = (color == "B" ? BLACK : WHITE);
-
-	//	row = atoi( srow.c_str() );
-	//	col = atoi( scol.c_str() );
 
 	if (row < 0 || row >= Board.size())
 	  continue; // invalid row.
