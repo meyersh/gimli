@@ -88,14 +88,14 @@ Dictionary
 Dimple
 Ding-a-ling
 Disk
-Disco Duck
+Disco_Duck
 Dodo
 Dolphin
 Dong
 Donuts
 Dork
 Dracula
-Duct Tape
+Duct_Tape
 Effigy
 Egad
 Elastic
