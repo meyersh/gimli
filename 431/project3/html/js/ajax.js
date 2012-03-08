@@ -5,6 +5,13 @@
  *
  */
 
+var INFO    = 0;
+var WARNING = 1;
+var ERROR   = 2;
+var SUCCESS = 3;
+
+var myMessages = ['info','warning','error','success']; // define the messages types 
+
 function getXMLHttpReq()
 { 
     var req = null;
@@ -15,6 +22,26 @@ function getXMLHttpReq()
 		req = new ActiveXObject(Microsoft.XMLHTTP);
     return req;
 }
+
+function hideAllMessages()
+{
+    var messagesHeights = new Array(); // this array will store height for each
+    
+    for (i=0; i<myMessages.length; i++)
+    {
+	messagesHeights[i] = $('.' + myMessages[i]).outerHeight();
+	$('.' + myMessages[i]).css('top', -messagesHeights[i]); //move element outside viewport	  
+    }
+}
+
+function showMessage(type)
+{
+    $('.'+ type +'-trigger').click(function(){
+	hideAllMessages();				  
+	$('.'+type).animate({top:"0"}, 500);
+    });
+}
+
 
 /*
  * I think I'll need to be urlEncoding my output from here on out since
@@ -136,9 +163,10 @@ function parseData(data)
 		lines = data.split('\n');
 		var message = lines[0];
 
-		if (message == "ERROR_CAUSED_SHUTDOWN")
-			document.getElementById('error').innerHTML = "<h3>ERROR_CAUSED_SHUTDOWN:</h3>\n<p>" + 
-			lines[1] + "</p>";
+		if (message == "ERROR_CAUSED_SHUTDOWN") {
+			document.getElementById('error').innerHTML = "<h3>ERROR_CAUSED_SHUTDOWN:</h3>\n<p>" 
+				+ lines[1] + "</p>";
+				  showMessage('error');
 
 		//lowerError(); /* don't show the same error unless it still exists. */
 		//lowerNotice();

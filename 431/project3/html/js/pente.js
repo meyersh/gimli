@@ -53,27 +53,6 @@ function draw_board() {
 
 }
 
-var myMessages = ['info','warning','error','success']; // define the messages types		 
-function hideAllMessages()
-{
-    var messagesHeights = new Array(); // this array will store height for each
-    
-    for (i=0; i<myMessages.length; i++)
-    {
-	messagesHeights[i] = $('.' + myMessages[i]).outerHeight();
-	$('.' + myMessages[i]).css('top', -messagesHeights[i]); //move element outside viewport	  
-    }
-}
-
-function showMessage(type)
-{
-    $('.'+ type +'-trigger').click(function(){
-	hideAllMessages();				  
-	$('.'+type).animate({top:"0"}, 500);
-    });
-}
-
-
 // ** HANDLE SUBMIT CODES **
 function create_game() { 
     var player_config_select = document.getElementById("player_configuration");
