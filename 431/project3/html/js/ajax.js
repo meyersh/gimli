@@ -167,8 +167,6 @@ function parseData(data)
 	}
 }
 
-}
-
 
 
 
