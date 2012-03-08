@@ -20,6 +20,10 @@
 </script>
 
 <script
+   src="js/ajax.js">
+</script>
+
+<script
    src="js/pente.js">
 </script>
   
@@ -35,15 +39,15 @@
 		 <p>This is just an info notification message.</p>
 </div>
 
+<div class="warning message">
+		 <h3>Wait, I must warn you!</h3>
+		 <p>This is just a warning notification message.</p>
+</div>
+
 <div class="error message">
 		 <h3>Ups, an error ocurred</h3>
 		 <p>This is just an error notification message.</p>
 
-</div>
-
-<div class="warning message">
-		 <h3>Wait, I must warn you!</h3>
-		 <p>This is just a warning notification message.</p>
 </div>
 
 <div class="success message">
@@ -60,11 +64,15 @@
 	  <p>Oh yeah, creating a game.</p>
 	  <p>Once you choose a color, you'll be ready!</p>
 	  <form> 
-		<select>
-		  <option>Play as White and go first</option>
-		  <option>Play as Black and go second</option>
+		<select id="player_configuration">
+		  <option value="hh1">Play as White and go first against another human</option>
+		  <option value="hh2">Play as Black and go second against another human</option>
+		  <option value="hc1">Play as White and go first against the computer</option>
+		  <option value="hc2">Play as Black and go second against the computer</option>
 		</select>
-		<input type="button" value="Create Game" class="trigger success-trigger"/>
+
+		<input type="button" value="Create Game" class="trigger success-trigger"
+		       onClick="showMessage(myMessages[1]); create_game();"/>
 	  </form>
 	</div><!-- end of create-a-game -->
 
