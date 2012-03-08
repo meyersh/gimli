@@ -20,31 +20,34 @@ class Pente {
         bool filled;
         char color;
         int r, c;
-        cell *CL, *TL, *TC, *TR;
-        cell *CR, *BR, *BC, *BL;
+        cell* neighbors[8];
     };
 
-    vector<cell> Board;
-
+    vector<cell*> Board;
+public:
     Pente() { _initBoard_(); }
-    ~Pente();
+    ~Pente() { _killBoard_(); }
     void _initBoard_();
+    void _killBoard_();
     int fillCell(int r, int c, char color);
     int clearCell(int r, int c);
     int getFilled(char color, vector<cell*> &filled);
+    int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
+    int getCertain(int &certD, &certT, int &certQ, char color);
 
 };
 
-void _initBoard_() {
-    cell tCell;  //zombies!
+void Pente::_initBoard_() {
+    cell *tCell;  //zombies!
     int row, col;
 
     for(int r=0;r<19;r++) {
         for(int c=0;c<19;c++) {
-            tCell.r = r;
-            tCell.c = c;
-            tCell.filled = false;
-            tCell.color = '*';
+            tCell = new cell;
+            tCell->r = r;
+            tCell->c = c;
+            tCell->filled = false;
+            tCell->color = '*';
             Board.push_back(tCell);
         }
     }
@@ -52,107 +55,170 @@ void _initBoard_() {
     for(int i=0;i<Board.size();i++) {
         tCell = Board[i];
         for(int dir=0;dir<8;dir++) {
+            row = tCell->r;
+            col = tCell->c;
             switch(dir) {
                 case 0:
-                   row = tCell.r;
-                   col = tCell.c-1;
-                   if((row<0)||(row>19)||(col<0)||(col>19))
-                       tCell.CL = NULL;
-                   else
-                       tCell.CL = Board[row*19+col];
+                   col--;
                    break;
                 case 1:
-                   row = tCell.r-1;
-                   col = tCell.c-1;
-                   if((row<0)||(row>19)||(col<0)||(col>19))
-                       tCell.TL = NULL;
-                   else
-                       tCell.TL = Board[row*19+col];
+                   row--;
+                   col--;
                    break;
                 case 2:
-                   row = tCell.r-1;
-                   col = tCell.c;
-                   if((row<0)||(row>19)||(col<0)||(col>19))
-                       tCell.TC = NULL;
-                   else
-                       tCell.TC = Board[row*19+col];
+                   row--;
                    break;
                 case 3:
-                   row = tCell.r-1;
-                   col = tCell.c+1;
-                   if((row<0)||(row>19)||(col<0)||(col>19))
-                       tCell.TR = NULL;
-                   else
-                       tCell.TR = Board[row*19+col];
+                   row--;
+                   col++;
                    break;
                 case 4:
-                   row = tCell.r;
-                   col = tCell.c+1;
-                   if((row<0)||(row>19)||(col<0)||(col>19))
-                       tCell.CR = NULL;
-                   else
-                       tCell.CR = Board[row*19+col];
+                   col++;
                    break;
                 case 5:
-                   row = tCell.r+1;
-                   col = tCell.c+1;
-                   if((row<0)||(row>19)||(col<0)||(col>19))
-                       tCell.BR = NULL;
-                   else
-                       tCell.BR = Board[row*19+col];
+                   row++;
+                   col++;
                    break;
                 case 6:
-                   row = tCell.r+1;
-                   col = tCell.c;
-                   if((row<0)||(row>19)||(col<0)||(col>19))
-                       tCell.BC = NULL;
-                   else
-                       tCell.BC = Board[row*19+col];
+                   row++;
                    break;
                 case 7:
-                   row = tCell.r+1;
-                   col = tCell.c-1;
-                   if((row<0)||(row>19)||(col<0)||(col>19))
-                       tCell.BL = NULL;
-                   else
-                       tCell.BL = Board[row*19+col];
+                   row++;
+                   col--;
                    break;
             }
+            if((row<0)||(row>19)||(col<0)||(col>19))
+               tCell->neighbors[dir] = NULL;
+            else
+               tCell->neighbors[dir] = Board[row*19+col];
         }
+    }
+}
+
+void Pente::_killBoard_() {
+    for(int i=0;i<Board.size();i++) {
+        Board[i] = NULL;
     }
 }
 
 int Pente::fillCell(int r, int c, char color) {
     int idx;
-    if((row<0)||(row>19)||(col<0)||(col>19))
+    color = toupper(color);
+    if((r<0)||(r>19)||(c<0)||(c>19))
         return 0;
-    if((toupper(color)!='B')||(toupper(color)!='W'))
-        return 0;
-    idx = r*19+c;
-    Board[idx].filled = true;
-    Board[idx].color = color;
-    return 1;
+    if((color=='B')||(color=='W')) {
+        idx = r*19+c;
+        Board[idx]->filled = true;
+        Board[idx]->color = color;
+        return 1;
+    }
+    return 0;
 }
 
 int Pente::clearCell(int r, int c) {
     int idx;
-    if((row<0)||(row>19)||(col<0)||(col>19))
+    if((r<0)||(r>19)||(c<0)||(c>19))
         return 0;
     idx = r*19+c;
-    Board[idx].filled = false;
-    Board[idx].color = '*';
+    Board[idx]->filled = false;
+    Board[idx]->color = '*';
     return 1;
 }
 
 int Pente::getFilled(char color, vector<cell*> &filled) {
     cell *t;
+    color = toupper(color);
+    cout << color << endl;
 
-    if((toupper(color)!='B')||(toupper(color)!='W'))
+    if((color=='B')||(color=='W')) {
+        for(int i=0;i<Board.size();i++) {
+            t = Board[i];
+            if((t->filled==true)&&(t->color==toupper(color)))
+                filled.push_back(t);
+        }
+        return 1;
+    }
+    return 0;
+}
+
+int Pente::getPossible(int &possT, int &possQ, int &possWins, char color) {
+    cell *tCell, *nxt;
+    vector<cell*> filled;
+    int count, blank;
+
+    if(!getFilled(color, filled)) {
+        cout << "ERROR:  Invalid color: getVars()" << endl;
         return 0;
-    for(int i=0;i<Board.size();i++) {
-        t = Board[i];
-        if((t->filled==true)&&(t->color==toupper(color)))
-            filled.push_back(t);
+    }
+
+    for(int i=0;i<filled.size();i++) {
+        tCell = filled[i];
+        for(int j=4;i<8;i++) {
+            nxt = tCell->neighbors[j];
+            while((nxt != NULL)&&(blank<2)) {
+                if((nxt->filled==true)&&(nxt->color==color))
+                    count++;
+                else if(nxt->filled==false)
+                    blank++;
+                else if((nxt->filled==true)&&(nxt->color!=color))
+                    break;
+                nxt = nxt->neighbors[j];
+            }
+            switch(count) {
+                case 2:
+                    possT++;
+                    break;
+                case 3:
+                    possQ++;
+                    break;
+                case 4:
+                    possWins++;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    return 1;
+
+}
+
+int Pente::getCertain(int &certD, &certT, int &certQ, char color) {
+    cell *tCell, *nxt;
+    vector<cell*> filled;
+    int count;
+
+    if(!getFilled(color, filled)) {
+        cout << "ERROR:  Invalid color: getVars()" << endl;
+        return 0;
+    }
+
+    for(int i=0;i<filled.size();i++) {
+        tCell = filled[i];
+        for(int j=4;i<8;i++) {
+            nxt = tCell->neighbors[j];
+            while((nxt!=NULL)&&(nxt->filled==true)) {
+                if(nxt->color==color)
+                    count++;
+                else
+                    break;
+                nxt = nxt->neighbors[j];
+            }
+            switch(count) {
+                case 2:
+                    certD++;
+                    break;
+                case 3:
+                    certT++;
+                    break;
+                case 4:
+                    certQ++;
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     return 1;
