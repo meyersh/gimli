@@ -32,26 +32,26 @@ function urlDecode(encoded)
     var HEXCHARS = "0123456789ABCDEFabcdef";
     var i = 0;
     for (i=0; i < encoded.length; i++)
-	{
-	    var ch = encoded.charAt(i);
-	    if (ch == "+") {
-		plaintext += " ";
-		//i++;
+    {
+	var ch = encoded.charAt(i);
+	if (ch == "+") {
+	    plaintext += " ";
+	    //i++;
+	}
+	else if (ch == "%") {
+	    if (i < (encoded.length-2) 
+		&& HEXCHARS.indexOf(encoded.charAt(i+1)) != -1
+		&& HEXCHARS.indexOf(encoded.charAt(i+2)) != -1 ) {
+		plaintext += unescape( encoded.substr(i,3) );
+		i += 2;
 	    }
-	    else if (ch == "%") {
-		if (i < (encoded.length-2) 
-		    && HEXCHARS.indexOf(encoded.charAt(i+1)) != -1
-		    && HEXCHARS.indexOf(encoded.charAt(i+2)) != -1 ) {
-		    plaintext += unescape( encoded.substr(i,3) );
-		    i += 2;
-		}
-	    }
-	    else {
-		plaintext += ch;
-		//i++;
-	    }
-	    
-	} // while
+	}
+	else {
+	    plaintext += ch;
+	    //i++;
+	}
+	
+    } // while
     return plaintext;
 }
 
@@ -72,14 +72,14 @@ function updateLog(html, outputDivId, append)
 
     divObj = document.getElementById(outputDivId);
     if (append)
-	{
-	    divObj.innerHTML += html;
-	    divObj.scrollTop = divObj.scrollHeight;
-	}
+    {
+	divObj.innerHTML += html;
+	divObj.scrollTop = divObj.scrollHeight;
+    }
     else
-	{ 
-	    divObj.innerHTML = html;
-	}
+    { 
+	divObj.innerHTML = html;
+    }
 }
 
 function raiseNotice ( message )
@@ -93,10 +93,10 @@ function lowerNotice()
 {
     var divObj = document.getElementById("notice");
     if (divObj)
-	{
-	    divObj.className = "";
-	    divObj.innerHTML = "";
-	}
+    {
+	divObj.className = "";
+	divObj.innerHTML = "";
+    }
 }
 
 
@@ -129,70 +129,70 @@ function parseData(data)
     var lines = new Array();
 
     if (data.match('<html>')) {
-	    updateLog(data, 'output', 0);
-	}
+	updateLog(data, 'output', 0);
+    }
     else
+    {
+	lines = data.split('\n');
+	
+	lowerError(); /* don't show the same error unless it still exists. */
+	lowerNotice();
+	for (l in lines)
 	{
-	    lines = data.split('\n');
-	    
-	    lowerError(); /* don't show the same error unless it still exists. */
-	    lowerNotice();
-	    for (l in lines)
+	    temp = lines[l];
+	    temp = temp.split('=');
+	    var key = temp[0];
+	    var val = urlDecode(temp[1]);
+	    if (key) {
+		if ( key == "notice" )
 		{
-		    temp = lines[l];
-		    temp = temp.split('=');
-		    var key = temp[0];
-		    var val = urlDecode(temp[1]);
-		    if (key) {
-			if ( key == "notice" )
-			    {
-				updateLog("<br>Notice: " + val);
-				raiseNotice(val);
-			    }
-			else if ( key == "action" )
-			    {
-				if ( val == "refresh" )
-				    location.reload(true);
-			    }
-			else if ( key == "editable" )
-			    { 
-				if ( val == "true" && document.getElementById('edit'))
-				    {
-					document.getElementById('edit').style.visibility='visible';
-					document.getElementById('saveWhiteboardButton').value='View/Edit Whiteboard';
-					document.getElementById('modifyWhiteboard').style.visibility='visible';
-				    }
-				else if (val == "false" && document.getElementById('edit'))
-				    {
-					document.getElementById('edit').style.visibility='hidden';
-					document.getElementById('saveWhiteboardButton').value='View Whiteboard';
-					document.getElementById('modifyWhiteboard').style.visibility='hidden';
-				    }
-				
-			    }
-					 
-			       
-			else if ( key == "redirect" )
-			    window.location = val;
-			else if ( key == "error" )
-			    raiseError( val );
-			else if ( key == "clear" )
-			    document.getElementById('splitstring').innerHTML = "";
-			else if ( key == "output" )
-			    document.getElementById('splitstring').innerHTML += val + "<br>";
-			if (document.getElementById(key) != null)
-			    {
-				document.getElementById(key).innerHTML = val;
-				document.getElementById(key).value = val;
-			    }
-		    }
+		    updateLog("<br>Notice: " + val);
+		    raiseNotice(val);
 		}
+		else if ( key == "action" )
+		{
+		    if ( val == "refresh" )
+			location.reload(true);
+		}
+		else if ( key == "editable" )
+		{ 
+		    if ( val == "true" && document.getElementById('edit'))
+		    {
+			document.getElementById('edit').style.visibility='visible';
+			document.getElementById('saveWhiteboardButton').value='View/Edit Whiteboard';
+			document.getElementById('modifyWhiteboard').style.visibility='visible';
+		    }
+		    else if (val == "false" && document.getElementById('edit'))
+		    {
+			document.getElementById('edit').style.visibility='hidden';
+			document.getElementById('saveWhiteboardButton').value='View Whiteboard';
+			document.getElementById('modifyWhiteboard').style.visibility='hidden';
+		    }
+		    
+		}
+		
+		
+		else if ( key == "redirect" )
+		    window.location = val;
+		else if ( key == "error" )
+		    raiseError( val );
+		else if ( key == "clear" )
+		    document.getElementById('splitstring').innerHTML = "";
+		else if ( key == "output" )
+		    document.getElementById('splitstring').innerHTML += val + "<br>";
+		if (document.getElementById(key) != null)
+		{
+		    document.getElementById(key).innerHTML = val;
+		    document.getElementById(key).value = val;
+		}
+	    }
 	}
+    }
 }
 
 
 
-    
+
 
 function sendData(dataStr, url, method) { 
     var req = getXMLHttpReq();
@@ -209,22 +209,22 @@ function sendData(dataStr, url, method) {
     req.open(method, url, true);
     
     req.onreadystatechange = function()
+    {
+	if(req.readyState == 4)
 	{
-	    if(req.readyState == 4)
-		{
-		    if(req.status == 200)
-			{
-			    //updateLog(req.responseText, 'output', false); /* where do we dump the output? */
-			    parseData(req.responseText);
-			    updateLog("<br>Data sent/recieved from server!<br>--");
-			}
-		    else
-			updateLog("Error Status: " 
-				  + req.status 
-				  + "<br />Error Description: " 
-				  + req.statusText);
-		}
+	    if(req.status == 200)
+	    {
+		//updateLog(req.responseText, 'output', false); /* where do we dump the output? */
+		parseData(req.responseText);
+		updateLog("<br>Data sent/recieved from server!<br>--");
+	    }
+	    else
+		updateLog("Error Status: " 
+			  + req.status 
+			  + "<br />Error Description: " 
+			  + req.statusText);
 	}
+    }
 
 
     req.setRequestHeader("Content-Type", "text/plain");
@@ -295,7 +295,7 @@ function Submit(formid)
     var url = frm.action;
     var inpt = frm.input.value;
     sendData(inpt, url, method);
- }
+}
 //
 // EOF
 //

@@ -69,12 +69,15 @@ int main() {
 	  for (int i = 0; i < NUM_WORDS; i++)
 		 {
 		 gameid = get_word(i);
-		 sessionkey = get_word(++i);
+        	 sessionkey = get_word(++i);
 		 if (!gameid_exists(gameid))
 			break;
 		 }
 
 	  ofstream game_file(gameid_file_path(gameid));
+
+	  if (!game_file.good())
+	    die("Unable to create new game file.");
 
 	  Pente new_game;
 	  new_game.turn = BLACK;
