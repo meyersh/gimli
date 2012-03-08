@@ -11,6 +11,10 @@ var SUCCESS = 3;
 
 var myMessages = ['info','warning','error','success']; // define the messages types 
 
+function ge(id) {
+	return document.getElementById(id);
+}
+
 function getXMLHttpReq()
 { 
     var req = null;
@@ -154,75 +158,15 @@ function parseData(data)
     var temp = new Array();
     var lines = new Array();
 
-    if (data.match('<html>')) {
-		updateLog(data, 'output', 0);
-    }
-    else
-    {
-		lines = data.split('\n');
-		var message = lines[0];
+ 	lines = data.split('\n');
+	var message = lines[0];
+	
+	if (message == "ERROR_CAUSED_SHUTDOWN") {
+		ge('error').innerHTML = "<h3>ERROR_CAUSED_SHUTDOWN:</h3>\n<p>" + lines[1] + "</p>";
+		showMessage('error');
+	}
+}
 
-		if (message == "ERROR_CAUSED_SHUTDOWN") {
-			document.getElementById('error').innerHTML = "<h3>ERROR_CAUSED_SHUTDOWN:</h3>\n<p>" 
-				+ lines[1] + "</p>";
-				  showMessage('error');
-		}
-
-		//lowerError(); /* don't show the same error unless it still exists. */
-		//lowerNotice();
-		/*
-		for (l in lines)
-		{
-			temp = lines[l];
-			temp = temp.split('=');
-			var key = temp[0];
-			var val = urlDecode(temp[1]);
-			if (key) {
-				if ( key == "notice" )
-				{
-					updateLog("<br>Notice: " + val);
-					raiseNotice(val);
-				}
-				else if ( key == "action" )
-				{
-					if ( val == "refresh" )
-						location.reload(true);
-				}
-				else if ( key == "editable" )
-				{ 
-					if ( val == "true" && document.getElementById('edit'))
-					{
-						document.getElementById('edit').style.visibility='visible';
-						document.getElementById('saveWhiteboardButton').value='View/Edit Whiteboard';
-						document.getElementById('modifyWhiteboard').style.visibility='visible';
-					}
-					else if (val == "false" && document.getElementById('edit'))
-					{
-						document.getElementById('edit').style.visibility='hidden';
-						document.getElementById('saveWhiteboardButton').value='View Whiteboard';
-						document.getElementById('modifyWhiteboard').style.visibility='hidden';
-					}
-					
-				}
-				
-				
-				else if ( key == "redirect" )
-					window.location = val;
-				else if ( key == "error" )
-					raiseError( val );
-				else if ( key == "clear" )
-					document.getElementById('splitstring').innerHTML = "";
-				else if ( key == "output" )
-					document.getElementById('splitstring').innerHTML += val + "<br>";
-				if (document.getElementById(key) != null)
-				{
-					document.getElementById(key).innerHTML = val;
-					document.getElementById(key).value = val;
-				}
-			}
-		}
-    }
- */
 }
 
 
