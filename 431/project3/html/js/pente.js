@@ -1,4 +1,4 @@
-var cgi_url = "project3.cgi";
+var cgi_url = "http://gimli.morningside.edu/~meyersh/cgi-bin/project3.cgi";
 
 function draw_board() {
     var board_size = 19;
@@ -78,7 +78,7 @@ function showMessage(type)
 function create_game() { 
     var player_config_select = document.getElementById("player_configuration");
     var selected = player_config_select.selectedIndex;
-    var player_config = player_config_select[ selected ].text; // one of hh1,hh2,hc1,hc2.
+    var player_config = player_config_select[ selected ].value; // one of hh1,hh2,hc1,hc2.
 
     var post_text = "SETUP\n" + player_config;
 
