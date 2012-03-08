@@ -45,6 +45,12 @@ function showMessage(type)
     });
 }
 
+function programmaticShowMessage(type)
+{
+	hideAllMessages();
+	$('.'+type).animate({top:"0"}, 500);
+}
+
 
 /*
  * I think I'll need to be urlEncoding my output from here on out since
@@ -163,13 +169,9 @@ function parseData(data)
 	
 	if (message == "ERROR_CAUSED_SHUTDOWN") {
 		ge('error').innerHTML = "<h3>ERROR_CAUSED_SHUTDOWN:</h3>\n<p>" + lines[1] + "</p>";
-		showMessage('error');
+		programmaticShowMessage('error');
 	}
 }
-
-
-
-
 
 function sendData(dataStr, url, method) { 
     var req = getXMLHttpReq();
