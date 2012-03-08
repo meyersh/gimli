@@ -1,4 +1,4 @@
-var cgi_url = "http://gimli.morningside.edu/~meyersh/cgi-bin/project3.cgi";
+var cgi_url = "http://gimli.morningside.edu/~meyersh/431/pente/project3.cgi";
 
 function draw_board() {
     var board_size = 19;
