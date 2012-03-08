@@ -2,7 +2,6 @@
  * AJAX library and helper functions for CSCI-170. 
  * Boilerplate by Randy, etc by Shaun.
  * Mar, 2010
- *
  */
 
 var INFO    = 0;
@@ -167,6 +166,7 @@ function parseData(data)
 			document.getElementById('error').innerHTML = "<h3>ERROR_CAUSED_SHUTDOWN:</h3>\n<p>" 
 				+ lines[1] + "</p>";
 				  showMessage('error');
+		}
 
 		//lowerError(); /* don't show the same error unless it still exists. */
 		//lowerNotice();
