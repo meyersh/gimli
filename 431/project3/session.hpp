@@ -26,6 +26,7 @@ using namespace std;
 // The trailing slash is required.
 #define GAMEID_DIRECTORY "games/"
 #define SESSION_WORDS_FILE "session-words.txt"
+#define NUM_WORDS 328
 
 // ProtoTypes
 const char* gameid_file_path(const string);

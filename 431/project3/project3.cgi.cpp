@@ -11,6 +11,8 @@
 
 #include <iostream>
 #include <sstream>
+#include "session.hpp"
+#include "shauns_Pente.hpp"
 
 using namespace std;
 
@@ -40,6 +42,11 @@ int main() {
 	  {
 	  // check for four characters, noting all options
 	  // are size() == 4, begin with h and end with 1 or 2.
+
+		bool human_only;
+		bool creator_is_white;
+		string gameid;
+		string sessionkey;
 	  
 	  if (param.size() != 3 || param[0] != 'h')
 		 die("msg: Invalid parameter: " + param);
@@ -52,14 +59,61 @@ int main() {
 		 die("2nd character must be h or c.");
 
 	  if (param[2] == '1')
-		 bool creator_is_black = true;
+		 bool creator_is_white = true;
 	  else if (param[2] == '2')
-		 bool creator_is_black = false;
+		 bool creator_is_white = false;
 	  else
 		 die("3rd character must be 1 or 2.");
 
+	  // Generate a unique game id and session key.
+	  for (int i = 0; i < NUM_WORDS; i++)
+		 {
+		 gameid = get_word(i);
+		 sessionkey = get_word(++i);
+		 if (!gameid_exists(gameid))
+			break;
+		 }
 
-	  // TODO: Create a game, files, sessions, etc.
+	  ofstream game_file(gameid_file_path(gameid));
+
+	  Pente new_game;
+	  new_game.turn = BLACK;
+
+	  if (human_only) 
+		{
+
+		  if (creator_is_white) 
+			new_game.white_player = sessionkey;
+		  
+		  else 
+			new_game.white_player = sessionkey;
+
+		} 
+	  else 
+		{
+		
+		  if (creator_is_white) 
+			{
+			  new_game.white_player = sessionkey;
+			  new_game.black_player = "COMPUTER";
+			} 
+		  else 
+			{
+			  new_game.white_player = "COMPUTER";
+			  new_game.black_player = sessionkey;
+			}
+		}
+
+	  // Finally, place the white piece on the board and 
+	  // save the file.
+	  new_game.fillCell(9,9,WHITE);
+	  game_file << new_game.serialize();
+	  game_file.close();
+
+	  // return the details to the client
+	  cout << "SETUP" << endl
+		   << gameid << endl
+		   << sessionkey << endl;
 	  }
 
    else if (instr == "JOIN")
@@ -74,17 +128,17 @@ int main() {
 		JOIN\n<gameid>	JOIN\n<gameid>\nGAME_UNDERWAY	
 	  */
 
-	  if (!gameid_exists("param"))
-		 die("No game identified by '" + gameid + "'");
+	  if (!gameid_exists(param))
+		 die("No game identified by '" + param + "'");
 
 	  Pente game;
 	  
-	  ifstream game_file( gameid_file_path(gameid) );
+	  ifstream game_file( gameid_file_path(param) );
 	  game.deserialize(game_file);
 	  game_file.close();
 
 	  cout << "JOIN" << endl
-		   << gameid << endl;; 
+		   << param << endl;; 
 	  // TODO: figure out session ID.
 
 

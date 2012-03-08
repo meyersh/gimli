@@ -60,6 +60,7 @@ public:
 	_initBoard_(); 
 
 	turn = EMPTY;
+	white_player = black_player = "WAITING";
 }
   ~Pente() {};
   void _initBoard_();
