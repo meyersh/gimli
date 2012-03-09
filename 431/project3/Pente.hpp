@@ -11,7 +11,8 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cctype>
-//#include "wlm.hpp"
+#include <stdexcept>
+#include "wlm.hpp"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ public:
     int getFilled(char color, vector<cell*> &filled);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
     int getCertain(int &certD, &certT, int &certQ, char color);
+    cell &getCell(int r, int c);
 
 };
 
@@ -223,4 +225,8 @@ int Pente::getCertain(int &certD, &certT, int &certQ, char color) {
     }
 
     return 1;
+}
+
+Pente::cell Pente::&getCell(int r, int c) {
+    return Board[r*19+c];
 }
