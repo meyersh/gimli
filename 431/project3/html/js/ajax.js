@@ -9,7 +9,8 @@ var WARNING = 1;
 var ERROR   = 2;
 var SUCCESS = 3;
 
-var myMessages = ['info','warning','error','success']; // define the messages types 
+// define the messages types 
+var myMessages = ['info','warning','error','success']; 
 
 function ge(id) {
 	return document.getElementById(id);
@@ -37,7 +38,7 @@ function hideAllMessages()
     }
 }
 
-function showMessage(type)
+function initMessage(type)
 {
     $('.'+ type +'-trigger').click(function(){
 	hideAllMessages();				  
@@ -45,10 +46,15 @@ function showMessage(type)
     });
 }
 
-function programmaticShowMessage(type)
+function showMessageDiv(type)
 {
 	hideAllMessages();
 	$('.'+type).animate({top:"0"}, 500);
+}
+
+function showMessage(type, header, message) {
+	ge(type).innerHTML = '<h3>' + header + '</h3>\n' + '<p>' + message + '</p>\n';
+	showMessageDiv(type);
 }
 
 
@@ -167,10 +173,16 @@ function parseData(data)
  	lines = data.split('\n');
 	var message = lines[0];
 	
-	if (message == "ERROR_CAUSED_SHUTDOWN") {
-		ge('error').innerHTML = "<h3>ERROR_CAUSED_SHUTDOWN:</h3>\n<p>" + lines[1] + "</p>";
-		programmaticShowMessage('error');
+	if (message == "ERROR_CAUSED_SHUTDOWN") 
+		showMessage('error', 'ERROR_CAUSED_SHUTDOWN', lines[1]);
+
+	if (message == "SETUP") {
+		showMessage('info', 'SETUP', 'Gameid: ' + lines[1] + '<br>Sessionid: ' + lines[2]);
+		$('#accordion').accordion( "activate" , 1 );
+		$('#gameid').val(lines[1]);
+		$('#sessionid').val(lines[2]);
 	}
+	
 }
 
 function sendData(dataStr, url, method) { 

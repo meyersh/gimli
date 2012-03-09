@@ -80,7 +80,7 @@
 	<div class="content" style="height:900px;">
 	  <form>
 		<input type="text" class="defaultText" id="gameid" title="gameid"/>
-		<input type="hidden" id="sessionid"/>
+		<input type="text" id="sessionid"/>
 		<input type="button" value="Join" class="trigger info-trigger"/>
 		<input type="button" value="Forfeit" class="trigger warning-trigger"/>
 		<input type="button" value="Refresh board"/>
@@ -125,6 +125,11 @@
        fillSpace:true
       });
 
+  $(window).resize(function () {
+    $("#accordion").accordion("resize");
+    });
+
+
     draw_board();
 
     $(".defaultText").focus(function(srcc)
@@ -152,7 +157,7 @@
   // Show message
   for(var i=0;i<myMessages.length;i++)
 	 {
-	showMessage(myMessages[i]);
+	initMessage(myMessages[i]);
 	 }
   
   // When message is clicked, hide it
