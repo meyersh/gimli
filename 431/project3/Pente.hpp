@@ -30,12 +30,14 @@ public:
     ~Pente() { _killBoard_(); }
     void _initBoard_();
     void _killBoard_();
-    int fillCell(int r, int c, char color);
-    int clearCell(int r, int c);
-    int getFilled(char color, vector<cell*> &filled);
+    bool isValidCoords(int r, int c);
+    bool isValidColor(char color);
+    cell *getCell(int r, int c);
+    void fillCell(int r, int c, char color);
+    void clearCell(int r, int c);
+    vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
-    int getCertain(int &certD, &certT, int &certQ, char color);
-    cell &getCell(int r, int c);
+    int getCertain(int &certD, int &certT, int &certQ, char color);
 
 };
 
@@ -104,55 +106,63 @@ void Pente::_killBoard_() {
     }
 }
 
-int Pente::fillCell(int r, int c, char color) {
-    int idx;
+bool Pente::isValidCoords(int r, int c) {
+    return ((r>=0)&&(r<19)&&(c>=0)&&(c<19));
+}
+
+bool Pente::isValidColor(char color) {
+    return (toupper(color) == 'B' || toupper(color) == 'W');
+}
+
+Pente::cell *Pente::getCell(int r, int c) {
+    return Board[r*19+c];
+}
+
+void Pente::fillCell(int r, int c, char color) {
     color = toupper(color);
-    if((r<0)||(r>19)||(c<0)||(c>19))
-        return 0;
-    if((color=='B')||(color=='W')) {
-        idx = r*19+c;
-        Board[idx]->filled = true;
-        Board[idx]->color = color;
-        return 1;
+    
+    if(!isValidCoords(r,c))
+	throw runtime_error("Cell or Row out of bounds.");
+
+    if(isValidColor(color)) {
+	getCell(r, c)->filled = true;
+	getCell(r, c)->color = toupper(color);
     }
-    return 0;
 }
 
-int Pente::clearCell(int r, int c) {
-    int idx;
-    if((r<0)||(r>19)||(c<0)||(c>19))
-        return 0;
-    idx = r*19+c;
-    Board[idx]->filled = false;
-    Board[idx]->color = '*';
-    return 1;
+void Pente::clearCell(int r, int c) {
+
+    if(!isValidCoords(r,c))
+        throw runtime_error("Cell or Row out of bounds.");
+
+    getCell(r, c)->filled = false;    
+    getCell(r, c)->color = '*';
 }
 
-int Pente::getFilled(char color, vector<cell*> &filled) {
+vector<Pente::cell*> Pente::getFilled(char color) {
     cell *t;
-    color = toupper(color);
-    cout << color << endl;
+    vector<cell*> filled;
 
-    if((color=='B')||(color=='W')) {
-        for(int i=0;i<Board.size();i++) {
-            t = Board[i];
-            if((t->filled==true)&&(t->color==toupper(color)))
-                filled.push_back(t);
-        }
-        return 1;
+    if (!isValidColor(color)) 
+	throw runtime_error("Invalid color.");
+
+    for(int i=0;i<Board.size();i++) {
+	t = Board[i];
+	if((t->filled==true)&&(t->color==toupper(color)))
+	    filled.push_back(t);
     }
-    return 0;
+
+    return filled;
 }
 
-int Pente::getPossible(int &possT, int &possQ, int &possWins, char color) {
+int Pente::getPossible(int &possD, int &possT, int &possQ, int &possWins, char color) {
     cell *tCell, *nxt;
-    vector<cell*> filled;
+    vector<cell*> filled = getFilled(color);
     int count, blank;
 
-    if(!getFilled(color, filled)) {
-        cout << "ERROR:  Invalid color: getVars()" << endl;
+    if(filled.size() == 0)
         return 0;
-    }
+
 
     for(int i=0;i<filled.size();i++) {
         tCell = filled[i];
@@ -183,19 +193,20 @@ int Pente::getPossible(int &possT, int &possQ, int &possWins, char color) {
         }
     }
 
-    return 1;
+    return 0;
 
 }
 
-int Pente::getCertain(int &certD, &certT, int &certQ, char color) {
+int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
     cell *tCell, *nxt;
-    vector<cell*> filled;
+    vector<cell*> filled = getFilled(color);
     int count;
 
-    if(!getFilled(color, filled)) {
-        cout << "ERROR:  Invalid color: getVars()" << endl;
+    if (!isValidColor(color))
+	throw runtime_error("Invalid color");
+
+    if(filled.size() == 0) 
         return 0;
-    }
 
     for(int i=0;i<filled.size();i++) {
         tCell = filled[i];
@@ -224,9 +235,7 @@ int Pente::getCertain(int &certD, &certT, int &certQ, char color) {
         }
     }
 
-    return 1;
+    return 0;
 }
 
-Pente::cell Pente::&getCell(int r, int c) {
-    return Board[r*19+c];
-}
+
