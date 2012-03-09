@@ -97,6 +97,7 @@ void Pente::_initBoard_() {
 
 void Pente::_killBoard_() {
     for(int i=0;i<Board.size();i++) {
+        delete Board[i];      
         Board[i] = NULL;
     }
 }
