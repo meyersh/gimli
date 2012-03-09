@@ -77,7 +77,7 @@ int main() {
 	  ofstream game_file(gameid_file_path(gameid));
 
 	  if (!game_file.good())
-	    die("Unable to create new game file.");
+	    die("Unable to create new game file at '" + gameid + "'.");
 
 	  Pente new_game;
 	  new_game.turn = BLACK;
