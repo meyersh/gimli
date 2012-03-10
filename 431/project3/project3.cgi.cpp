@@ -52,16 +52,16 @@ int main() {
 		 die("msg: Invalid parameter: " + param);
 
 	  if (param[1] == 'h')
-		 bool human_only = true;
+		 human_only = true;
 	  else if (param[1] == 'c')
-		 bool human_only = false;
+		 human_only = false;
 	  else
 		 die("2nd character must be h or c.");
 
 	  if (param[2] == '1')
-		 bool creator_is_white = true;
+		 creator_is_white = true;
 	  else if (param[2] == '2')
-		 bool creator_is_white = false;
+		 creator_is_white = false;
 	  else
 		 die("3rd character must be 1 or 2.");
 
@@ -123,7 +123,6 @@ int main() {
    else if (instr == "JOIN")
 	  {
 
-	  // TODO: Check that param is a valid gameid.
 	  // TODO: Assign a valid session ID otherwise.
 	  // TODO: Or report that the game is full.
 
@@ -142,7 +141,7 @@ int main() {
 	  game_file.close();
 
 	  cout << "JOIN" << endl
-		   << param << endl;; 
+		   << param << endl;
 	  // TODO: figure out session ID.
 
 
