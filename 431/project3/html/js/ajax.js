@@ -172,16 +172,39 @@ function parseData(data)
 
  	lines = data.split('\n');
 	var message = lines[0];
-	
+
 	if (message == "ERROR_CAUSED_SHUTDOWN") 
 		showMessage('error', 'ERROR_CAUSED_SHUTDOWN', lines[1]);
 
 	if (message == "SETUP") {
+		if (lines.length < 3) // abort for error.
+			return showMessage('error', 'CGI API VIOLATION', 
+							   'SETUP gave invalid response:<br><pre>'+
+							   data + '</pre>');
+
 		showMessage('info', 'SETUP', 'Gameid: ' + lines[1] + '<br>Sessionid: ' + lines[2]);
 		$('#accordion').accordion( "activate" , 1 );
 		$('#gameid').val(lines[1]);
 		$('#sessionid').val(lines[2]);
 	}
+
+	if (message == "JOIN") {
+		
+		if (lines.length < 3) // abort for error
+			return showMessage('error', 'CGI API VIOLATION',
+							   'JOIN gave invalid response:<br><pre>' +
+							   data + '</pre>');
+
+		if (lines[2] == 'GAME_UNDERWAY')
+			return showMessage('warning', 'GAME_UNDERWAY', 
+							   'Server returned GAME_UNDERWAY error when joining ' +
+							   lines[1]);
+
+		showMessage('info', 'JOIN', 'Gameid: ' + lines[1] + '<br>Sessionid: ' + lines[2]);
+		$('#gameid').val(lines[1]);
+		$('#sessionid').val(lines[2]);
+
+	}		
 	
 }
 
@@ -205,7 +228,6 @@ function sendData(dataStr, url, method) {
 		{
 			if(req.status == 200)
 			{
-				//updateLog(req.responseText, 'output', false); /* where do we dump the output? */
 				parseData(req.responseText);
 				updateLog("<br>Data sent/recieved from server!<br>--");
 			}
@@ -287,6 +309,28 @@ function Submit(formid)
     var inpt = frm.input.value;
     sendData(inpt, url, method);
 }
+
+// ** HANDLE SUBMIT CODES **
+function create_game() { 
+    var player_config_select = document.getElementById("player_configuration");
+    var selected = player_config_select.selectedIndex;
+    var player_config = player_config_select[ selected ].value; // one of hh1,hh2,hc1,hc2.
+
+    var post_text = "SETUP\n" + player_config;
+
+    sendData(post_text, cgi_url, "POST");
+}
+
+function join_game() {
+	if ($('#gameid')[0].value == $('#gameid')[0].title)
+		return showMessage('error', 'Invalid Gameid', 
+					'You must set a valid gameid to join a game.')
+
+	var post_text = "JOIN\n" + $('#gameid').val() + "\n";
+
+	sendData(post_text, cgi_url, "POST");
+}
+
 //
 // EOF
 //
