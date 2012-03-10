@@ -115,6 +115,9 @@ bool Pente::isValidColor(char color) {
 }
 
 Pente::cell *Pente::getCell(int r, int c) {
+    if (!isValidCoords(r,c))
+	throw out_of_range("getCell(r,c): row or col out_of_range error.");
+
     return Board[r*19+c];
 }
 
