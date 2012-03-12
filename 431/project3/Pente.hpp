@@ -7,7 +7,9 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <sstream>
 #include <vector>
+#include <fstream>
 #include <cstdlib>
 #include <cstdio>
 #include <cctype>
@@ -15,6 +17,11 @@
 #include "wlm.hpp"
 
 using namespace std;
+
+enum                {W, NW, N, NE, E, SE, S, SW}; // Directions
+int reverse_dir[] = {E, SE, S, SW, W, NW, N, NE}; // reverse mapping
+
+enum {BLACK='B', WHITE='W', EMPTY='*'};
 
 class Pente {
     struct cell {
@@ -25,19 +32,34 @@ class Pente {
     };
 
     vector<cell*> Board;
+
 public:
-    Pente() { _initBoard_(); }
+
+	/* Data Members */
+	int board_size;
+	int turn; // turn number.
+	string players[2];
+
+    /* Member Functions */
+    Pente() { board_size = 19; _initBoard_(); }
     ~Pente() { _killBoard_(); }
     void _initBoard_();
     void _killBoard_();
     bool isValidCoords(int r, int c);
     bool isValidColor(char color);
     cell *getCell(int r, int c);
+	cell *getCell(int i);
+
     void fillCell(int r, int c, char color);
     void clearCell(int r, int c);
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
     int getCertain(int &certD, int &certT, int &certQ, char color);
+
+	string toString();
+	string serialize();
+	void deserialize(ifstream &f);
+	State toState();
 
 };
 
@@ -62,31 +84,31 @@ void Pente::_initBoard_() {
             row = tCell->r;
             col = tCell->c;
             switch(dir) {
-                case 0:
+                case W:
                    col--;
                    break;
-                case 1:
+                case NW:
                    row--;
                    col--;
                    break;
-                case 2:
+                case N:
                    row--;
                    break;
-                case 3:
+                case NE:
                    row--;
                    col++;
                    break;
-                case 4:
+                case E:
                    col++;
                    break;
-                case 5:
+                case SE:
                    row++;
                    col++;
                    break;
-                case 6:
+                case S:
                    row++;
                    break;
-                case 7:
+                case SW:
                    row++;
                    col--;
                    break;
@@ -115,10 +137,21 @@ bool Pente::isValidColor(char color) {
 }
 
 Pente::cell *Pente::getCell(int r, int c) {
+	// Get cell by coords
+
     if (!isValidCoords(r,c))
 	throw out_of_range("getCell(r,c): row or col out_of_range error.");
 
     return Board[r*19+c];
+}
+
+Pente::cell *Pente::getCell(int i) {
+	// Get cell by index.
+
+	if (i < 0 || i > Board.size())
+		throw out_of_range("getCell(i): out_of_range.");
+
+	return Board[i];
 }
 
 void Pente::fillCell(int r, int c, char color) {
@@ -241,4 +274,85 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
     return 0;
 }
 
+string Pente::toString() {
+  stringstream ss;
 
+  for (int r = 0; r < board_size; r++) {
+	for (int c  = 0; c < board_size; c++) {
+		char contents = getCell(r,c)->color;
+
+		if (!getCell(r,c)->filled)
+			ss << "_";
+		else if (contents == WHITE)
+			ss << "W";
+		else if (contents == BLACK)
+			ss << "B";
+	}
+	ss << endl;
+  }
+ 
+  return ss.str();
+	  
+}
+
+string Pente::serialize() {
+  // A simple string serialization of the board.
+  // All of the occupied cells in {W|B} <row> <col> format seems fine.
+
+  stringstream ss;
+
+  ss << turn << endl;
+  ss << players[0] << endl;
+  ss << players[1] << endl;
+
+  for (int r = 0; r < board_size; r++)
+	for (int c = 0; c < board_size; c++)
+	  {
+		  if (!getCell(r,c)->filled)
+			  continue;
+
+		  char contents = getCell(r,c)->color;
+
+		  ss << ( contents == BLACK ? 'B' : 'W' ) 
+			 << " " << r << " " << c << endl;
+	  }
+
+  return ss.str();
+}
+
+void Pente::deserialize(ifstream &f) {
+  // read the file `f` (already open) for our serial format:
+  // {W|B} <row> <col>
+
+  string line;
+  string color;
+  int row, col;
+
+  f >> turn; // first line is the turn.
+  f >> players[0]; // second line is session id (or COMPUTER) of the white player.
+  f >> players[1]; //third line is the session id (or COMPUTER) of the black player.
+
+  while (getline(f, line)) {
+	stringstream ss(line);
+	
+	ss >> color >> row >> col; // space separated...
+
+	if (color != "W" && color != "B")
+	  continue; // invalid row.
+
+	if (!isValidCoords(row, col))
+		continue; 
+	
+	// Everything is good. Insert the piece.
+	fillCell(row, col, (color == "B" ? BLACK: WHITE));
+	
+  }
+
+}
+
+State Pente::toState() {
+	// Construct and return the state of the game.
+	State s;
+
+	return s;
+}
