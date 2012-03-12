@@ -41,7 +41,7 @@ public:
 	string players[2];
 
     /* Member Functions */
-    Pente() { board_size = 19; _initBoard_(); }
+    Pente() { board_size = 19; turn=0; _initBoard_(); }
     ~Pente() { _killBoard_(); }
     void _initBoard_();
     void _killBoard_();
@@ -158,11 +158,11 @@ void Pente::fillCell(int r, int c, char color) {
     color = toupper(color);
     
     if(!isValidCoords(r,c))
-	throw runtime_error("Cell or Row out of bounds.");
+		throw runtime_error("Cell or Row out of bounds.");
 
     if(isValidColor(color)) {
-	getCell(r, c)->filled = true;
-	getCell(r, c)->color = toupper(color);
+		getCell(r, c)->filled = true;
+		getCell(r, c)->color = toupper(color);
     }
 }
 
