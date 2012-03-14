@@ -204,9 +204,59 @@ int main() {
    
 	else if (instr == "MOVE")
 	{
+		/* POST: MOVE\n<gameid>\n<sessionid>\n<row>\n<col>
+		   RESPONSE: 
+		   MOVE\n<gameid>\n<sessionid>
+		   MOVE\n<gameid>\n<sessionid>\nWIN
+		*/
 
 		// TODO: Validate gameid, sessionid, and feed the computer a move.
+		if (params.size() != 4)
+			die("Invalid number of parameters.");
 
+		string gameid    = params[0];
+		string sessionid = params[1];
+		int row          = atoi(params[2].c_str());
+		int col          = atoi(params[3].c_str());
+
+		if (!gameid_exists(gameid))
+			die("No such gameid '" + gameid + "'.");
+
+		Pente game;
+		ifstream infile(gameid_file_path(gameid));
+		game.deserialize( infile );
+		infile.close();
+
+		// Die for invalid sessionid
+		if (game.players[0] != sessionid && game.players[1] != sessionid)
+			die("'" + sessionid + "' is not a valid sessionid.");
+
+		// Die for invalid coords
+		if (!game.isValidCoords(row, col))
+			die("Invalid coordinates."); // this should never happen
+		 
+		// Die for piece already layed.
+		if(!game.isEmpty(row, col))
+			die("Cell already has a piece.");
+
+		// Determine our player #. 
+		int player=0; 
+		for (int i = 0; i < 2; i++)
+			if (game.players[i] == sessionid)
+				player = i;
+
+		if (game.turn % 2 != player)
+			die("It's not even your turn to move!");
+
+		// go ahead and lay the piece.
+		game.fillCell(row, col, player ? BLACK : WHITE);
+
+		// Advance the turn counter
+		game.turn++;
+
+		// Save the game
+		ofstream game_file(gameid_file_path(gameid));
+		game_file << game.serialize();
 	}
 
 	/*

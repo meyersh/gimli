@@ -41,7 +41,8 @@ public:
 	string players[2];
 
     /* Member Functions */
-    Pente() { players[0] = players[1] = "WAITING"; board_size = 19; turn=0; _initBoard_(); }
+    Pente() { players[0] = players[1] = "WAITING"; 
+		board_size = 19; turn=0; _initBoard_(); }
     ~Pente() { _killBoard_(); }
     void _initBoard_();
     void _killBoard_();
@@ -50,6 +51,7 @@ public:
     cell *getCell(int r, int c);
 	cell *getCell(int i);
 
+	bool isEmpty(int r, int c);
     void fillCell(int r, int c, char color);
     void clearCell(int r, int c);
     vector<cell*> getFilled(char color);
@@ -59,6 +61,9 @@ public:
     string serialize();
     void deserialize(ifstream &f);
     State toState();
+
+	vector<cell*> getEmpty();
+	
 
 };
 
@@ -134,6 +139,13 @@ bool Pente::isValidCoords(int r, int c) {
 bool Pente::isValidColor(char color) {
     return (toupper(color) == 'B' || toupper(color) == 'W');
 }
+
+bool Pente::isEmpty(int r, int c) {
+	if (!isValidCoords(r,c))
+		return false;
+	return getCell(r,c)->filled;
+}
+
 
 Pente::cell *Pente::getCell(int r, int c) {
 	// Get cell by coords

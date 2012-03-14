@@ -36,6 +36,7 @@ bool gameid_exists(string);
 int gameid_age(string);
 template<class T> int save_game(string gameid, T game);
 string get_word(string index);
+int sessionid_turn(string gameid, string sessionid);
 
 // 
 // Definitions here:
