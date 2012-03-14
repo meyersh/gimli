@@ -143,7 +143,7 @@ bool Pente::isValidColor(char color) {
 bool Pente::isEmpty(int r, int c) {
 	if (!isValidCoords(r,c))
 		return false;
-	return getCell(r,c)->filled;
+	return !getCell(r,c)->filled;
 }
 
 
