@@ -331,6 +331,39 @@ function join_game() {
 	sendData(post_text, cgi_url, "POST");
 }
 
+function status_of_button(button) {
+	if (button.src.match(/\/([0-9]).gif/))
+		return "EMPTY";
+	else if (button.src.match(/\/w([0-9]).gif/))
+		return "WHITE";
+	else if (button.src.match(/\/b([0-9]).gif/))
+		return "BLACK";
+	else 
+		return "UNKNOWN";
+}
+
+function make_move(button) {
+	var coords = button.name;
+
+	/* 
+	   src looks like this: 
+
+	   http://gimli.morningside.edu/~meyersh/431/pente/images/4.gif
+	   
+	   we want to make it seem like this: 
+	   
+	   http://gimli.morningside.edu/~meyersh/431/pente/images/b4.gif
+	*/
+
+	if (status_of_button(button) != "EMPTY")
+		showMessage('warning', 'Move violation [Click to Dismiss]', 
+					'You can hardly expect to move <i>there</i>! Are you trying to cheat or what?');
+
+	else
+		button.src = button.src.replace(/\/([0-9]).gif/, '\/w$1.gif');
+
+}
+
 //
 // EOF
 //
