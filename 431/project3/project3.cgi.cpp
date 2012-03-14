@@ -168,19 +168,19 @@ int main() {
 
 		if (game.players[0] == "WAITING") {
 			game.players[0] = generate_sessionid();
-			cout << "hh2" << endl
+			cout << game.players[0] << endl
+				 << "hh2" << endl
 				 << "9" << endl
 				 << "9" << endl
-				 << game.players[0] << endl
 				 << "MOVE" << endl;
 		}
 
 		else if (game.players[1] == "WAITING") {
 			game.players[1] = generate_sessionid();
-			cout << "hh1" << endl 
+			cout << game.players[1] << endl
+				 << "hh1" << endl 
 				 << "9" << endl
 				 << "9" << endl
-				 << game.players[1] << endl
 				 << "WAITING" << endl;
 		}
 
