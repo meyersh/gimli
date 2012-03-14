@@ -173,27 +173,39 @@ function parseData(data)
  	lines = data.split('\n');
 	var message = lines[0];
 
+	// trim 'empty' lines
+	for (var i = 0; i < lines.length; i++)
+		if (lines[i] == '')
+			lines.splice(i,1);
+	
+
 	if (message == "ERROR_CAUSED_SHUTDOWN") 
 		showMessage('error', 'ERROR_CAUSED_SHUTDOWN', lines[1]);
 
 	if (message == "SETUP") {
 		if (lines.length < 3) // abort for error.
+		{
 			return showMessage('error', 'CGI API VIOLATION', 
 							   'SETUP gave invalid response:<br><pre>'+
 							   data + '</pre>');
+		}
 
 		showMessage('info', 'SETUP', 'Gameid: ' + lines[1] + '<br>Sessionid: ' + lines[2]);
 		$('#accordion').accordion( "activate" , 1 );
 		$('#gameid').val(lines[1]);
 		$('#sessionid').val(lines[2]);
+
+		window.joined = true;
 	}
 
 	if (message == "JOIN") {
 		
-		if (lines.length < 3) // abort for error
+		if (lines.length != 3 && lines.length != 7) // abort for error
+		{
 			return showMessage('error', 'CGI API VIOLATION',
 							   'JOIN gave invalid response:<br><pre>' +
 							   data + '</pre>');
+		}
 
 		if (lines[2] == 'GAME_UNDERWAY')
 			return showMessage('warning', 'GAME_UNDERWAY', 
@@ -322,6 +334,12 @@ function create_game() {
 }
 
 function join_game() {
+	if (window.joined) {
+		showMessage("info", "You are already joined to this game.", 
+				   "Why would you want to join again?");
+		return;
+	}
+	
 	if ($('#gameid')[0].value == $('#gameid')[0].title)
 		return showMessage('error', 'Invalid Gameid', 
 					'You must set a valid gameid to join a game.')
