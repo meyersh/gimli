@@ -41,7 +41,7 @@ public:
 	string players[2];
 
     /* Member Functions */
-    Pente() { board_size = 19; turn=0; _initBoard_(); }
+    Pente() { players[0] = players[1] = "WAITING"; board_size = 19; turn=0; _initBoard_(); }
     ~Pente() { _killBoard_(); }
     void _initBoard_();
     void _killBoard_();
@@ -324,7 +324,7 @@ void Pente::deserialize(ifstream &f) {
   // {W|B} <row> <col>
 
   string line;
-  string color;
+  char color;
   int row, col;
 
   f >> turn; // first line is the turn.
@@ -336,14 +336,14 @@ void Pente::deserialize(ifstream &f) {
 	
 	ss >> color >> row >> col; // space separated...
 
-	if (color != "W" && color != "B")
+	if (!isValidColor(color))
 	  continue; // invalid row.
 
 	if (!isValidCoords(row, col))
 		continue; 
 	
 	// Everything is good. Insert the piece.
-	fillCell(row, col, (color == "B" ? BLACK: WHITE));
+	fillCell(row, col, (color == 'B' ? BLACK: WHITE));
 	
   }
 

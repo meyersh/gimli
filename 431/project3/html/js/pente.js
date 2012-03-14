@@ -41,7 +41,7 @@ function draw_board() {
 
 	    board += '<td><input type="image" border="0" name="'
 		+ name  
-		+ '" src="images/' + img +'" height=30 width=30></td>\n';
+		+ '" src="images/' + img +'" height=30 width=30 onClick="make_move(this);"></td>\n';
 	    
 	} 
 	board += "</tr>\n";
