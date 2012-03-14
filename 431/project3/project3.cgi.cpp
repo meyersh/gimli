@@ -36,7 +36,8 @@ int main() {
 	getline(cin, instr); // all requests are by POST.
    
 	while (getline(cin, param))
-		params.push_back(param);
+	   if (param != "")
+		  params.push_back(param);
 
 	cout << "Content-Type: text/plain\n\n";
 
@@ -147,13 +148,18 @@ int main() {
 		  JOIN\n<gameid>	JOIN\n<gameid>\nGAME_UNDERWAY	
 		*/
 
-		if (!gameid_exists(param))
-			die("No game identified by '" + param + "'.");
+
+		string gameid = params[0];
+
+		if (params.size() != 2)
+		   die("Invalid number of parameters.");
+
+		if (!gameid_exists(gameid))
+			die("No game identified by '" + gameid + "'.");
 
 		Pente game;
 		
-		// TODO: Check for invalid # of params.
-		string gameid = params[0];
+
 
 		ifstream game_file( gameid_file_path(gameid) );
 		game.deserialize(game_file);
