@@ -151,7 +151,8 @@ int main() {
 			die("No game identified by '" + param + "'.");
 
 		Pente game;
-	  
+		
+		// TODO: Check for invalid # of params.
 		string gameid = params[0];
 
 		ifstream game_file( gameid_file_path(gameid) );
@@ -162,7 +163,7 @@ int main() {
 			 << gameid << endl;
 		// TODO: figure out session ID.
 
-		if (game.players[0] == "" || game.players[1] == "")
+		if (game.players[0] != "WAITING" && game.players[1] != "WAITING")
 			cout << "GAME_UNDERWAY" << endl;
 
 		if (game.players[0] == "WAITING") {
