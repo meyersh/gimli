@@ -120,7 +120,7 @@ string get_word(int index) {
    ifstream dict(SESSION_WORDS_FILE);
    string word;
 
-   index = index % 329; // the number of words
+   index = index % NUM_WORDS; // the number of words
 
    for (int i = 0; i < index; i++)
 	  getline(dict, word);
@@ -131,5 +131,8 @@ string get_word(int index) {
 
 }
 
+string generate_sessionid() {
+   return get_word((list_games().size() + 12) % NUM_WORDS);
+}
 
 #endif
