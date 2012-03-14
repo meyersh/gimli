@@ -151,7 +151,7 @@ int main() {
 
 		string gameid = params[0];
 
-		if (params.size() != 2)
+		if (params.size() != 1)
 		   die("Invalid number of parameters.");
 
 		if (!gameid_exists(gameid))
