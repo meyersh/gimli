@@ -55,11 +55,10 @@ public:
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
     int getCertain(int &certD, int &certT, int &certQ, char color);
-
-	string toString();
-	string serialize();
-	void deserialize(ifstream &f);
-	State toState();
+    string toString();
+    string serialize();
+    void deserialize(ifstream &f);
+    State toState();
 
 };
 
@@ -355,4 +354,18 @@ State Pente::toState() {
 	State s;
 
 	return s;
+}
+
+vector<Pente::cell*> Pente::getEmpty() {
+    vector<cell*> emT;
+    cell *tmp;
+
+    for(int i=0;i<Board.size();i++) {
+        tmp = Board[i];
+        if(tmp->filled==false) {
+            emT.push_back(tmp);
+        }
+    }
+
+    return emT;
 }
