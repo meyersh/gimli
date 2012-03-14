@@ -217,6 +217,27 @@ function parseData(data)
 		$('#sessionid').val(lines[2]);
 
 	}		
+
+	if (message == "MOVE") {
+		/* 
+		   MOVE\n<gameid>\n<sessionid>
+		   MOVE\n<gameid>\n<sessionid>\nWIN
+		*/
+		if (lines.length != 3 && lines.length != 4)
+			return showMessage('error', 'CGI API VIOLATION',
+							   'MOVE game invalid response:<br><pre>' + 
+							   data + '</pre>');
+
+		// update the UI with the new piece
+		if (window.last_piece) {
+			place_piece(window.last_piece);
+			window.last_piece = null;
+		}
+		else 
+			return showMessage('error', 'Something weird happened!',
+							   'This should normally never happen, but' + 
+							   'we seemed to have lost your playing piece.');
+	}
 	
 }
 
@@ -360,6 +381,13 @@ function status_of_button(button) {
 		return "UNKNOWN";
 }
 
+function place_piece(button, color) {
+	if (color = 'BLACK')
+		button.src = button.src.replace(/\/([0-9]).gif/, '\/b$1.gif');
+	else
+		button.src = button.src.replace(/\/([0-9]).gif/, '\/w$1.gif');
+}
+
 function make_move(button) {
 	var coords = button.name;
 
@@ -374,11 +402,20 @@ function make_move(button) {
 	*/
 
 	if (status_of_button(button) != "EMPTY")
-		showMessage('warning', 'Move violation [Click to Dismiss]', 
-					'You can hardly expect to move <i>there</i>! Are you trying to cheat or what?');
+		return showMessage('warning', 'Move violation [Click to Dismiss]', 
+					'You can hardly expect to move <i>there</i>! '+ 
+					'Are you trying to cheat or what?');
 
-	else
-		button.src = button.src.replace(/\/([0-9]).gif/, '\/w$1.gif');
+	// everything is OK so go ahead and send the ajax move and update the UI
+	var row = button.name.split()[0];
+	var col = button.name.split()[1];
+	var post_text = "MOVE\n" 
+		+ $('#gameid').val() + '\n' 
+		+ $('#sessionid').val() + '\n'
+		+ row + '\n' 
+		+ col + '\n';
+	sendData(post_text, cgi_url, 'POST');
+	window.last_piece = button;
 
 }
 
