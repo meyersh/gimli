@@ -24,7 +24,7 @@ int main() {
    assert (p.isValidColor('x') == false);
 
    cout << "fillCell()" << endl;
-   p.fillCell(2,12, 1);
+   p.fillCell(2,12, WHITE);
    cout << "search(WHITE) -> " << p.getFilled(WHITE).size() << endl;
    cout << "search(BLACK) -> " << p.getFilled(BLACK).size() << endl;
    cout << "search(EMPTY) -> (not implemented.)" << endl; 
