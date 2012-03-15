@@ -260,6 +260,12 @@ int main() {
 		// Save the game
 		ofstream game_file(gameid_file_path(gameid));
 		game_file << game.serialize();
+
+		cout << "MOVE" << endl
+			 << gameid << endl
+			 << sessionid << endl;
+
+		//TODO: CHECK FOR A WIN.
 	}
 
 	/*
