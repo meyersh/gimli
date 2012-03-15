@@ -236,8 +236,11 @@ int main() {
 			die("Invalid coordinates."); // this should never happen
 		 
 		// Die for piece already layed.
-		if(!game.isEmpty(row, col))
-			die("Cell already has a piece.");
+		if(!game.isEmpty(row, col)) {
+			stringstream ss;
+			ss << "Cell already has a piece at (" << row << ',' << col << ")";
+			die(ss.str());
+		}
 
 		// Determine our player #. 
 		int player=0; 
