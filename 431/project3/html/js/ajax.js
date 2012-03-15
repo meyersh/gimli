@@ -231,12 +231,59 @@ function parseData(data)
 		// update the UI with the new piece
 		if (window.last_piece) {
 			place_piece(window.last_piece);
+			alert(window.last_piece.name);
 			window.last_piece = null;
 		}
 		else 
 			return showMessage('error', 'Something weird happened!',
 							   'This should normally never happen, but' + 
 							   'we seemed to have lost your playing piece.');
+
+		if (lines.length == 4 && lines[3] == "WIN")
+			return showMessage('success', 'Victory',
+							   'Victory is yours!');
+	}
+
+	if (message == "CHECK") {
+		/*
+		  Waiting on them:
+		  CHECK\n<gameid>\n<sessionid>\nWAITING
+
+		  Their move was:
+		  CHECK\n<gameid>\n<sessionid>\n<row>\n<col>
+
+		  Their move was (and they won/lost)
+		  CHECK\n<gameid>\n<sessionid>\n<row>\n<col>\n{WIN|LOSE}
+
+		  Timeout (row + col don't matter).
+		  CHECK\n<gameid>\n<sessionid>\n<row>\n<col>\nTIMEOUT
+		*/
+
+		if (lines.length < 3 || lines.length >= 6)
+			return showMessage('error', 'CGI API VIOLATION',
+							   'CHECK game invalid response:<br><pre>' + 
+							   data + '</pre>');
+
+		var gameid = lines[1];
+		var sessionid = lines[2];
+
+		$('#sessionid').val(sessionid); // update the sessionid
+
+		if (lines[3] == "WAITING") 
+			return; // nothing to do here.
+		
+		var row = lines[3];
+		var col = lines[4];
+
+		var name = row + ' ' + col;
+
+		// place a move at button NAME. 
+		place_piece($('input[name=' + name + ']')[0]);
+
+		// Game is over or invalid.
+		if (lines.length == 6) {
+		}
+
 	}
 	
 }
@@ -407,8 +454,8 @@ function make_move(button) {
 					'Are you trying to cheat or what?');
 
 	// everything is OK so go ahead and send the ajax move and update the UI
-	var row = button.name.split()[0];
-	var col = button.name.split()[1];
+	var row = button.name.split(' ')[0];
+	var col = button.name.split(' ')[1];
 	var post_text = "MOVE\n" 
 		+ $('#gameid').val() + '\n' 
 		+ $('#sessionid').val() + '\n'
@@ -418,6 +465,21 @@ function make_move(button) {
 	window.last_piece = button;
 
 }
+
+function check_for_move() {
+	// Prompt the server to tell us about new moves.
+	/*
+	  POST: 
+	  CHECK\n<gameid>\n<sessionid>
+	 */
+
+	var post_text = "CHECK\n" + 
+		$('#gameid').val() + '\n' +
+		$('#sessionid').val() + '\n';
+
+	sendData(post_text, cgi_url, 'POST');
+}
+
 
 //
 // EOF

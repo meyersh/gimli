@@ -82,8 +82,8 @@
 		<input type="text" class="defaultText" id="gameid" title="gameid"/>
 		<input type="text" id="sessionid"/>
 		<input type="button" value="Join" onClick="join_game();"/>
-		<input type="button" value="Forfeit" class="trigger warning-trigger"/>
-		<input type="button" value="Refresh board"/>
+		<input type="button" value="Forfeit"/>
+		<input type="button" value="Refresh board" onClick="check_for_move()" />
 	  </form>
 	  
 	  <div class="content" id="board"></div>
