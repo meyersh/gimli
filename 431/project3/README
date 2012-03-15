@@ -1,5 +1,10 @@
 Project 3: Machine learning (Pente webapp)
 
+TODO:
+  - game traces need to be stored IN ORDER. Presently, they are stored in board-position. 
+    this means we are not tracking the last move and can't analyze old games.
+
+
 session.hpp:
   - This library provides session functions to easily load/edit/describe the game sessions.
   
