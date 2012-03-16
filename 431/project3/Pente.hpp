@@ -41,6 +41,7 @@ public:
 	string players[2];
 	int blkCaps;
     int whtCaps;
+	vector<cell*> gametrace;
 
     /* Member Functions */
     Pente() { players[0] = players[1] = "WAITING"; board_size = 19; turn=0; _initBoard_(); }
@@ -58,7 +59,7 @@ public:
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
     int getCertain(int &certD, int &certT, int &certQ, char color);
-    int getCertain(int &certD, int &certT, int &certQ, char color);
+    int getCaptures(int &caps, int &possCaps, char color);
     string toString();
     string serialize();
     void deserialize(ifstream &f);
@@ -176,6 +177,7 @@ void Pente::fillCell(int r, int c, char color) {
     if(isValidColor(color)) {
 		getCell(r, c)->filled = true;
 		getCell(r, c)->color = toupper(color);
+		gametrace.push_back(getCell(r, c));
     }
 }
 
@@ -357,16 +359,12 @@ string Pente::serialize() {
   ss << players[0] << endl;
   ss << players[1] << endl;
 
-  for (int r = 0; r < board_size; r++)
-	for (int c = 0; c < board_size; c++)
+  for (vector<cell*>::iterator c = gametrace.begin(); c != gametrace.end(); c++)
 	  {
-		  if (!getCell(r,c)->filled)
-			  continue;
-
-		  char contents = getCell(r,c)->color;
+		  char contents = (*c)->color;
 
 		  ss << ( contents == BLACK ? 'B' : 'W' ) 
-			 << " " << r << " " << c << endl;
+			 << " " << (*c)->r << " " << (*c)->c << endl;
 	  }
 
   return ss.str();
