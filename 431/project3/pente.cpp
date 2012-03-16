@@ -48,6 +48,11 @@ int main() {
 
    outfile.close();
 
+   p.make_move(Vhat);
+   
+   cout << p.toString() << endl;
+
+
    // If we made it this far, we're golden.
    cout << "Ok." << endl;
    return 0;

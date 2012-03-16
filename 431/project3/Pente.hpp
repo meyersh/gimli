@@ -54,7 +54,7 @@ public:
 	cell *getCell(int i);
 
 	bool isEmpty(int r, int c);
-    void fillCell(int r, int c, char color);
+    void fillCell(int r, int c, char color, bool real_move=true);
     void clearCell(int r, int c);
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
@@ -63,9 +63,11 @@ public:
     string toString();
     string serialize();
     void deserialize(ifstream &f);
-    State toState();
-
 	vector<cell*> getEmpty();
+
+    State toState();
+	State tryMove(int r, int c, char color);
+	void make_move(int (*Vhat)(State));
 	
 
 };
@@ -168,7 +170,7 @@ Pente::cell *Pente::getCell(int i) {
 	return Board[i];
 }
 
-void Pente::fillCell(int r, int c, char color) {
+void Pente::fillCell(int r, int c, char color, bool real_move) {
     color = toupper(color);
     
     if(!isValidCoords(r,c))
@@ -177,7 +179,8 @@ void Pente::fillCell(int r, int c, char color) {
     if(isValidColor(color)) {
 		getCell(r, c)->filled = true;
 		getCell(r, c)->color = toupper(color);
-		gametrace.push_back(getCell(r, c));
+		if (real_move)
+			gametrace.push_back(getCell(r, c));
     }
 }
 
@@ -404,12 +407,6 @@ void Pente::deserialize(ifstream &f) {
 
 }
 
-State Pente::toState() {
-	// Construct and return the state of the game.
-	State s;
-
-	return s;
-}
 
 vector<Pente::cell*> Pente::getEmpty() {
     vector<cell*> emT;
@@ -423,4 +420,66 @@ vector<Pente::cell*> Pente::getEmpty() {
     }
 
     return emT;
+}
+
+State Pente::toState() {
+	// Construct and return the state of the game.
+	State s(10);
+
+	// Figure for black pieces...
+	getCertain(s[0], s[1], s[2], BLACK);
+	getCaptures(s[3], s[4], BLACK);
+
+	// Figure for white pieces.
+	getCertain(s[5], s[6], s[7], WHITE);
+	getCaptures(s[8], s[9], WHITE);
+	
+	return s;
+}
+
+State Pente::tryMove(int r, int c, char color) {
+	// Fill our imagionary cell.
+	fillCell( r, c, color, false );
+	
+	State s = toState();
+	
+	//Undo that move
+	clearCell(r,c);
+
+	return s;
+}
+
+void Pente::make_move(int (*Vhat)(State)) {
+// Make a computerized move.
+	vector<cell*> possible_moves = getEmpty();
+	cell* best_move = possible_moves[0];
+
+	// Figure out our color
+	char computer_color;
+	for (int i = 0; i < 2; i++)
+		if (players[i] == "COMPUTER")
+			computer_color = (i == 0) ? WHITE : BLACK;
+
+
+	// Assume the best 
+	int best_state = Vhat( tryMove(best_move->r, best_move->c, computer_color) );	
+	
+    // Compare every other move
+	for (int i = 0; i < possible_moves.size(); i++) {
+		// Try a move
+		State fantasy_move = tryMove( possible_moves[i]->r, 
+									  possible_moves[i]->c,
+									  computer_color);
+
+		// Remember a better move
+		if ( Vhat(fantasy_move) > best_state) {
+			best_move = possible_moves[i];
+			best_state = Vhat( toState() );
+		}
+
+	} // end for
+
+	// Make the _BEST_ move.
+	fillCell( best_move->r, best_move->c, computer_color );
+
 }
