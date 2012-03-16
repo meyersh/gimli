@@ -6,6 +6,7 @@
  */
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -452,8 +453,8 @@ State Pente::tryMove(int r, int c, char color) {
 void Pente::make_move(int (*Vhat)(State)) {
 // Make a computerized move.
 	vector<cell*> possible_moves = getEmpty();
+        random_shuffle(possible_moves.begin(), possible_moves.end());
 	cell* best_move = possible_moves[0];
-
 	// Figure out our color
 	char computer_color;
 	for (int i = 0; i < 2; i++)
