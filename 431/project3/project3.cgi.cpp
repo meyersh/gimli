@@ -36,8 +36,8 @@ int main() {
 	getline(cin, instr); // all requests are by POST.
    
 	while (getline(cin, param))
-	   if (param != "")
-		  params.push_back(param);
+		if (param != "")
+			params.push_back(param);
 
 	cout << "Content-Type: text/plain\n\n";
 
@@ -152,7 +152,7 @@ int main() {
 		string gameid = params[0];
 
 		if (params.size() != 1)
-		   die("Invalid number of parameters.");
+			die("Invalid number of parameters.");
 
 		if (!gameid_exists(gameid))
 			die("No game identified by '" + gameid + "'.");
@@ -276,6 +276,72 @@ int main() {
 	{
 
 		// TODO: Return computer (or other player) move.
+
+		/* POST:
+		   CHECK\n<gameid>\n<sessionid>
+
+		   RESPONSE:
+		   CHECK\n<gameid>\n<sessionid>\nWAITING
+		   CHECK\n<gameid>\n<sessionid>\n<row>\n<col>
+		   CHECK\n<gameid>\n<sessionid>\n<row>\n<col>\n{WIN|LOSE}
+		   CHECK\n<gameid>\n<sessionid>\n<row>\n<col>\nTIMEOUT
+		*/
+
+		if (params.size() != 2)
+			die("Invalid number of CHECK parameters.");
+
+		string gameid    = params[0];
+		string sessionid = params[1];
+
+		cout << "CHECK" << endl
+			 << gameid << endl
+			 << sessionid << endl;
+
+		if (!gameid_exists(gameid)) {
+			cout << "9" << endl    // bogus row + col because it can't matter.
+				 << "9" << endl
+				 << "TIMEOUT" << endl;
+			exit(1);
+		}
+
+		// Load the game for more checks
+		Pente game;
+		ifstream game_file( gameid_file_path(gameid) );
+		game.deserialize(game_file);
+		game_file.close();
+	
+
+		// Validate sessionid
+		if (game.players[0] != sessionid && game.players[1] != sessionid)
+			die("Invalid sessionid: '" + sessionid + "'");
+
+		// Is it our turn?
+		int player=0; 
+		for (int i = 0; i < 2; i++)
+			if (game.players[i] == sessionid)
+				player = i;
+
+		if (game.turn % 2 != player) {
+			cout << "WAITING" << endl;
+			exit(1);
+		}
+
+		// Get row + col of last move:
+		int last_move_index = game.gametrace.size() - 1;
+		int row = game.gametrace[ last_move_index ]->r;
+		int col = game.gametrace[ last_move_index ]->c;
+
+		cout << row << endl
+			 << col << endl;
+
+		// TODO: Is this the end of the game?
+        /*
+		if (game.isWon())
+			cout << "WIN" << endl;
+		if (game.isLost())
+			cout << "LOSE" << endl;
+		*/
+	
 
 	}
    
