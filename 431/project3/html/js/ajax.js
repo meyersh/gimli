@@ -48,13 +48,34 @@ function initMessage(type)
 
 function showMessageDiv(type)
 {
-	hideAllMessages();
+	//hideAllMessages();
 	$('.'+type).animate({top:"0"}, 500);
 }
 
 function showMessage(type, header, message) {
 	ge(type).innerHTML = '<h3>' + header + '</h3>\n' + '<p>' + message + '</p>\n';
 	showMessageDiv(type);
+}
+
+function showTurn(ourturn) {
+	if (ourturn == window.ourTurn)
+		return; // Do nothing if there is no change
+
+	window.ourTurn = ourturn;
+
+	if (window.ourTurn == true) {
+		showMessage('info', "Your Turn!", 
+					"It's your turn to move.");
+	}
+
+	else {
+		showMessage('info', 'Waiting for the other player',
+					"It's the other players move. We're waiting on them");
+	}
+	
+	$('#info').effect("pulsate", {times: 2}, 1500);
+
+	
 }
 
 
@@ -183,7 +204,7 @@ function parseData(data)
 		showMessage('error', 'ERROR_CAUSED_SHUTDOWN', lines[1]);
 
 	if (message == "SETUP") {
-		if (lines.length < 3) // abort for error.
+		if (lines.length < 6) // abort for error.
 		{
 			return showMessage('error', 'CGI API VIOLATION', 
 							   'SETUP gave invalid response:<br><pre>'+
@@ -191,9 +212,16 @@ function parseData(data)
 		}
 
 		showMessage('info', 'SETUP', 'Gameid: ' + lines[1] + '<br>Sessionid: ' + lines[2]);
+
+		
+
+		// Update UI to show the game screen
 		$('#accordion').accordion( "activate" , 1 );
 		$('#gameid').val(lines[1]);
 		$('#sessionid').val(lines[2]);
+
+		// Start auto-refresh (refreshing every 3 seconds)
+		setInterval("check_for_move();", 3000); 
 
 		window.joined = true;
 	}
@@ -216,6 +244,9 @@ function parseData(data)
 		$('#gameid').val(lines[1]);
 		$('#sessionid').val(lines[2]);
 
+		// Start auto-refresh (refreshing every 3 seconds)
+		setInterval("check_for_move();", 3000); 
+
 	}		
 
 	if (message == "MOVE") {
@@ -231,7 +262,6 @@ function parseData(data)
 		// update the UI with the new piece
 		if (window.last_piece) {
 			place_piece(window.last_piece);
-			alert(window.last_piece.name);
 			window.last_piece = null;
 		}
 		else 
@@ -264,21 +294,25 @@ function parseData(data)
 							   'CHECK game invalid response:<br><pre>' + 
 							   data + '</pre>');
 
-		var gameid = lines[1];
+		var gameid    = lines[1];
 		var sessionid = lines[2];
 
 		$('#sessionid').val(sessionid); // update the sessionid
 
-		if (lines[3] == "WAITING") 
+		if (lines[3] == "WAITING") {
+			showTurn(false);
 			return; // nothing to do here.
+		}
 		
 		var row = lines[3];
 		var col = lines[4];
 
 		var name = row + ' ' + col;
-
 		// place a move at button NAME. 
-		place_piece($('input[name=' + name + ']')[0]);
+		place_piece($('input[name="' + name + '"]')[0], 'BLACK');
+		
+		// Update the UI to show that it is our turn
+		showTurn(true);
 
 		// Game is over or invalid.
 		if (lines.length == 6) {
@@ -399,6 +433,13 @@ function create_game() {
     var post_text = "SETUP\n" + player_config;
 
     sendData(post_text, cgi_url, "POST");
+
+
+	// place the initial piece.
+	if (player_config[2] == 1)
+		place_piece($('input[name="9 9"]')[0]);
+	else
+		place_piece($('input[name="9 9"]')[0], "BLACK");
 }
 
 function join_game() {
@@ -415,6 +456,7 @@ function join_game() {
 	var post_text = "JOIN\n" + $('#gameid').val() + "\n";
 
 	sendData(post_text, cgi_url, "POST");
+
 }
 
 function status_of_button(button) {
@@ -429,10 +471,24 @@ function status_of_button(button) {
 }
 
 function place_piece(button, color) {
-	if (color = 'BLACK')
+	if (color == 'BLACK')
 		button.src = button.src.replace(/\/([0-9]).gif/, '\/b$1.gif');
 	else
 		button.src = button.src.replace(/\/([0-9]).gif/, '\/w$1.gif');
+}
+
+function check_for_move() {
+	// Prompt the server to tell us about new moves.
+	/*
+	  POST: 
+	  CHECK\n<gameid>\n<sessionid>
+	 */
+
+	var post_text = "CHECK\n" + 
+		$('#gameid').val() + '\n' +
+		$('#sessionid').val() + '\n';
+
+	sendData(post_text, cgi_url, 'POST');
 }
 
 function make_move(button) {
@@ -453,6 +509,10 @@ function make_move(button) {
 					'You can hardly expect to move <i>there</i>! '+ 
 					'Are you trying to cheat or what?');
 
+	// Do a check to make sure we haven't moved in the interrim.
+
+	check_for_move();
+
 	// everything is OK so go ahead and send the ajax move and update the UI
 	var row = button.name.split(' ')[0];
 	var col = button.name.split(' ')[1];
@@ -466,19 +526,7 @@ function make_move(button) {
 
 }
 
-function check_for_move() {
-	// Prompt the server to tell us about new moves.
-	/*
-	  POST: 
-	  CHECK\n<gameid>\n<sessionid>
-	 */
 
-	var post_text = "CHECK\n" + 
-		$('#gameid').val() + '\n' +
-		$('#sessionid').val() + '\n';
-
-	sendData(post_text, cgi_url, 'POST');
-}
 
 
 //
