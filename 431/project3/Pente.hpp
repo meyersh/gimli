@@ -358,6 +358,8 @@ string Pente::serialize() {
   ss << turn << endl;
   ss << players[0] << endl;
   ss << players[1] << endl;
+  ss << whtCaps << endl;
+  ss << blkCaps << endl;
 
   for (vector<cell*>::iterator c = gametrace.begin(); c != gametrace.end(); c++)
 	  {
@@ -381,6 +383,8 @@ void Pente::deserialize(ifstream &f) {
   f >> turn; // first line is the turn.
   f >> players[0]; // second line is session id (or COMPUTER) of the white player.
   f >> players[1]; //third line is the session id (or COMPUTER) of the black player.
+  f >> whtCaps;
+  f >> blkCaps;
 
   while (getline(f, line)) {
 	stringstream ss(line);
