@@ -130,7 +130,15 @@ int main() {
 		// return the details to the client
 		cout << "SETUP" << endl
 			 << gameid << endl
-			 << sessionkey << endl;
+			 << sessionkey << endl
+			 << "9" << endl
+			 << "9" << endl;
+		
+		if (human_only && creator_is_white)
+		   cout << "WAITING" << endl;
+		else
+		   cout << "MOVE" << endl;
+			 
 	}
 
 	/*
