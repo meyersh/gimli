@@ -40,7 +40,7 @@ public:
 	int turn; // turn number.
 	string players[2];
 	int blkCaps;
-    int whtCaps;
+        int whtCaps;
 	vector<cell*> gametrace;
 
     /* Member Functions */
