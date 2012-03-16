@@ -30,6 +30,8 @@ int main() {
    cout << "search(EMPTY) -> (not implemented.)" << endl; 
    //<< p.getFilled(EMPTY).size() << endl;
 
+   cout << "isEmpty(2,12) -> " << p.isEmpty(2,12) << endl;
+   cout << "isEmpty(2,13) -> " << p.isEmpty(2,13) << endl;
 
    cout << p.toString() << endl;
    cout << p.serialize() << endl;
