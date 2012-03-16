@@ -39,10 +39,11 @@ public:
 	int board_size;
 	int turn; // turn number.
 	string players[2];
+	int blkCaps;
+    int whtCaps;
 
     /* Member Functions */
-    Pente() { players[0] = players[1] = "WAITING"; 
-		board_size = 19; turn=0; _initBoard_(); }
+    Pente() { players[0] = players[1] = "WAITING"; board_size = 19; turn=0; _initBoard_(); }
     ~Pente() { _killBoard_(); }
     void _initBoard_();
     void _killBoard_();
@@ -56,6 +57,7 @@ public:
     void clearCell(int r, int c);
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
+    int getCertain(int &certD, int &certT, int &certQ, char color);
     int getCertain(int &certD, int &certT, int &certQ, char color);
     string toString();
     string serialize();
@@ -205,7 +207,7 @@ vector<Pente::cell*> Pente::getFilled(char color) {
 int Pente::getPossible(int &possD, int &possT, int &possQ, int &possWins, char color) {
     cell *tCell, *nxt;
     vector<cell*> filled = getFilled(color);
-    int count, blank;
+    int count=1, blank=0;
 
     if(filled.size() == 0)
         return 0;
@@ -213,7 +215,7 @@ int Pente::getPossible(int &possD, int &possT, int &possQ, int &possWins, char c
 
     for(int i=0;i<filled.size();i++) {
         tCell = filled[i];
-        for(int j=4;i<8;i++) {
+        for(int j=4;j<8;j++) {
             nxt = tCell->neighbors[j];
             while((nxt != NULL)&&(blank<2)) {
                 if((nxt->filled==true)&&(nxt->color==color))
@@ -224,19 +226,24 @@ int Pente::getPossible(int &possD, int &possT, int &possQ, int &possWins, char c
                     break;
                 nxt = nxt->neighbors[j];
             }
-            switch(count) {
-                case 2:
-                    possT++;
-                    break;
-                case 3:
-                    possQ++;
-                    break;
-                case 4:
-                    possWins++;
-                    break;
-                default:
-                    break;
+            if((tCell->neighbors[j-4]!=NULL)&&(tCell->neighbors[j-4]->filled==true)) {
+                ;
+            } else if((tCell->neighbors[j-4]==NULL)||(tCell->neighbors[j-4]->filled==false)){
+                switch(count) {
+                    case 2:
+                        possT++;
+                        break;
+                    case 3:
+                        possQ++;
+                        break;
+                    case 4:
+                        possWins++;
+                        break;
+                    default:
+                        break;
+                }
             }
+            count = 1; blank = 0;
         }
     }
 
@@ -247,7 +254,7 @@ int Pente::getPossible(int &possD, int &possT, int &possQ, int &possWins, char c
 int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
     cell *tCell, *nxt;
     vector<cell*> filled = getFilled(color);
-    int count;
+    int count = 1;
 
     if (!isValidColor(color))
 	throw runtime_error("Invalid color");
@@ -257,7 +264,7 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
 
     for(int i=0;i<filled.size();i++) {
         tCell = filled[i];
-        for(int j=4;i<8;i++) {
+        for(int j=4;j<8;j++) {
             nxt = tCell->neighbors[j];
             while((nxt!=NULL)&&(nxt->filled==true)) {
                 if(nxt->color==color)
@@ -266,24 +273,58 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
                     break;
                 nxt = nxt->neighbors[j];
             }
-            switch(count) {
-                case 2:
-                    certD++;
-                    break;
-                case 3:
-                    certT++;
-                    break;
-                case 4:
-                    certQ++;
-                    break;
-                default:
-                    break;
+            if((tCell->neighbors[j-4]!=NULL)&&(tCell->neighbors[j-4]->filled==true)) {
+                ;
+            } else if((tCell->neighbors[j-4]==NULL)||(tCell->neighbors[j-4]->filled==false)){
+                switch(count) {
+                    case 2:
+                        certD++;
+                        break;
+                    case 3:
+                        certT++;
+                        break;
+                    case 4:
+                        certQ++;
+                        break;
+                    default:
+                        break;
+                }
             }
+            count = 1;
         }
     }
 
     return 0;
 }
+
+int Pente::getCaptures(int &caps, int &possCaps, char color) {
+    cell *tCell, *one, *two, *end;
+    char eColor = ((color=='B')?'W':'B');
+    vector<cell*> filled = getFilled(color);
+    int count = 1;
+
+    for(int i=0;i<filled.size();i++) {
+        tCell = filled[i];
+        for(int j=0;j<8;j++) {
+            one = tCell->neighbors[j];
+            if((one==NULL)||(one->filled==false)||(one->color!=eColor))
+                continue;
+            two = one->neighbors[j];
+            if((two==NULL)||(two->filled==false)||(two->color!=eColor))
+                continue;
+            end = two->neighbors[j];
+            if(end==NULL)
+                continue;
+            else if(end->filled==false)
+                possCaps++;
+            else if((end->filled==true)&&(end->color==color))
+                caps++;
+        }
+    }
+
+    caps = ((caps>0)?caps/2:caps);
+    return 0;
+}	
 
 string Pente::toString() {
   stringstream ss;
