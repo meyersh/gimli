@@ -47,8 +47,14 @@ public:
 	vector<cell*> gametrace;
 
     /* Member Functions */
-    Pente() { players[0] = players[1] = "WAITING"; board_size = 19; turn=0; _initBoard_(); }
+    Pente() { 
+		players[0] = players[1] = "WAITING"; 
+		board_size = 19; turn=0; _initBoard_(); 
+	}
     ~Pente() { _killBoard_(); }
+
+	void reset() {_killBoard_(); _initBoard_();}
+
     void _initBoard_();
     void _killBoard_();
     bool isValidCoords(int r, int c);
@@ -145,6 +151,8 @@ void Pente::_killBoard_() {
         delete Board[i];      
         Board[i] = NULL;
     }
+	Board.clear();
+	gametrace.clear();
 }
 
 bool Pente::isValidCoords(int r, int c) {
@@ -458,34 +466,38 @@ char Pente::playerColor(string sessionid) {
 int Pente::nInARow(int n, char color) {
 	// Return how instances a given color has of n-length in a row.
 
-	int count = 0;
 	int found = 0;
 
     vector<cell*> filled = getFilled(color);
 
 	for(int i=0;i<filled.size();i++) {
+
 		Pente::cell *tCell = filled[i];
-        for(int j=4;j<8;j++) {
-			Pente::cell *nxt = tCell->neighbors[j];
-            while((nxt!=NULL)&&(nxt->filled==true)) {
+
+        for(int dir=4;dir<8;dir++) {
+			int count = 1;
+			Pente::cell *nxt = tCell->neighbors[dir];
+            
+			while(nxt && nxt->filled) {
                 if(nxt->color==color)
                     count++;
                 else
                     break;
-                nxt = nxt->neighbors[j];
+                nxt = nxt->neighbors[dir];
             }
-            if((tCell->neighbors[j-4]!=NULL)
-			   &&(tCell->neighbors[j-4]->filled==true)) 
+
+            if(tCell->neighbors[dir-4]
+			   && tCell->neighbors[dir-4]->filled
+			   && tCell->neighbors[dir-4]->color == color) // <-- bug fix, maybe?
                 continue;
 			
             if (count == n)
 				found++;
 
-            count = 1;
         }
     }
 
-	return count;
+	return found;
 	
 }
 
