@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "assert.h"
 #include "Pente.hpp"
 
@@ -7,7 +8,21 @@ using namespace std;
 int main() {
    Pente p;
 
-   // Test coords
+   p.players[0] = "COMPUTER";
+   p.players[1] = "TesterMcTester";
+
+
+   // Test playerNumber functionality
+   assert (p.playerNumber("COMPUTER") == 0);
+   assert (p.playerNumber("TesterMcTester") == 1);
+   assert (p.playerNumber("Wrong!") == -1);
+
+   // Test playerColor functionality
+   assert (p.playerColor("COMPUTER") == WHITE);
+   assert (p.playerColor("TesterMcTester") == BLACK);
+   assert (p.playerColor("Wrong!") == EMPTY);
+
+   // Test coords functionality
    assert (p.isValidCoords(-1,0) == false);
    assert (p.isValidCoords(0,-1) == false);
    assert (p.isValidCoords(19,0) == false);
@@ -15,7 +30,7 @@ int main() {
 
    assert (p.isValidCoords(0,0) == true);
 
-   // Test colors
+   // Test color functionality
    assert (p.isValidColor('B') == true);
    assert (p.isValidColor('b') == true);
    assert (p.isValidColor('W') == true);
@@ -23,32 +38,53 @@ int main() {
 
    assert (p.isValidColor('x') == false);
 
-   cout << "fillCell()" << endl;
+   // Test fillCell, getFilled, and getEmpty functionality
    p.fillCell(2,12, WHITE);
-   cout << "search(WHITE) -> " << p.getFilled(WHITE).size() << endl;
-   cout << "search(BLACK) -> " << p.getFilled(BLACK).size() << endl;
-   cout << "search(EMPTY) -> (not implemented.)" << endl; 
-   //<< p.getFilled(EMPTY).size() << endl;
+   assert (p.getFilled(WHITE).size() == 1);
+   assert (p.getFilled(BLACK).size() == 0);
+   assert (p.getEmpty().size() == 361-1);
 
-   cout << "isEmpty(2,12) -> " << p.isEmpty(2,12) << endl;
-   cout << "isEmpty(2,13) -> " << p.isEmpty(2,13) << endl;
+   assert (p.isEmpty(2,12) == false);
+   assert (p.isEmpty(2,13) == true);
 
-   cout << p.toString() << endl;
-   cout << p.serialize() << endl;
+   // test clearCell.
+   p.clearCell(2, 12);
+   assert (p.isEmpty(2, 12) == true);
 
-   ifstream infile("game.txt");
-   p.deserialize(infile);
-   infile.close();
-   cout << p.serialize() << endl;
+   // Test nInARow() - simple case
+   p.fillCell(0,0, WHITE);
+   p.fillCell(0,1, WHITE);
+   assert (p.nInARow(2, WHITE) == 1);
+   p.fillCell(0,2, WHITE);
+   assert (p.nInARow(2, WHITE) == 0); // verify that 3-in-a-row is not also 2-in-a-row
+   assert (p.nInARow(3, WHITE) == 1);
+   p.fillCell(0,3, WHITE);
+   assert (p.nInARow(4, WHITE) == 1);
+   p.fillCell(0,4, WHITE); 
+   assert (p.nInARow(5, WHITE) == 1);
 
+   p.reset();
+   assert(p.getEmpty().size() == 361);
 
-   ofstream outfile("game.txt");
+   // Try more complicated example (and this proved an error)
+   p.fillCell(0,0, WHITE);
+   p.fillCell(0,1, WHITE);
+   p.fillCell(0,2, BLACK);
+   p.fillCell(1,2, BLACK);
+   p.fillCell(0,3, WHITE);
+   p.fillCell(0,4, WHITE);
+   assert (p.nInARow(2, WHITE) == 2);
+   assert (p.nInARow(2, BLACK) == 1);
 
-   outfile << p.serialize() << endl;
+   /*
+	* FROM HERE, we have an EMPTY and VALIDATED board state with
+	* COMPUTER in position 0 (white, player1) and human player in
+	* position 1 (black, player2).
+	*/
+   
+   
 
-   outfile.close();
-
-   p.make_move(Vhat);
+   //   p.make_move(Vhat);
    
    cout << p.toString() << endl;
 
