@@ -1,9 +1,11 @@
 /* 
  * File:   Pente.hpp
  * Author: mab015
+ * Errors introduced by Shaun Meyer
  *
  * Created on February 28, 2012, 11:27 PM
  */
+
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
@@ -65,6 +67,13 @@ public:
     string serialize();
     void deserialize(ifstream &f);
 	vector<cell*> getEmpty();
+	
+	int playerNumber(string sessionid);
+	char playerColor(string sessionid);
+	int nInARow(int n, char color=WHITE);
+
+	int gameOutcome(char color);
+
 
     State toState();
 	State tryMove(int r, int c, char color);
@@ -263,7 +272,7 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
     int count = 1;
 
     if (!isValidColor(color))
-	throw runtime_error("Invalid color");
+		throw runtime_error("Invalid color");
 
     if(filled.size() == 0) 
         return 0;
@@ -422,6 +431,95 @@ vector<Pente::cell*> Pente::getEmpty() {
 
     return emT;
 }
+
+int Pente::playerNumber(string sessionid) {
+	// Given a playerid return the index of players[] 
+	// or -1 for invalid id.
+	for (int i = 0; i < 2; i++)
+		if (players[i] == sessionid)
+			return i;
+
+	return -1;
+}
+
+char Pente::playerColor(string sessionid) {
+	// Return the color char of a given player
+    // (or empty for none.)
+	switch (playerNumber(sessionid)) {
+	case -1:
+		return EMPTY;
+	case 0:
+		return WHITE;
+	case 1:
+		return BLACK;
+	}
+}
+
+int Pente::nInARow(int n, char color) {
+	// Return how instances a given color has of n-length in a row.
+
+	int count = 0;
+	int found = 0;
+
+    vector<cell*> filled = getFilled(color);
+
+	for(int i=0;i<filled.size();i++) {
+		Pente::cell *tCell = filled[i];
+        for(int j=4;j<8;j++) {
+			Pente::cell *nxt = tCell->neighbors[j];
+            while((nxt!=NULL)&&(nxt->filled==true)) {
+                if(nxt->color==color)
+                    count++;
+                else
+                    break;
+                nxt = nxt->neighbors[j];
+            }
+            if((tCell->neighbors[j-4]!=NULL)
+			   &&(tCell->neighbors[j-4]->filled==true)) 
+                continue;
+			
+            if (count == n)
+				found++;
+
+            count = 1;
+        }
+    }
+
+	return count;
+	
+}
+
+int Pente::gameOutcome(char color) {
+	// Has a given color won, lost, or neither (yet)? 
+    // Return 1, -1, 0 accordingly.
+
+	enum {LOST=-1, UNDETERMINED, WON};
+	
+	char theirColor = (color == WHITE) ? BLACK : WHITE;
+
+	int *myCaps, *theirCaps;
+	if (color == WHITE) {
+		myCaps = &whtCaps;
+		theirCaps = &blkCaps;
+	} else {
+		myCaps = &blkCaps;
+		theirCaps = &whtCaps;
+	}
+
+	if (*theirCaps >= 5)
+		return LOST;
+
+	if (*myCaps >= 5)
+		return WON;
+
+	if (nInARow(5, color) > 0)
+		return WON;
+	if (nInARow(5, theirColor) > 0)
+		return LOST;
+
+	return UNDETERMINED;
+}
+
 
 State Pente::toState() {
 	// Construct and return the state of the game.
