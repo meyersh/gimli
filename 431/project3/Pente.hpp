@@ -82,7 +82,7 @@ public:
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
     int getCertain(int &certD, int &certT, int &certQ, char color);
-    int getCaptures(int &caps, int &possCaps, char color);
+    int chkCapture(int r, int c, char color);
     string toString();
     string serialize();
     void deserialize(ifstream &f);
@@ -91,7 +91,7 @@ public:
     int playerNumber(string sessionid);
     char playerColor(string sessionid);
     int nInARow(int n, char color = WHITE);
-
+    void MC_Pente(int r, int c, char color);
     int gameOutcome(char color);
 
 
@@ -334,35 +334,32 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
     return 0;
 }
 
-int Pente::getCaptures(int &caps, int &possCaps, char color) {
+int Pente::chkCapture(int r, int c, char color) {
     cell *tCell, *one, *two, *end;
     char eColor = ((color == 'B') ? 'W' : 'B');
-    vector<cell*> filled = getFilled(color);
-
-    for (int i = 0; i < filled.size(); i++) {
-        tCell = filled[i];
-        for (int j = 0; j < 8; j++) {
-            one = tCell->neighbors[j];
-            if ((one == NULL) || (one->filled == false) || (one->color != eColor))
-                continue;
-            two = one->neighbors[j];
-            if ((two == NULL) || (two->filled == false) || (two->color != eColor))
-                continue;
-            end = two->neighbors[j];
-            if (end == NULL)
-                continue;
-            else if (end->filled == false)
-                possCaps++;
-            else if ((end->filled == true) && (end->color == color))
-                caps++;
+    tCell = Board[r*19+c];
+    for (int j = 0; j < 8; j++) {
+        one = tCell->neighbors[j];
+        if ((one == NULL) || (one->filled == false) || (one->color != eColor))
+            continue;
+        two = one->neighbors[j];
+        if ((two == NULL) || (two->filled == false) || (two->color != eColor))
+            continue;
+        end = two->neighbors[j];
+        if((end == NULL)||(end->filled == false))
+            continue;
+        else if ((end->filled == true) && (end->color == color)) {
+            caps++;
+            one->filled = two->filled = false;
+            one->color = two->color = '*';
         }
     }
 
-    caps = ((caps > 0) ? caps / 2 : caps);
     if (color == 'B')
         blkCaps = caps;
     else
         whtCaps = caps;
+    
     return 0;
 }
 
@@ -513,6 +510,15 @@ int Pente::nInARow(int n, char color) {
 
     return found;
 
+}
+
+void Pente::MC_Pente(int r, int c, char color) {
+    int found;
+    
+    fillCell(r, c, color);
+    chkCapture(r, c, color);
+    found = nInARow(5, color);
+    gametrace.push_back(getCell(r, c));
 }
 
 int Pente::gameOutcome(char color) {
