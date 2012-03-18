@@ -91,7 +91,7 @@ public:
     int playerNumber(string sessionid);
     char playerColor(string sessionid);
     int nInARow(int n, char color = WHITE);
-    void MC_Pente(int r, int c, char color);
+    void playToken(int r, int c, char color);
     int gameOutcome(char color);
 
 
@@ -512,7 +512,7 @@ int Pente::nInARow(int n, char color) {
 
 }
 
-void Pente::MC_Pente(int r, int c, char color) {
+void Pente::playToken(int r, int c, char color) {
     int found;
     
     fillCell(r, c, color);
@@ -613,6 +613,6 @@ void Pente::make_move(int (*Vhat)(State)) {
     } // end for
 
     // Make the _BEST_ move.
-    fillCell(best_move->r, best_move->c, computer_color);
+    playToken(best_move->r, best_move->c, computer_color);
 
 }
