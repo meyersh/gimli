@@ -98,13 +98,13 @@ string State::toString() {
 struct Weight
 {
 
-   vector<int> w;
+   vector<double> w;
    string filename;
 
    Weight(string);
    ~Weight();
    int size() {return w.size();};
-   int& operator[] (const int);
+   double& operator[] (const int);
    int save();
    int load(); 
    void insert(int i);
@@ -122,7 +122,7 @@ Weight::~Weight() {
    save();
 }
 
-int& Weight::operator[] (const int i) {
+double& Weight::operator[] (const int i) {
    return w[i];
 }
 
@@ -153,7 +153,7 @@ int Weight::load() {
    w.clear();
 
    while (getline(weight_file, line))
-	  w.push_back( atoi(line.c_str()) );
+	  w.push_back( atof(line.c_str()) );
 
    weight_file.close();
    return 0;
