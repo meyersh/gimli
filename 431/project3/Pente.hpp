@@ -580,6 +580,7 @@ State Pente::tryMove(int r, int c, char color) {
 
 void Pente::make_move(int (*Vhat)(State)) {
     // Make a computerized move.
+    srand(time(NULL));
     vector<cell*> possible_moves = getEmpty();
     random_shuffle(possible_moves.begin(), possible_moves.end());
     cell* best_move = possible_moves[0];
