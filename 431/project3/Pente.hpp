@@ -528,19 +528,19 @@ int Pente::gameOutcome(char color) {
 
     char theirColor = (color == WHITE) ? BLACK : WHITE;
 
-    int myCaps, theirCaps;
+    int *myCaps, *theirCaps;
     if (color == WHITE) {
-        myCaps = whtCaps;
-        theirCaps = blkCaps;
+        myCaps = &whtCaps;
+        theirCaps = &blkCaps;
     } else {
-        myCaps = blkCaps;
-        theirCaps = whtCaps;
+        myCaps = &blkCaps;
+        theirCaps = &whtCaps;
     }
 
-    if (theirCaps >= 5)
+    if (*theirCaps >= 5)
         return LOST;
 
-    if (myCaps >= 5)
+    if (*myCaps >= 5)
         return WON;
 
     if (nInARow(5, color) > 0)
