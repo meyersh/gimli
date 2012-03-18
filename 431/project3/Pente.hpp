@@ -31,7 +31,7 @@ enum {
 };
 
 class Pente {
-
+public:
     struct cell {
         bool filled;
         char color;
@@ -40,8 +40,6 @@ class Pente {
     };
 
     vector<cell*> Board;
-
-public:
 
     /* Data Members */
     int board_size;
