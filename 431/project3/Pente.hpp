@@ -49,7 +49,8 @@ public:
     /* Member Functions */
     Pente() { 
 		players[0] = players[1] = "WAITING"; 
-		board_size = 19; turn=0; _initBoard_(); 
+		board_size = 19; turn=0; _initBoard_();
+                blkCaps = whtCaps = 0;
 	}
     ~Pente() { _killBoard_(); }
 
