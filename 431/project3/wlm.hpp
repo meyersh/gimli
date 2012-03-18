@@ -50,15 +50,15 @@ using namespace std;
 struct State 
 {
 
-   vector<int> x;
+	vector<int> x;
 
-   State (unsigned int);
+	State (unsigned int);
 
-   /* Prototypes */
-   int size() {return x.size();};
-   int& operator[] (const int);
-   void insert(int);
-   string toString();
+	/* Prototypes */
+	int size() {return x.size();};
+	int& operator[] (const int);
+	void insert(int);
+	string toString();
 
    
 };
@@ -66,29 +66,29 @@ struct State
 /* State Object functions */
 
 State::State(unsigned int len=0) {
-   if (len)
-	  x.resize(len);
+	if (len)
+		x.resize(len);
 }
 
 void State::insert(int i) {
-   x.push_back(i);
+	x.push_back(i);
 }
 
 int& State::operator[] (const int i) {
-   return x[i];
+	return x[i];
 }
 
 string State::toString() {
-   stringstream ss;
+	stringstream ss;
 
-   for (int i = 0; i < x.size(); i++)
-	  {
-	  ss << x[i];
-	  if (i+1 != x.size())
-		 ss << ", ";
-	  }
+	for (int i = 0; i < x.size(); i++)
+		{
+			ss << x[i];
+			if (i+1 != x.size())
+				ss << ", ";
+		}
 
-   return ss.str();
+	return ss.str();
 }
 
 /*
@@ -98,113 +98,128 @@ string State::toString() {
 struct Weight
 {
 
-   vector<double> w;
-   string filename;
+	vector<double> w;
+	string filename;
+	double eta;
 
-   Weight(string);
-   ~Weight();
-   int size() {return w.size();};
-   double& operator[] (const int);
-   int save();
-   int load(); 
-   void insert(int i);
-   string toString();
+	Weight(string filename=WEIGHTS_FILE);
+	~Weight();
+	int size() {return w.size();};
+	double& operator[] (const int);
+	int save();
+	int load(); 
+	void insert(int i);
+	string toString();
+	void adjust(State b, double error);
 };
 
 /* Weight Object functions */
 
 Weight::Weight(string filename) {
-   this->filename = filename;
-   load();
+	this->filename = filename;
+	eta = 0.1;
+	load();
 }
 
 Weight::~Weight() {
-   save();
+	save();
 }
 
 double& Weight::operator[] (const int i) {
-   return w[i];
+	return w[i];
 }
 
 int Weight::save() {
-   ofstream weight_file(filename.c_str());
+	ofstream weight_file(filename.c_str());
 
-   if (!weight_file.good()) 
-	  return 1; // can't save the file!
+	if (!weight_file.good()) 
+		return 1; // can't save the file!
 
-   for (int i = 0; i < w.size(); i++)
-	  weight_file << w[i] << endl;
+	for (int i = 0; i < w.size(); i++)
+		weight_file << w[i] << endl;
    
-   weight_file.close();
-   return 0;
+	weight_file.close();
+	return 0;
 }
 
 int Weight::load() {
-   ifstream weight_file(filename.c_str());
+	ifstream weight_file(filename.c_str());
 
-   string line;
+	string line;
 
-   if (!weight_file.good())
-	  {
-	  weight_file.close();
-	  return 1; // can't open the file! 
-	  }
+	if (!weight_file.good())
+		{
+			weight_file.close();
+			return 1; // can't open the file! 
+		}
 
-   w.clear();
+	w.clear();
 
-   while (getline(weight_file, line))
-	  w.push_back( atof(line.c_str()) );
+	while (getline(weight_file, line))
+		w.push_back( atof(line.c_str()) );
 
-   weight_file.close();
-   return 0;
+	weight_file.close();
+	return 0;
 }
 
 void Weight::insert(int i) {
-   w.push_back(i);
+	w.push_back(i);
 }
 
 string Weight::toString() {
-   stringstream ss;
+	stringstream ss;
 
-   for (int i = 0; i < w.size(); i++)
-	  {
-	  ss << w[i];
-	  if (i+1 != w.size())
-		 ss << ", ";
-	  }
+	for (int i = 0; i < w.size(); i++)
+		{
+			ss << w[i];
+			if (i+1 != w.size())
+				ss << ", ";
+		}
 
-   return ss.str();
+	return ss.str();
 }
 	  
 
 int Vhat(State b) {
-   Weight w(WEIGHTS_FILE);
+	Weight w(WEIGHTS_FILE);
 
-   // empty w or b is exceptional.
-   if (!b.size() || !w.size())
-	  throw logic_error("Weight or B is empty.");
+	// empty w or b is exceptional.
+	if (!b.size() || !w.size())
+		throw logic_error("Weight or B is empty.");
 
-   // We have dynamic-length state & weight,
-   // calculate for the shorter.
-   int len = 0;
+	// We have dynamic-length state & weight,
+	// calculate for the shorter.
+	int len = 0;
 
-   if (b.size() < w.size())
-	  len = b.size();
-   else 
-	  len = w.size() - 1;
+	if (b.size() < w.size())
+		len = b.size();
+	else 
+		len = w.size() - 1;
 
 
-   // Implicit w0 var.
-   int result = w[0];
+	// Implicit w0 var.
+	int result = w[0];
    
-   // Multiply up the rest of the xi*wi vars.
-   for (int i = 0; i < len; i++)
-	  result += b[i] * w[i+1];
+	// Multiply up the rest of the xi*wi vars.
+	for (int i = 0; i < len; i++)
+		result += b[i] * w[i+1];
 
-   return result;
+	return result;
 
 }
 
+void Weight::adjust(State b, double error) {
+	/* Adjust the weights with wi <- wi + n(error)*xi */
+
+	// Ensure that we have as many weights as our state.
+	if (b.size() >= w.size())
+		w.resize(b.size()+1);
+
+	for (int i=0; i<w.size(); i++) {
+		w[i+1] += w[i+1] + eta*(error)*b[i]; 
+	}
+	  
+}
 
 
 #endif
