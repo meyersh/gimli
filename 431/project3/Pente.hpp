@@ -353,11 +353,8 @@ int Pente::getCaptures(int &caps, int &possCaps, char color) {
                 continue;
             else if (end->filled == false)
                 possCaps++;
-            else if ((end->filled == true) && (end->color == color)) {
+            else if ((end->filled == true) && (end->color == color))
                 caps++;
-                one->filled = two->filled = false;
-                one->color = two->color = '*';
-            }
         }
     }
 
