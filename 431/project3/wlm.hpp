@@ -110,6 +110,8 @@ struct Weight
 	void insert(int i);
 	string toString();
 	void adjust(State b, double error);
+    int Vhat(State b);
+
 };
 
 /* Weight Object functions */
@@ -117,11 +119,10 @@ struct Weight
 Weight::Weight(string filename) {
 	this->filename = filename;
 	eta = .1;
-	load();
+    load();
 }
 
 Weight::~Weight() {
-	save();
 }
 
 double& Weight::operator[] (const int i) {
@@ -180,9 +181,7 @@ string Weight::toString() {
 }
 	  
 
-int Vhat(State b) {
-	Weight w(WEIGHTS_FILE);
-
+int Weight::Vhat(State b) {
 	// empty w or b is exceptional.
 	if (!b.size() || !w.size())
 		throw logic_error("Weight or B is empty.");
@@ -194,7 +193,7 @@ int Vhat(State b) {
 	if (b.size() < w.size())
 		len = b.size();
 	else 
-		len = w.size() - 1;
+		len = size() - 1;
 
 
 	// Implicit w0 var.
@@ -224,5 +223,32 @@ void Weight::adjust(State b, double error) {
 	  
 }
 
+int Vhat(State b) {
+    Weight w(WEIGHTS_FILE);
+
+	// empty w or b is exceptional.
+	if (!b.size() || !w.size())
+		throw logic_error("Weight or B is empty.");
+
+	// We have dynamic-length state & weight,
+	// calculate for the shorter.
+	int len = 0;
+
+	if (b.size() < w.size())
+		len = b.size();
+	else 
+		len = w.size() - 1;
+
+
+	// Implicit w0 var.
+	int result = w[0];
+   
+	// Multiply up the rest of the xi*wi vars.
+	for (int i = 0; i < len; i++)
+		result += b[i] * w[i+1];
+
+	return result;
+
+}
 
 #endif
