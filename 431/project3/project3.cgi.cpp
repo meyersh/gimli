@@ -62,7 +62,7 @@ int main() {
 		string game_type = params[0];
 
 		if (game_type.size() != 3 || game_type[0] != 'h')
-			die("msg: Invalid parameter: " + param);
+			die("Invalid parameter: " + param);
 
 		if (game_type[1] == 'h')
 			human_only = true;
@@ -329,10 +329,29 @@ int main() {
 			if (game.players[i] == sessionid)
 				player = i;
 
-		if (game.turn % 2 != player) {
-			cout << "WAITING" << endl;
-			exit(1);
-		}
+        
+        // If the computer is playing and we're waiting on them,
+        // go ahead and initiate a computer move.
+        if (game.turn % 2 != player) {
+            if (game.players[game.turn % 2] == "COMPUTER") {
+
+                // Generate a computer move.
+                Weight weights(WEIGHTS_FILE);
+                weights.load();
+                game.make_move(weights);
+
+                // Save the computer move to file.
+                ofstream ogame_file( gameid_file_path(gameid) );
+                ogame_file << game.serialize() << endl;
+                ogame_file.close();
+                   
+            } else {
+                cout << "WAITING" << endl;
+                exit(1);
+            }
+        }
+    
+        
 
 		// Get row + col of last move:
 		int last_move_index = game.gametrace.size() - 1;
