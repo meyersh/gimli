@@ -120,7 +120,7 @@ struct Weight
 
 Weight::Weight(string filename) {
 	this->filename = filename;
-	eta = .1;
+	eta = .001;
     load();
     cout << "Weight constructor." << endl;
 }
@@ -210,6 +210,11 @@ int Weight::Vhat(State b) {
 	for (int i = 0; i < len; i++)
 		result += b[i] * w[i+1];
 
+    if (result > 100)
+        return 100;
+    else if (result < -100)
+        return -100;
+    
 	return result;
 
 }
