@@ -17,6 +17,8 @@
 
 using namespace std;
 
+#define MAX_GAME_AGE 50000
+
 void die(string msg) {
 	cout << "ERROR_CAUSED_SHUTDOWN" << endl
 		 << msg << endl;
@@ -50,329 +52,320 @@ int main() {
 	 */
 
 	if (instr == "SETUP")
-	{
-		// check for four characters, noting all options
-		// are size() == 4, begin with h and end with 1 or 2.
+        {
+            // check for four characters, noting all options
+            // are size() == 4, begin with h and end with 1 or 2.
 
-		bool human_only;
-		bool creator_is_white;
-		string gameid;
-		string sessionkey;
+            bool human_only;
+            bool creator_is_white;
+            string gameid;
+            string sessionkey;
 	  
-		string game_type = params[0];
+            string game_type = params[0];
 
-		if (game_type.size() != 3 || game_type[0] != 'h')
-			die("Invalid parameter: " + param);
+            if (game_type.size() != 3 || game_type[0] != 'h')
+                die("Invalid parameter: " + param);
 
-		if (game_type[1] == 'h')
-			human_only = true;
-		else if (game_type[1] == 'c')
-			human_only = false;
-		else
-			die("2nd character must be h or c.");
+            if (game_type[1] == 'h')
+                human_only = true;
+            else if (game_type[1] == 'c')
+                human_only = false;
+            else
+                die("2nd character must be h or c.");
 
-		if (game_type[2] == '1')
-			creator_is_white = true;
-		else if (game_type[2] == '2')
-			creator_is_white = false;
-		else
-			die("3rd character must be 1 or 2.");
+            if (game_type[2] == '1')
+                creator_is_white = true;
+            else if (game_type[2] == '2')
+                creator_is_white = false;
+            else
+                die("3rd character must be 1 or 2.");
 
-		// Generate a unique game id and session key.
-		for (int i = 0; i < NUM_WORDS; i++)
-		{
-			gameid = get_word(i);
-			sessionkey = get_word(++i);
-			if (!gameid_exists(gameid))
-				break;
-		}
+            // Generate a unique game id and session key.
+            for (int i = 0; i < NUM_WORDS; i++)
+                {
+                    gameid = get_word(i);
+                    sessionkey = get_word(++i);
+                    if (!gameid_exists(gameid))
+                        break;
+                }
 
-		ofstream game_file(gameid_file_path(gameid));
+            ofstream game_file(gameid_file_path(gameid));
 
-		if (!game_file.good())
-			die("Unable to create new game file at '" + 
-				string(gameid_file_path(gameid)) + "'.");
+            if (!game_file.good())
+                die("Unable to create new game file at '" + 
+                    string(gameid_file_path(gameid)) + "'.");
 
-		Pente new_game;
-		new_game.turn = 1;
+            Pente new_game;
+            new_game.turn = 1;
 
-		if (human_only) 
-		{
+            if (human_only) 
+                {
 
-			if (creator_is_white) 
-				new_game.players[0] = sessionkey;
+                    if (creator_is_white) 
+                        new_game.players[0] = sessionkey;
 		  
-			else 
-				new_game.players[1] = sessionkey;
+                    else 
+                        new_game.players[1] = sessionkey;
 
-		} 
-		else 
-		{
+                } 
+            else 
+                {
 		
-			if (creator_is_white) 
-			{
-				new_game.players[0] = sessionkey;
-				new_game.players[1] = "COMPUTER";
-			} 
-			else 
-			{
-				new_game.players[0] = "COMPUTER";
-				new_game.players[1] = sessionkey;
-			}
-		}
+                    if (creator_is_white) 
+                        {
+                            new_game.players[0] = sessionkey;
+                            new_game.players[1] = "COMPUTER";
+                        } 
+                    else 
+                        {
+                            new_game.players[0] = "COMPUTER";
+                            new_game.players[1] = sessionkey;
+                        }
+                }
 
-		// Finally, place the white piece on the board and 
-		// save the file.
-		new_game.playToken(9,9,WHITE);
-		game_file << new_game.serialize();
-		game_file.close();
+            // Finally, place the white piece on the board and 
+            // save the file.
+            new_game.playToken(9,9,WHITE);
+            game_file << new_game.serialize();
+            game_file.close();
 
-		// return the details to the client
-		cout << "SETUP" << endl
-			 << gameid << endl
-			 << sessionkey << endl
-			 << "9" << endl
-			 << "9" << endl;
+            // return the details to the client
+            cout << "SETUP" << endl
+                 << gameid << endl
+                 << sessionkey << endl
+                 << "9" << endl
+                 << "9" << endl;
 		
-		if (human_only && creator_is_white)
-		   cout << "WAITING" << endl;
-		else
-		   cout << "MOVE" << endl;
+            if (human_only && creator_is_white)
+                cout << "WAITING" << endl;
+            else
+                cout << "MOVE" << endl;
 			 
-	}
+        }
 
 	/*
 	 * J O I N
 	 */
 
 	else if (instr == "JOIN")
-	{
+        {
 
-		// TODO: Assign a valid session ID otherwise.
-		// TODO: Or report that the game is full.
+            // TODO: Assign a valid session ID otherwise.
+            // TODO: Or report that the game is full.
 
-		/*
-		  JOIN\n<gameid>	JOIN\n<gameid>\n<sessionid>	
-		  JOIN\n<gameid>	JOIN\n<gameid>\nGAME_UNDERWAY	
-		*/
+            /*
+              JOIN\n<gameid>	JOIN\n<gameid>\n<sessionid>	
+              JOIN\n<gameid>	JOIN\n<gameid>\nGAME_UNDERWAY	
+            */
 
 
-		string gameid = params[0];
+            string gameid = params[0];
 
-		if (params.size() != 1)
-			die("Invalid number of parameters.");
+            if (params.size() != 1)
+                die("Invalid number of parameters.");
 
-		if (!gameid_exists(gameid))
-			die("No game identified by '" + gameid + "'.");
+            if (!gameid_exists(gameid))
+                die("No game identified by '" + gameid + "'.");
 
-		Pente game;
+            Pente game;
 		
 
 
-		ifstream game_file( gameid_file_path(gameid) );
-		game.deserialize(game_file);
-		game_file.close();
+            ifstream game_file( gameid_file_path(gameid) );
+            game.deserialize(game_file);
+            game_file.close();
 
-		cout << "JOIN" << endl
-			 << gameid << endl;
-		// TODO: figure out session ID.
+            cout << "JOIN" << endl
+                 << gameid << endl;
+            // TODO: figure out session ID.
 
-		if (game.players[0] != "WAITING" && game.players[1] != "WAITING")
-			cout << "GAME_UNDERWAY" << endl;
+            if (game.players[0] != "WAITING" && game.players[1] != "WAITING")
+                cout << "GAME_UNDERWAY" << endl;
 
-		if (game.players[0] == "WAITING") {
-			game.players[0] = generate_sessionid();
-			cout << game.players[0] << endl
-				 << "hh2" << endl
-				 << "9" << endl
-				 << "9" << endl
-				 << "MOVE" << endl;
-		}
+            if (game.players[0] == "WAITING") {
+                game.players[0] = generate_sessionid();
+                cout << game.players[0] << endl
+                     << "hh2" << endl
+                     << "9" << endl
+                     << "9" << endl
+                     << "MOVE" << endl;
+            }
 
-		else if (game.players[1] == "WAITING") {
-			game.players[1] = generate_sessionid();
-			cout << game.players[1] << endl
-				 << "hh1" << endl 
-				 << "9" << endl
-				 << "9" << endl
-				 << "WAITING" << endl;
-		}
+            else if (game.players[1] == "WAITING") {
+                game.players[1] = generate_sessionid();
+                cout << game.players[1] << endl
+                     << "hh1" << endl 
+                     << "9" << endl
+                     << "9" << endl
+                     << "WAITING" << endl;
+            }
 
-		// Save our game.
-		ofstream ogame_file( gameid_file_path(gameid) );
-		ogame_file << game.serialize() << endl;
+            // Save our game.
+            ofstream ogame_file( gameid_file_path(gameid) );
+            ogame_file << game.serialize() << endl;
 
-		ogame_file.close();
+            ogame_file.close();
 
-	}
+        }
 
 	/* 
 	 * M O V E 
 	 */
    
 	else if (instr == "MOVE")
-	{
-		/* POST: MOVE\n<gameid>\n<sessionid>\n<row>\n<col>
-		   RESPONSE: 
-		   MOVE\n<gameid>\n<sessionid>
-		   MOVE\n<gameid>\n<sessionid>\nWIN
-		*/
+        {
+            /* POST: MOVE\n<gameid>\n<sessionid>\n<row>\n<col>
+               RESPONSE: 
+               MOVE\n<gameid>\n<sessionid>
+               MOVE\n<gameid>\n<sessionid>\nWIN
+            */
 
-		// TODO: Validate gameid, sessionid, and feed the computer a move.
-		if (params.size() != 4)
-			die("Invalid number of parameters.");
+            // TODO: Validate gameid, sessionid, and feed the computer a move.
+            if (params.size() != 4)
+                die("Invalid number of parameters.");
 
-		string gameid    = params[0];
-		string sessionid = params[1];
-		int row          = atoi(params[2].c_str());
-		int col          = atoi(params[3].c_str());
+            string gameid    = params[0];
+            string sessionid = params[1];
+            int row          = atoi(params[2].c_str());
+            int col          = atoi(params[3].c_str());
 
-		if (!gameid_exists(gameid))
-			die("No such gameid '" + gameid + "'.");
+            if (!gameid_exists(gameid))
+                die("No such gameid '" + gameid + "'.");
 
-		Pente game;
-		ifstream infile(gameid_file_path(gameid));
-		game.deserialize( infile );
-		infile.close();
+            Pente game;
+            ifstream infile(gameid_file_path(gameid));
+            game.deserialize( infile );
+            infile.close();
 
-		// Die for invalid sessionid
-		if (game.players[0] != sessionid && game.players[1] != sessionid)
-			die("'" + sessionid + "' is not a valid sessionid.");
+            // Die for invalid sessionid
+            if (game.players[0] != sessionid && game.players[1] != sessionid)
+                die("'" + sessionid + "' is not a valid sessionid.");
 
-		// Die for invalid coords
-		if (!game.isValidCoords(row, col))
-			die("Invalid coordinates."); // this should never happen
+            // Die for invalid coords
+            if (!game.isValidCoords(row, col))
+                die("Invalid coordinates."); // this should never happen
 		 
-		// Die for piece already layed.
-		if(!game.isEmpty(row, col)) {
-			stringstream ss;
-			ss << "Cell already has a piece at (" << row << ',' << col << ")";
-			die(ss.str());
-		}
+            // Die for piece already layed.
+            if(!game.isEmpty(row, col)) {
+                stringstream ss;
+                ss << "Cell already has a piece at (" << row << ',' << col << ")";
+                die(ss.str());
+            }
 
-		// Determine our player #. 
-		int player=0; 
-		for (int i = 0; i < 2; i++)
-			if (game.players[i] == sessionid)
-				player = i;
+            // Determine our player #. 
+            int player=0; 
+            for (int i = 0; i < 2; i++)
+                if (game.players[i] == sessionid)
+                    player = i;
 
-		if (game.turn % 2 != player)
-			die("It's not even your turn to move!");
+            if (game.turn % 2 != player)
+                die("It's not even your turn to move!");
 
-		// go ahead and lay the piece.
-		game.playToken(row, col, player ? BLACK : WHITE);
+            // go ahead and lay the piece.
+            game.playToken(row, col, player ? BLACK : WHITE);
 
-		// Save the game
-		ofstream game_file(gameid_file_path(gameid));
-		game_file << game.serialize();
+            // Save the game
+            ofstream game_file(gameid_file_path(gameid));
+            game_file << game.serialize();
+            game_file.close()
 
-		cout << "MOVE" << endl
-			 << gameid << endl
-			 << sessionid << endl;
+            cout << "MOVE" << endl
+                 << gameid << endl
+                 << sessionid << endl;
 
-        if (game.gameOutcome(game.playerColor(sessionid)) == 1)
-            cout << "WIN" << endl;
+            if (game.gameOutcome(game.playerColor(sessionid)) == 1)
+                cout << "WIN" << endl;
 
-	}
+        }
 
 	/*
 	 * C H E C K
 	 */
 
 	else if (instr == "CHECK")
-	{
+        {
 
-		// TODO: Return computer (or other player) move.
+            // TODO: Return computer (or other player) move.
 
-		/* POST:
-		   CHECK\n<gameid>\n<sessionid>
+            /* POST:
+               CHECK\n<gameid>\n<sessionid>
 
-		   RESPONSE:
-		   CHECK\n<gameid>\n<sessionid>\nWAITING
-		   CHECK\n<gameid>\n<sessionid>\n<row>\n<col>
-		   CHECK\n<gameid>\n<sessionid>\n<row>\n<col>\n{WIN|LOSE}
-		   CHECK\n<gameid>\n<sessionid>\n<row>\n<col>\nTIMEOUT
-		*/
+               RESPONSE:
+               CHECK\n<gameid>\n<sessionid>\nWAITING
+               CHECK\n<gameid>\n<sessionid>\n<row>\n<col>
+               CHECK\n<gameid>\n<sessionid>\n<row>\n<col>\n{WIN|LOSE}
+               CHECK\n<gameid>\n<sessionid>\n<row>\n<col>\nTIMEOUT
+            */
 
-		if (params.size() != 2)
-			die("Invalid number of CHECK parameters.");
+            if (params.size() != 2)
+                die("Invalid number of CHECK parameters.");
 
-		string gameid    = params[0];
-		string sessionid = params[1];
+            string gameid    = params[0];
+            string sessionid = params[1];
 
-		cout << "CHECK" << endl
-			 << gameid << endl
-			 << sessionid << endl;
+            cout << "CHECK" << endl
+                 << gameid << endl
+                 << sessionid << endl;
 
-		if (!gameid_exists(gameid)) {
-			cout << "9" << endl    // bogus row + col because it can't matter.
-				 << "9" << endl
-				 << "TIMEOUT" << endl;
-			exit(1);
-		}
+            if (!gameid_exists(gameid) || gameid_age(gameid) > MAX_GAME_AGE) {
+                cout << "9" << endl    // bogus row + col because it can't matter.
+                     << "9" << endl
+                     << "TIMEOUT" << endl;
+                exit(1);
+            }
 
-		// Load the game for more checks
-		Pente game;
-		ifstream game_file( gameid_file_path(gameid) );
-		game.deserialize(game_file);
-		game_file.close();
+            // Load the game for more checks
+            Pente game;
+            ifstream game_file( gameid_file_path(gameid) );
+            game.deserialize(game_file);
+            game_file.close();
 	
 
-		// Validate sessionid
-		if (game.players[0] != sessionid && game.players[1] != sessionid)
-			die("Invalid sessionid: '" + sessionid + "'");
+            // Validate sessionid
+            if (game.players[0] != sessionid && game.players[1] != sessionid)
+                die("Invalid sessionid: '" + sessionid + "'");
 
-		// Is it our turn?
-		int player=0; 
-		for (int i = 0; i < 2; i++)
-			if (game.players[i] == sessionid)
-				player = i;
+            // Is it our turn?
+            int player=0; 
+            for (int i = 0; i < 2; i++)
+                if (game.players[i] == sessionid)
+                    player = i;
 
         
-        // If the computer is playing and we're waiting on them,
-        // go ahead and initiate a computer move.
-        if (game.turn % 2 != player) {
-            if (game.players[game.turn % 2] == "COMPUTER") {
+            // If the computer is playing and we're waiting on them,
+            // go ahead and initiate a computer move.
 
+            if (game.players[game.turn % 2] == "COMPUTER") {
                 // Generate a computer move.
                 Weight weights(WEIGHTS_FILE);
                 weights.load();
                 game.make_move(weights);
-
+                
                 // Save the computer move to file.
                 ofstream ogame_file( gameid_file_path(gameid) );
                 ogame_file << game.serialize() << endl;
                 ogame_file.close();
-                   
-            } else {
+            }
+            else if (game.turn % 2 != player) {
                 cout << "WAITING" << endl;
                 exit(1);
             }
-        }
     
-        
+            // Output row + col of last move:
+            cout << game.gametrace.back()->r << endl
+                 << game.gametrace.back()->c << endl;
 
-		// Get row + col of last move:
-		int last_move_index = game.gametrace.size() - 1;
-		int row = game.gametrace[ last_move_index ]->r;
-		int col = game.gametrace[ last_move_index ]->c;
+            // Report a possible victory.
+            if (game.gameOutcome( game.playerColor(sessionid) ) == 1)
+                cout << "WIN" << endl;
 
-		cout << row << endl
-			 << col << endl;
+            else if (game.gameOutcome( game.playerColor(sessionid) ) == -1)
+                cout << "LOSE" << endl;
 
-        // Report a possible victory.
-		switch (game.gameOutcome( game.playerColor(sessionid) )) {
-        case 1:
-			cout << "WIN" << endl;
-            break;
-        case -1:
-            cout << "LOSE" << endl;
-            break;
-        }
 		
 	
 
-	}
+        }
    
 
 	return 0;
