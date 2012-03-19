@@ -76,12 +76,16 @@ int main() {
    assert (p.nInARow(2, WHITE) == 2);
    assert (p.nInARow(2, BLACK) == 1);
 
-   /*
-	* FROM HERE, we have an EMPTY and VALIDATED board state with
-	* COMPUTER in position 0 (white, player1) and human player in
-	* position 1 (black, player2).
-	*/
-   
+   // Test getCaptures
+
+   p.fillCell(1, 4, BLACK);
+   p.fillCell(2, 5, BLACK);
+
+   int bcaps, wcaps;
+   p.getCaptures(bcaps, wcaps);
+
+   assert (bcaps == 1);
+   assert (wcaps == 1);
    
 
    //   p.make_move(Vhat);

@@ -80,6 +80,7 @@ public:
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
     int getCertain(int &certD, int &certT, int &certQ, char color);
+    int getCaptures(int &bcaps, int &wcaps);
     int chkCapture(int r, int c, char color);
     string toString();
     string serialize();
@@ -331,6 +332,55 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
 
     return 0;
 }
+
+int Pente::getCaptures(int &bcaps, int &wcaps) {
+	// Check for the number of captures we can get away with
+	// (WBB_ is one, for instance. 
+
+	bcaps = wcaps = 0;
+
+	for (int i = 0; i < Board.size(); i++) {
+		cell *tCell = getCell(i);
+		
+		// only search from E to SW since we've come from the NW.
+		for (int dir = E; dir <= SW; dir++) {
+			cell *cellSet[] = {tCell, NULL, NULL, NULL};
+			bool setOK = true;
+
+			for (int c = 1; c < 4; c++) {
+				if (cellSet[c-1])
+					cellSet[c]=cellSet[c-1]->neighbors[dir];
+				else
+					setOK = false;
+			}
+				
+			if (!setOK)
+				continue;
+
+			// Require the inner cells to have pieces
+			if (!cellSet[1]->filled || !cellSet[2]->filled)
+				continue;
+
+			// Require the inner cells to be matching colors
+			if (cellSet[1]->color != cellSet[2]->color)
+				continue;
+
+			// Require the end cell to be open.
+			if (cellSet[3]->filled)
+				continue;
+
+			// By now, we have a situtation where we can capture.
+			if (tCell->color == WHITE)
+				wcaps++;
+			else
+				bcaps++;
+			
+		}
+
+	}
+
+}
+
 
 int Pente::chkCapture(int r, int c, char color) {
     cell *tCell, *one, *two, *end;
