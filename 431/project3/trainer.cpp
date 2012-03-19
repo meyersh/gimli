@@ -8,6 +8,11 @@ using namespace std;
 int main(int argc, char **argv) {
 
 	Pente p1, p2;
+    Weight weights(WEIGHTS_FILE); /* Vhat() loads the weight file automatically, but
+                                     we want to keep it up to date between calculations
+                                     so I'll use this has a pointer. */
+
+    weights.load();
 
 	p1.players[0] = p2.players[1] = "COMPUTER";
 	p1.players[1] = p2.players[0] = "OTHER";
@@ -18,13 +23,13 @@ int main(int argc, char **argv) {
 	// Play a game with 0 players.
 	while (p1.gameOutcome(WHITE) == 0) {
 		// Black moves
-		p2.make_move(Vhat);
+		p2.make_move(weights);
 
 		// Copy the black move into p1
 		p1.fillCell(p2.gametrace.back()->r, p2.gametrace.back()->c, BLACK);
 
 		// White moves
-		p1.make_move(Vhat);
+		p1.make_move(weights);
 
 		// Copy the white move into p2
 		p2.fillCell(p1.gametrace.back()->r, p1.gametrace.back()->c, WHITE);
@@ -35,12 +40,11 @@ int main(int argc, char **argv) {
 	
 	}
 
-
 	// Print the summary...
 	cout << endl;
 	cout << "p1.gameOutcome(WHITE) -> " << p1.gameOutcome(WHITE) << endl
-		 << "whtCaps -> " << p1.whtCaps 
-		 << " blkCaps -> " << p1.blkCaps << endl
+		 << "whtCaps -> " << p1.whtCaps << endl
+		 << "blkCaps -> " << p1.blkCaps << endl
 		 << p2.toString() << endl << endl;
 
 	// Analyze the game and adjust weights accordingly.
@@ -48,14 +52,12 @@ int main(int argc, char **argv) {
 
 	/* Vtrain(b) <- V(Successor(b)) */
 	/* Adjust weights with wi <- wi + n(Vtrain(b) - V(b))*xi */
-	Weight weight; /* Vhat() loads the weight file automatically, but
-					  we want to keep it up to date between calculations
-					  so I'll use this has a pointer. */
+	
 
 	Pente *games[] = {&p1, &p2};
 	char colors[] = {WHITE, BLACK};
 
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 1; i++) {
 		cout << "Analyzing P" << i << endl;
 		Pente *game = games[i];
 
@@ -63,9 +65,8 @@ int main(int argc, char **argv) {
 		State b = game->toState();
 		State successor = game->toState(); 
 
-		double error = (game->gameOutcome(colors[i])*100) - Vhat(b);
-		weight.adjust(b, error);
-		weight.save();
+		double error = (game->gameOutcome(colors[i])*100) - weights.Vhat(b);
+		weights.adjust(b, error);
 
 		while (game->gametrace.size()) {
 			successor = game->toState();
@@ -77,15 +78,17 @@ int main(int argc, char **argv) {
 
 			b = game->toState();
 
-			error = Vhat(successor) - Vhat(b);
+			error = weights.Vhat(successor) - weights.Vhat(b);
 
-			weight.adjust(game->toState(), error);
-			weight.save();
+			weights.adjust(game->toState(), error);
+
 			if (error)
 				cout << "Error => " << error << endl;
 		}
 	   
 	}
+
+    weights.save();
 
 	return 0;
 
