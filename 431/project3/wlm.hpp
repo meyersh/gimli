@@ -122,11 +122,6 @@ Weight::Weight(string filename) {
 	this->filename = filename;
 	eta = .001;
     load();
-    cout << "Weight constructor." << endl;
-}
-
-Weight::Weight(Weight &w) {
-    cout << "Weight copy constructor." << endl;
 }
 
 Weight::~Weight() {
