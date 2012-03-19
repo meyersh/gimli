@@ -436,6 +436,8 @@ string Pente::toString() {
                 ss << "W";
             else if (contents == BLACK)
                 ss << "B";
+
+            ss << " ";
         }
         ss << endl;
     }
@@ -640,7 +642,7 @@ State Pente::toState() {
     getCertain(s[4], s[5], s[6], WHITE);
     s[7] = getCaptures(WHITE);
 
-    s[8] = (playerColor("COMPUTER"));
+    //s[8] = (playerColor("COMPUTER"));
 
     return s;
 }
@@ -681,9 +683,9 @@ void Pente::make_move(Weight &weight) {
                                      computer_color);
 
         // Remember a better move
-        if (Vhat(fantasy_move) > best_state) {
+        if (weight.Vhat(fantasy_move) > best_state) {
             best_move = possible_moves[i];
-            best_state = Vhat(toState());
+            best_state = weight.Vhat(toState());
         }
 
     } // end for
