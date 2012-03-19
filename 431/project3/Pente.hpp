@@ -292,6 +292,8 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
     vector<cell*> filled = getFilled(color);
     int count = 1;
 
+    certD = certT = certQ = 0; // Initialize the values
+
     if (!isValidColor(color))
         throw runtime_error("Invalid color");
 

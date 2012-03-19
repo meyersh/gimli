@@ -87,6 +87,15 @@ int main() {
    assert (p.getCaptures(BLACK) == 1);
    assert (p.getCaptures(WHITE) == 1);
 
+   // Test getCaptures()
+   int certD, certT, certQ;
+   certD = certT = certQ = 0;
+   p.getCertain(certD, certT, certQ, WHITE);
+   cout << "certD -> " << certD << endl
+        << "certT -> " << certT << endl
+        << "certQ -> " << certQ << endl;
+
+
    //   p.make_move(Vhat);
    
    cout << p.toString() << endl;
