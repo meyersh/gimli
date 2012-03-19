@@ -80,7 +80,7 @@ public:
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
     int getCertain(int &certD, int &certT, int &certQ, char color);
-    int getCaptures(int &bcaps, int &wcaps);
+    int getCaptures(char color);
     int chkCapture(int r, int c, char color);
     string toString();
     string serialize();
@@ -96,7 +96,7 @@ public:
 
     State toState();
     State tryMove(int r, int c, char color);
-    void make_move(int (*Vhat)(State));
+    void make_move(Weight &weight);
 
 
 };
@@ -122,34 +122,34 @@ void Pente::_initBoard_() {
             row = tCell->r;
             col = tCell->c;
             switch (dir) {
-                case W:
-                    col--;
-                    break;
-                case NW:
-                    row--;
-                    col--;
-                    break;
-                case N:
-                    row--;
-                    break;
-                case NE:
-                    row--;
-                    col++;
-                    break;
-                case E:
-                    col++;
-                    break;
-                case SE:
-                    row++;
-                    col++;
-                    break;
-                case S:
-                    row++;
-                    break;
-                case SW:
-                    row++;
-                    col--;
-                    break;
+            case W:
+                col--;
+                break;
+            case NW:
+                row--;
+                col--;
+                break;
+            case N:
+                row--;
+                break;
+            case NE:
+                row--;
+                col++;
+                break;
+            case E:
+                col++;
+                break;
+            case SE:
+                row++;
+                col++;
+                break;
+            case S:
+                row++;
+                break;
+            case SW:
+                row++;
+                col--;
+                break;
             }
             if ((row < 0) || (row >= 19) || (col < 0) || (col >= 19))
                 tCell->neighbors[dir] = NULL;
@@ -265,17 +265,17 @@ int Pente::getPossible(int &possD, int &possT, int &possQ, int &possWins, char c
                 ;
             } else if ((tCell->neighbors[j - 4] == NULL) || (tCell->neighbors[j - 4]->filled == false)) {
                 switch (count) {
-                    case 2:
-                        possT++;
-                        break;
-                    case 3:
-                        possQ++;
-                        break;
-                    case 4:
-                        possWins++;
-                        break;
-                    default:
-                        break;
+                case 2:
+                    possT++;
+                    break;
+                case 3:
+                    possQ++;
+                    break;
+                case 4:
+                    possWins++;
+                    break;
+                default:
+                    break;
                 }
             }
             count = 1;
@@ -313,17 +313,17 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
                 ;
             } else if ((tCell->neighbors[j - 4] == NULL) || (tCell->neighbors[j - 4]->filled == false)) {
                 switch (count) {
-                    case 2:
-                        certD++;
-                        break;
-                    case 3:
-                        certT++;
-                        break;
-                    case 4:
-                        certQ++;
-                        break;
-                    default:
-                        break;
+                case 2:
+                    certD++;
+                    break;
+                case 3:
+                    certT++;
+                    break;
+                case 4:
+                    certQ++;
+                    break;
+                default:
+                    break;
                 }
             }
             count = 1;
@@ -333,25 +333,33 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
     return 0;
 }
 
-int Pente::getCaptures(int &bcaps, int &wcaps) {
+int Pente::getCaptures(char color) {
 	// Check for the number of captures we can get away with
 	// (WBB_ is one, for instance. 
 
-	bcaps = wcaps = 0;
+    int caps = 0;
+    
+    char opposite_color = (color == WHITE) ? BLACK : WHITE;
 
 	for (int i = 0; i < Board.size(); i++) {
 		cell *tCell = getCell(i);
+
+        // Skip the other color.
+        if (tCell->color != color)
+            continue;
 		
 		// only search from E to SW since we've come from the NW.
 		for (int dir = E; dir <= SW; dir++) {
 			cell *cellSet[] = {tCell, NULL, NULL, NULL};
 			bool setOK = true;
 
-			for (int c = 1; c < 4; c++) {
+			for (int c = 1; c < 4 && setOK; c++) {
 				if (cellSet[c-1])
 					cellSet[c]=cellSet[c-1]->neighbors[dir];
-				else
-					setOK = false;
+                
+
+                if (cellSet[c] == NULL)
+                    setOK = false;
 			}
 				
 			if (!setOK)
@@ -365,19 +373,22 @@ int Pente::getCaptures(int &bcaps, int &wcaps) {
 			if (cellSet[1]->color != cellSet[2]->color)
 				continue;
 
+            // Require the inner cells to be the opposite color from tCell.
+            if (cellSet[1]->color != opposite_color)
+                continue;
+
 			// Require the end cell to be open.
 			if (cellSet[3]->filled)
 				continue;
 
 			// By now, we have a situtation where we can capture.
-			if (tCell->color == WHITE)
-				wcaps++;
-			else
-				bcaps++;
+            caps++;
 			
 		}
 
 	}
+
+    return caps;
 
 }
 
@@ -449,7 +460,7 @@ string Pente::serialize() {
         char contents = (*c)->color;
 
         ss << (contents == BLACK ? 'B' : 'W')
-                << " " << (*c)->r << " " << (*c)->c << endl;
+           << " " << (*c)->r << " " << (*c)->c << endl;
     }
 
     return ss.str();
@@ -515,12 +526,12 @@ char Pente::playerColor(string sessionid) {
     // Return the color char of a given player
     // (or empty for none.)
     switch (playerNumber(sessionid)) {
-        case -1:
-            return EMPTY;
-        case 0:
-            return WHITE;
-        case 1:
-            return BLACK;
+    case -1:
+        return EMPTY;
+    case 0:
+        return WHITE;
+    case 1:
+        return BLACK;
     }
 }
 
@@ -547,8 +558,8 @@ int Pente::nInARow(int n, char color) {
             }
 
             if (tCell->neighbors[dir - 4]
-                    && tCell->neighbors[dir - 4]->filled
-                    && tCell->neighbors[dir - 4]->color == color) // <-- bug fix, maybe?
+                && tCell->neighbors[dir - 4]->filled
+                && tCell->neighbors[dir - 4]->color == color) // <-- bug fix, maybe?
                 continue;
 
             if (count == n)
@@ -604,16 +615,32 @@ int Pente::gameOutcome(char color) {
 }
 
 State Pente::toState() {
+    /* X variables:
+       0: doubles (black)
+       1: triples (black)
+       2: quads (black)
+       3: possible captures (black)
+       
+       4: doubles (white)
+       5: triples (white)
+       6: quads (white)
+       7: possible captures (white)
+       
+       8: Our color (0 = white, 1 = black)
+    */
+
     // Construct and return the state of the game.
-    State s(10);
+    State s(9);
 
     // Figure for black pieces...
     getCertain(s[0], s[1], s[2], BLACK);
-    //getCapture(s[3], s[4], BLACK);
+    s[3] = getCaptures(BLACK);
 
     // Figure for white pieces.
-    getCertain(s[5], s[6], s[7], WHITE);
-    //getCaptures(s[8], s[9], WHITE);
+    getCertain(s[4], s[5], s[6], WHITE);
+    s[7] = getCaptures(WHITE);
+
+    s[8] = (playerColor("COMPUTER"));
 
     return s;
 }
@@ -630,7 +657,7 @@ State Pente::tryMove(int r, int c, char color) {
     return s;
 }
 
-void Pente::make_move(int (*Vhat)(State)) {
+void Pente::make_move(Weight &weight) {
     // Make a computerized move.
     srand(time(NULL));
     vector<cell*> possible_moves = getEmpty();
@@ -644,14 +671,14 @@ void Pente::make_move(int (*Vhat)(State)) {
 
 
     // Assume the best
-    int best_state = Vhat(tryMove(best_move->r, best_move->c, computer_color));
+    int best_state = weight.Vhat(tryMove(best_move->r, best_move->c, computer_color));
 
     // Compare every other move
     for (int i = 0; i < possible_moves.size(); i++) {
         // Try a move
         State fantasy_move = tryMove(possible_moves[i]->r,
-                possible_moves[i]->c,
-                computer_color);
+                                     possible_moves[i]->c,
+                                     computer_color);
 
         // Remember a better move
         if (Vhat(fantasy_move) > best_state) {

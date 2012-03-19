@@ -78,15 +78,14 @@ int main() {
 
    // Test getCaptures
 
+   assert (p.getCaptures(BLACK) == 1);
+   assert (p.getCaptures(WHITE) == 0);
+
    p.fillCell(1, 4, BLACK);
    p.fillCell(2, 5, BLACK);
 
-   int bcaps, wcaps;
-   p.getCaptures(bcaps, wcaps);
-
-   assert (bcaps == 1);
-   assert (wcaps == 1);
-   
+   assert (p.getCaptures(BLACK) == 1);
+   assert (p.getCaptures(WHITE) == 1);
 
    //   p.make_move(Vhat);
    
