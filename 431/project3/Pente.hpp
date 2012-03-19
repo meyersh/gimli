@@ -336,6 +336,7 @@ int Pente::chkCapture(int r, int c, char color) {
     cell *tCell, *one, *two, *end;
     char eColor = ((color == 'B') ? 'W' : 'B');
     tCell = Board[r*19+c];
+	int caps = 0;
     for (int j = 0; j < 8; j++) {
         one = tCell->neighbors[j];
         if ((one == NULL) || (one->filled == false) || (one->color != eColor))
@@ -524,7 +525,7 @@ int Pente::gameOutcome(char color) {
     // Return 1, -1, 0 accordingly.
 
     enum {
-        LOST = -1, UNDETERMINED, WON
+        LOST = -1, UNDETERMINED=0, WON=1
     };
 
     char theirColor = (color == WHITE) ? BLACK : WHITE;
@@ -558,11 +559,11 @@ State Pente::toState() {
 
     // Figure for black pieces...
     getCertain(s[0], s[1], s[2], BLACK);
-    getCaptures(s[3], s[4], BLACK);
+    //getCapture(s[3], s[4], BLACK);
 
     // Figure for white pieces.
     getCertain(s[5], s[6], s[7], WHITE);
-    getCaptures(s[8], s[9], WHITE);
+    //getCaptures(s[8], s[9], WHITE);
 
     return s;
 }

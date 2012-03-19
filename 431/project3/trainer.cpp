@@ -52,28 +52,40 @@ int main(int argc, char **argv) {
 					  we want to keep it up to date between calculations
 					  so I'll use this has a pointer. */
 
-	// Our end-game state
-	State b = p1.toState();
-	State successor = p1.toState(); 
+	Pente *games[] = {&p1, &p2};
+	char colors[] = {WHITE, BLACK};
 
-	double error = (p1.gameOutcome(WHITE)*100) - Vhat(b);
-	weight.adjust(b, error);
-	weight.save();
+	for (int i = 0; i < 2; i++) {
+		cout << "Analyzing P" << i << endl;
+		Pente *game = games[i];
 
-	while (p1.gametrace.size()) {
-		successor = p1.toState();
-		
-		// remember + remove the last move.
-		Pente::cell* tCell = p1.gametrace.back();
-		p1.gametrace.pop_back();
-		
-		p1.clearCell(tCell->r, tCell->c);
+		// Our end-game state
+		State b = game->toState();
+		State successor = game->toState(); 
 
-		weight.adjust(p1.toState(), Vhat(successor) - Vhat(b));
+		double error = (game->gameOutcome(colors[i])*100) - Vhat(b);
+		weight.adjust(b, error);
 		weight.save();
-	}
-	   
+
+		while (game->gametrace.size()) {
+			successor = game->toState();
 		
+			// remember + remove the last move.
+			Pente::cell* tCell = game->gametrace.back();
+			game->gametrace.pop_back();
+			game->clearCell(tCell->r, tCell->c);
+
+			b = game->toState();
+
+			error = Vhat(successor) - Vhat(b);
+
+			weight.adjust(game->toState(), error);
+			weight.save();
+			if (error)
+				cout << "Error => " << error << endl;
+		}
+	   
+	}
 
 	return 0;
 

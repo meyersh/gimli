@@ -33,7 +33,6 @@
 #include <sstream>
 #include <stdexcept>
 
-
 using namespace std;
 
 /* 
@@ -117,7 +116,7 @@ struct Weight
 
 Weight::Weight(string filename) {
 	this->filename = filename;
-	eta = 0.1;
+	eta = .1;
 	load();
 }
 
@@ -155,8 +154,9 @@ int Weight::load() {
 
 	w.clear();
 
-	while (getline(weight_file, line))
-		w.push_back( atof(line.c_str()) );
+	while (getline(weight_file, line)) {
+		w.push_back(atof(line.c_str()));
+	}
 
 	weight_file.close();
 	return 0;
@@ -211,12 +211,15 @@ int Vhat(State b) {
 void Weight::adjust(State b, double error) {
 	/* Adjust the weights with wi <- wi + n(error)*xi */
 
-	// Ensure that we have as many weights as our state.
+	// Ensure that we have as many weights states.
 	if (b.size() >= w.size())
 		w.resize(b.size()+1);
 
 	for (int i=0; i<w.size(); i++) {
-		w[i+1] += w[i+1] + eta*(error)*b[i]; 
+		double modifier =  eta*error*b[i];
+		/*		if (modifier)
+				cout << "Updating w[" << i << "] => " << modifier << endl; */
+		w[i+1] += modifier;
 	}
 	  
 }
