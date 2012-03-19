@@ -123,7 +123,7 @@ int main() {
 
 		// Finally, place the white piece on the board and 
 		// save the file.
-		new_game.fillCell(9,9,WHITE);
+		new_game.playToken(9,9,WHITE);
 		game_file << new_game.serialize();
 		game_file.close();
 
@@ -260,10 +260,7 @@ int main() {
 			die("It's not even your turn to move!");
 
 		// go ahead and lay the piece.
-		game.fillCell(row, col, player ? BLACK : WHITE);
-
-		// Advance the turn counter
-		game.turn++;
+		game.playToken(row, col, player ? BLACK : WHITE);
 
 		// Save the game
 		ofstream game_file(gameid_file_path(gameid));
@@ -273,7 +270,9 @@ int main() {
 			 << gameid << endl
 			 << sessionid << endl;
 
-		//TODO: CHECK FOR A WIN.
+        if (game.gameOutcome(game.playerColor(sessionid)) == 1)
+            cout << "WIN" << endl;
+
 	}
 
 	/*
@@ -361,13 +360,16 @@ int main() {
 		cout << row << endl
 			 << col << endl;
 
-		// TODO: Is this the end of the game?
-        /*
-		if (game.isWon())
+        // Report a possible victory.
+		switch (game.gameOutcome( game.playerColor(sessionid) )) {
+        case 1:
 			cout << "WIN" << endl;
-		if (game.isLost())
-			cout << "LOSE" << endl;
-		*/
+            break;
+        case -1:
+            cout << "LOSE" << endl;
+            break;
+        }
+		
 	
 
 	}
