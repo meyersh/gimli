@@ -33,9 +33,11 @@ int main() {
 
    // Weights always requires a filename.
    Weight w("weights.txt");
+   //w.load();
 
    /* Non-zero indicates a file couldn't be loaded. Probably means 
 	  we need to initialize some values. */
+   /*
    if (w.load()) 
 	  {
 	  w.insert(1);
@@ -43,6 +45,7 @@ int main() {
 	  w.insert(4);
 	  w.insert(5);
 	  }
+   */
 
    cout << "w[1] = " << w[1] << endl;
    cout << "w.toString -> " << w.toString() << endl
@@ -50,10 +53,9 @@ int main() {
 
    cout << "Vhat(b) where b = " << b.toString() << endl
 		<< "       and w = " << w.toString() << endl
-		<< "Vhat(b) -> " << Vhat(b) << endl;
+		<< "Vhat(b) -> " << w.Vhat(b) << endl;
 
-   /* We haven't saved our weights object! That's OK, the 
-	  destructor calls save() for us. Whew. */
+   w.save();
    return 0;
 
 }
