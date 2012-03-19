@@ -90,7 +90,7 @@ int main() {
    // Test getCaptures()
    int certD, certT, certQ;
    certD = certT = certQ = 0;
-   p.getCertain(certD, certT, certQ, WHITE);
+   p.getCertain(certD, certT, certQ, BLACK);
    cout << "certD -> " << certD << endl
         << "certT -> " << certT << endl
         << "certQ -> " << certQ << endl;

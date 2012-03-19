@@ -311,23 +311,27 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, char color) {
                     break;
                 nxt = nxt->neighbors[j];
             }
-            if ((tCell->neighbors[j - 4] != NULL) && (tCell->neighbors[j - 4]->filled == true)) {
-                ;
-            } else if ((tCell->neighbors[j - 4] == NULL) || (tCell->neighbors[j - 4]->filled == false)) {
-                switch (count) {
-                case 2:
-                    certD++;
-                    break;
-                case 3:
-                    certT++;
-                    break;
-                case 4:
-                    certQ++;
-                    break;
-                default:
-                    break;
-                }
+            
+            // Skip cells we've already visited.
+            if ((tCell->neighbors[j - 4] != NULL) 
+                && (tCell->neighbors[j - 4]->filled == true)
+                && (tCell->neighbors[j - 4]->color == color))
+                continue;
+
+            switch (count) {
+            case 2:
+                certD++;
+                break;
+            case 3:
+                certT++;
+                break;
+            case 4:
+                certQ++;
+                break;
+            default:
+                break;
             }
+
             count = 1;
         }
     }
