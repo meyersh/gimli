@@ -221,7 +221,7 @@ function parseData(data)
 		$('#sessionid').val(lines[2]);
 
 		// Start auto-refresh (refreshing every 3 seconds)
-		setInterval("check_for_move();", 3000); 
+		window.auto_check = setInterval("check_for_move();", 3000); 
 
 		window.joined = true;
 	}
@@ -245,7 +245,7 @@ function parseData(data)
 		$('#sessionid').val(lines[2]);
 
 		// Start auto-refresh (refreshing every 3 seconds)
-		setInterval("check_for_move();", 3000); 
+		window.auto_check = setInterval("check_for_move();", 3000); 
 
 	}		
 
@@ -269,9 +269,11 @@ function parseData(data)
 							   'This should normally never happen, but' + 
 							   'we seemed to have lost your playing piece.');
 
-		if (lines.length == 4 && lines[3] == "WIN")
+		if (lines.length == 4 && lines[3] == "WIN") {
+            clearInterval(window.auto_check); // stop refreshing.
 			return showMessage('success', 'Victory',
 							   'Victory is yours!');
+        }
 	}
 
 	if (message == "CHECK") {
@@ -289,10 +291,12 @@ function parseData(data)
 		  CHECK\n<gameid>\n<sessionid>\n<row>\n<col>\nTIMEOUT
 		*/
 
-		if (lines.length < 3 || lines.length >= 6)
+		if (lines.length < 3 || lines.length > 6) {
+            alert(data);
 			return showMessage('error', 'CGI API VIOLATION',
 							   'CHECK game invalid response:<br><pre>' + 
 							   data + '</pre>');
+        }
 
 		var gameid    = lines[1];
 		var sessionid = lines[2];
@@ -316,6 +320,17 @@ function parseData(data)
 
 		// Game is over or invalid.
 		if (lines.length == 6) {
+            window.clearInterval(window.auto_check);
+            if (lines[5] == "TIMEOUT")
+                showMessage('error', 'GAME TIMEOUT', 
+                            'The game has timed out. You took too long strategizing.');
+            else if (lines[5] == "WIN")
+                showMessage('success', 'Victory',
+							   'Victory is yours!');
+            else if (lines[5] == "LOSE")
+                showMessage('warn', 'Loser detected',
+                            'You have lost this game.');
+
 		}
 
 	}
