@@ -267,7 +267,7 @@ int main() {
             // Save the game
             ofstream game_file(gameid_file_path(gameid));
             game_file << game.serialize();
-            game_file.close()
+            game_file.close();
 
             cout << "MOVE" << endl
                  << gameid << endl
@@ -350,6 +350,10 @@ int main() {
                 cout << "WAITING" << endl;
                 exit(1);
             }
+
+            // Somethen went horribly wrong
+            if (game.gametrace.size() == 0)
+                die("Something went horribly wrong and we're reading an empty gametrace.");
     
             // Output row + col of last move:
             cout << game.gametrace.back()->r << endl
