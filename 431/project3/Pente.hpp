@@ -489,6 +489,10 @@ void Pente::deserialize(ifstream &f) {
     f >> blkCaps;
 
     while (getline(f, line)) {
+        // Skipping empty lines
+        if (line == "")
+            continue;
+
         stringstream ss(line);
 
         ss >> color >> row >> col; // space separated...
@@ -501,6 +505,7 @@ void Pente::deserialize(ifstream &f) {
 
         // Everything is good. Insert the piece.
         fillCell(row, col, (color == 'B' ? BLACK : WHITE));
+        gametrace.push_back(getCell(row,col));
 
     }
 
