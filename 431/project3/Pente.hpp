@@ -75,7 +75,7 @@ public:
     cell *getCell(int i);
 
     bool isEmpty(int r, int c);
-    void fillCell(int r, int c, char color, bool real_move = true);
+    void fillCell(int r, int c, char color);
     void clearCell(int r, int c);
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
@@ -200,7 +200,7 @@ Pente::cell *Pente::getCell(int i) {
     return Board[i];
 }
 
-void Pente::fillCell(int r, int c, char color, bool real_move) {
+void Pente::fillCell(int r, int c, char color) {
     color = toupper(color);
 
     if (!isValidCoords(r, c))
@@ -209,8 +209,6 @@ void Pente::fillCell(int r, int c, char color, bool real_move) {
     if (isValidColor(color)) {
         getCell(r, c)->filled = true;
         getCell(r, c)->color = toupper(color);
-        if (real_move)
-            gametrace.push_back(getCell(r, c));
     }
 }
 
@@ -655,7 +653,7 @@ State Pente::toState() {
 
 State Pente::tryMove(int r, int c, char color) {
     // Fill our imagionary cell.
-    fillCell(r, c, color, false);
+    fillCell(r, c, color);
 
     State s = toState();
 
