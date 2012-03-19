@@ -29,6 +29,7 @@
 
 
 #include <vector>
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -102,6 +103,7 @@ struct Weight
 	double eta;
 
 	Weight(string filename=WEIGHTS_FILE);
+    Weight(Weight &w);
 	~Weight();
 	int size() {return w.size();};
 	double& operator[] (const int);
@@ -120,6 +122,11 @@ Weight::Weight(string filename) {
 	this->filename = filename;
 	eta = .1;
     load();
+    cout << "Weight constructor." << endl;
+}
+
+Weight::Weight(Weight &w) {
+    cout << "Weight copy constructor." << endl;
 }
 
 Weight::~Weight() {
