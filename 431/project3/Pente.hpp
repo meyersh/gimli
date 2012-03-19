@@ -587,6 +587,8 @@ void Pente::playToken(int r, int c, char color) {
     chkCapture(r, c, color);
     found = nInARow(5, color);
     gametrace.push_back(getCell(r, c));
+
+    turn++; // increment the move counter.
 }
 
 int Pente::gameOutcome(char color) {
@@ -698,5 +700,5 @@ void Pente::make_move(Weight &weight) {
 
     // Make the _BEST_ move.
     playToken(best_move->r, best_move->c, computer_color);
-
+    
 }
