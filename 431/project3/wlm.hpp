@@ -120,7 +120,7 @@ struct Weight
 
 Weight::Weight(string filename) {
 	this->filename = filename;
-	eta = .001;
+	eta = .05;
     load();
 }
 
