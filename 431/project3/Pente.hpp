@@ -400,9 +400,12 @@ int Pente::getCaptures(char color) {
 }
 
 int Pente::chkCapture(int r, int c, char color) {
+    /* placing a piece in r,c of color `color`, if this would be a capture
+       remote the two middle pieces otherwise do nothing. */
+
     cell *tCell, *one, *two, *end;
     char eColor = ((color == 'B') ? 'W' : 'B');
-    tCell = Board[r * 19 + c];
+    tCell = getCell(r,c);
     int caps = 0;
     for (int j = 0; j < 8; j++) {
         one = tCell->neighbors[j];
@@ -416,15 +419,16 @@ int Pente::chkCapture(int r, int c, char color) {
             continue;
         else if ((end->filled == true) && (end->color == color)) {
             caps++;
+
             one->filled = two->filled = false;
             one->color = two->color = '*';
         }
     }
 
     if (color == 'B')
-        blkCaps = caps;
+        blkCaps += caps;
     else
-        whtCaps = caps;
+        whtCaps += caps;
 
     return 0;
 }
@@ -651,7 +655,7 @@ State Pente::toState() {
         getCertain(s[0], s[1], s[2], WHITE);
         s[3] = getCaptures(WHITE);
 
-        // Figure for white pieces.
+        // Figure for black pieces.
         getCertain(s[4], s[5], s[6], BLACK);
         s[7] = getCaptures(BLACK);
     } else if(playerNumber("COMPUTER")==1) {
@@ -683,7 +687,7 @@ State Pente::tryMove(int r, int c, char color) {
 
 void Pente::make_move(Weight &weight) {
     // Make a computerized move.
-    srand(time(NULL));
+    // srand(time(NULL));
     vector<cell*> possible_moves = getEmpty();
     random_shuffle(possible_moves.begin(), possible_moves.end());
     cell* best_move = possible_moves[0];
