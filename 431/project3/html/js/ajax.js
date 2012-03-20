@@ -261,7 +261,7 @@ function parseData(data)
 
 		// update the UI with the new piece
 		if (window.last_piece) {
-			place_piece(window.last_piece);
+			place_piece(window.last_piece, 'WHITE');
 			window.last_piece = null;
 		}
 		else 
@@ -451,10 +451,9 @@ function create_game() {
 
 
 	// place the initial piece.
-	if (player_config[2] == '2')
-		place_piece($('input[name="9 9"]')[0]);
-	else
-		place_piece($('input[name="9 9"]')[0], "BLACK");
+    var first_color = (player_config[2] == '1' ? 'WHITE' : 'BLACK');
+	place_piece($('input[name="9 9"]')[0], first_color);
+
 }
 
 function join_game() {
@@ -486,10 +485,10 @@ function status_of_button(button) {
 }
 
 function place_piece(button, color) {
-	if (color == 'BLACK')
-		button.src = button.src.replace(/\/([0-9]).gif/, '\/b$1.gif');
-	else
+	if (color == 'WHITE')
 		button.src = button.src.replace(/\/([0-9]).gif/, '\/w$1.gif');
+	else
+		button.src = button.src.replace(/\/([0-9]).gif/, '\/b$1.gif');
 }
 
 function check_for_move() {
@@ -528,7 +527,8 @@ function make_move(button) {
 
 	check_for_move();
 
-	// everything is OK so go ahead and send the ajax move and update the UI
+	// everything is OK so go ahead and send the ajax move.
+    // if+when MOVE comes back from API we'll place the piece visually.
 	var row = button.name.split(' ')[0];
 	var col = button.name.split(' ')[1];
 	var post_text = "MOVE\n" 
