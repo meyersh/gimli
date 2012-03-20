@@ -1,3 +1,4 @@
+
 var cgi_url = "http://gimli.morningside.edu/~meyersh/431/pente/project3.cgi";
 
 function draw_board() {
@@ -53,5 +54,17 @@ function draw_board() {
 
 }
 
-
-
+function add_capture_to_table(color) {
+    var element;
+    var black_piece = "images/b4.gif";
+    var white_piece = "images/w4.gif";
+    
+    if (color == 'WHITE') {
+        var html = "<img src='" + black_piece + "'/>";
+        $("#white_captures").append(html + html + "<br/>");
+    }
+    else if (color == 'BLACK') {
+        var html = "<img src='" + white_piece + "'/>";
+        $("#black_captures").append(html + html + "<br/>");
+    }
+}

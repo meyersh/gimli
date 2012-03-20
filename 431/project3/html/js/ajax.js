@@ -451,7 +451,7 @@ function create_game() {
 
 
 	// place the initial piece.
-	if (player_config[2] == 1)
+	if (player_config[2] == '2')
 		place_piece($('input[name="9 9"]')[0]);
 	else
 		place_piece($('input[name="9 9"]')[0], "BLACK");

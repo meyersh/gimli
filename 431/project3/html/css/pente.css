@@ -155,3 +155,63 @@ body
 	position: relative;
 	top: 7px;
 }
+
+/*-- game_left and game_right columular layout */
+
+/*
+.game_left {
+    float:left; 
+    width:570px;
+    margin-right:600px;
+    height:100%;
+    background:#99c;
+    overflow:hidden;
+}
+
+.game_right {
+    float:right; 
+    background:#a67c58;
+    height:100%;
+    overflow:hidden;
+    margin-left:25px;
+    padding:25px;
+
+    border-top-right-radius:15px;
+    -mox-top-right-border-radius: 15px;
+}
+
+*/
+
+.content {
+    height:900px; 
+    margin-left:auto; 
+    margin-right:auto;
+}
+
+.game_left {
+    margin:0px 50px 50px 10px;
+    padding:10px;
+}
+
+.game_right {
+    position:absolute;
+/*    right:20px; */
+/*    width:300px; */
+    margin-left:600px;
+    margin-top:10px;
+    padding:10px;
+    background-color:light-grey;
+    border:1px dashed #999;
+    line-height:17px;
+    width:300px;
+    overflow:hidden;
+}
+
+.captures_table {
+	font: 16px Arial, Helvetica, sans-serif;
+ /*    font-weight:bold; */
+}
+
+td {
+    vertical-align:top;
+}
