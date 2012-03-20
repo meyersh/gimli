@@ -54,7 +54,7 @@ int main() {
 	if (instr == "SETUP")
         {
             // check for four characters, noting all options
-            // are size() == 4, begin with h and end with 1 or 2.
+            // have size() == 4, begin with h and end with 1 or 2.
 
             bool human_only;
             bool creator_is_white;
@@ -96,7 +96,6 @@ int main() {
                     string(gameid_file_path(gameid)) + "'.");
 
             Pente new_game;
-            new_game.turn = 1;
 
             if (human_only) 
                 {
