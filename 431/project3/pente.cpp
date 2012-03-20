@@ -95,6 +95,35 @@ int main() {
         << "certT -> " << certT << endl
         << "certQ -> " << certQ << endl;
 
+   // Verify chkCapture()
+
+   // Assert that there are two pieces TO capture:
+   assert (p.getCell(1, 4)->filled == true);
+   assert (p.getCell(2, 5)->filled == true);
+
+   p.playToken(3, 6, WHITE); // This would be a capture.
+
+   // Assert that we've captured them
+   assert (p.getCell(1, 4)->filled == false);
+   assert (p.getCell(2, 5)->filled == false);
+
+   // Assert that we're scoring them..
+   assert (p.whtCaps == 1); 
+   assert (p.blkCaps == 0);
+
+   // Assert that there are two pieces to capture (by black):
+   assert (p.getCell(0, 3)->filled == true);
+   assert (p.getCell(0, 4)->filled == true);
+   
+   p.playToken(0, 5, BLACK); // This would be a capture.
+
+   // Assert that we've captured them
+   assert (p.getCell(0, 3)->filled == false);
+   assert (p.getCell(0, 4)->filled == false);
+
+   // Assert that we've scored correctly.
+   assert (p.whtCaps == 1);
+   assert (p.blkCaps == 1);
 
    //   p.make_move(Vhat);
    
