@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 	Pente *games[] = {&p1, &p2};
 	char colors[] = {WHITE, BLACK};
 
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 2; i++) {
 		cout << "Analyzing P" << i << endl;
 		Pente *game = games[i];
 
