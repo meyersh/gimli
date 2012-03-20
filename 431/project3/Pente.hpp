@@ -631,30 +631,40 @@ int Pente::gameOutcome(char color) {
 
 State Pente::toState() {
     /* X variables:
-       0: doubles (black)
-       1: triples (black)
-       2: quads (black)
-       3: possible captures (black)
+       0: doubles (ours)
+       1: triples (ours)
+       2: quads (ours)
+       3: possible captures (ours)
        
-       4: doubles (white)
-       5: triples (white)
-       6: quads (white)
-       7: possible captures (white)
+       4: doubles (theirs)
+       5: triples (theirs)
+       6: quads (theirs)
+       7: possible captures (theirs)
        
        8: Our color (0 = white, 1 = black)
      */
 
     // Construct and return the state of the game.
     State s(9);
+    if(playerNumber("COMPUTER")==0) {
+        // Figure for white pieces...
+        getCertain(s[0], s[1], s[2], WHITE);
+        s[3] = getCaptures(WHITE);
 
-    // Figure for black pieces...
-    getCertain(s[0], s[1], s[2], BLACK);
-    s[3] = getCaptures(BLACK);
+        // Figure for white pieces.
+        getCertain(s[4], s[5], s[6], BLACK);
+        s[7] = getCaptures(BLACK);
+    } else if(playerNumber("COMPUTER")==1) {
+        // Figure for black pieces...
+        getCertain(s[0], s[1], s[2], BLACK);
+        s[3] = getCaptures(BLACK);
 
-    // Figure for white pieces.
-    getCertain(s[4], s[5], s[6], WHITE);
-    s[7] = getCaptures(WHITE);
-
+        // Figure for white pieces.
+        getCertain(s[4], s[5], s[6], WHITE);
+        s[7] = getCaptures(WHITE);
+    } else {
+        die("This should never happen. PvP doesn't use Make move!");
+    }
     //s[8] = (playerColor("COMPUTER"));
 
     return s;
