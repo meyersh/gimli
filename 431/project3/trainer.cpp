@@ -26,18 +26,18 @@ int main(int argc, char **argv) {
 		p2.make_move(weights);
 
 		// Copy the black move into p1
-		p1.fillCell(p2.gametrace.back()->r, p2.gametrace.back()->c, BLACK);
+		p1.playToken(p2.gametrace.back()->r, p2.gametrace.back()->c, BLACK);
 
 		// White moves
 		p1.make_move(weights);
 
 		// Copy the white move into p2
-		p2.fillCell(p1.gametrace.back()->r, p1.gametrace.back()->c, WHITE);
+		p2.playToken(p1.gametrace.back()->r, p1.gametrace.back()->c, WHITE);
 
 		// Show some progress to the screen.
 		cout << ".";
 		cout.flush();
-	
+   
 	}
 
 	// Print the summary...
