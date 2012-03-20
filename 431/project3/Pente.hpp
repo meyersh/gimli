@@ -662,9 +662,8 @@ State Pente::toState() {
         // Figure for white pieces.
         getCertain(s[4], s[5], s[6], WHITE);
         s[7] = getCaptures(WHITE);
-    } else {
-        die("This should never happen. PvP doesn't use Make move!");
-    }
+    } 
+        
     //s[8] = (playerColor("COMPUTER"));
 
     return s;
