@@ -12,7 +12,16 @@ int main(int argc, char **argv) {
                                      we want to keep it up to date between calculations
                                      so I'll use this has a pointer. */
 
-    weights.load();
+    // for init, don't read in the file but init to 0's.
+    if (argc > 1 && string(argv[1]) == "init") {
+        weights.w.resize(p1.toState().size() + 1);
+        for (int i = 0; i < weights.size(); i++)
+            weights[i] = i;
+
+        cout << "reinitializing weights..." << endl;
+    }
+    else
+        weights.load();
 
 	p1.players[0] = p2.players[1] = "COMPUTER";
 	p1.players[1] = p2.players[0] = "OTHER";
@@ -57,16 +66,23 @@ int main(int argc, char **argv) {
 	Pente *games[] = {&p1, &p2};
 	char colors[] = {WHITE, BLACK};
 
+    char computer_color; 
+
 	for (int i = 0; i < 2; i++) {
 		cout << "Analyzing P" << i << endl;
 		Pente *game = games[i];
+        computer_color = game->playerColor("COMPUTER");
 
 		// Our end-game state
 		State b = game->toState();
 		State successor = game->toState(); 
 
-		double error = (game->gameOutcome(colors[i])*100) - weights.Vhat(b);
+		double error = 
+            ((double)(game->gameOutcome(computer_color)*100)) - weights.Vhat(b);
 		weights.adjust(b, error);
+        cout << "Initial error: (" << 
+            game->gameOutcome(computer_color)*100 << " - " << 
+            weights.Vhat(b) << ") = " << error << endl;
 
 		while (game->gametrace.size()) {
 			successor = game->toState();

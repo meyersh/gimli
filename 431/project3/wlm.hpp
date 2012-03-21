@@ -104,15 +104,15 @@ struct Weight
 
 	Weight(string filename=WEIGHTS_FILE);
     Weight(Weight &w);
-	~Weight();
-	int size() {return w.size();};
-	double& operator[] (const int);
-	int save();
-	int load(); 
-	void insert(int i);
-	string toString();
-	void adjust(State b, double error);
-    int Vhat(State b);
+    ~Weight();
+    int size() {return w.size();};
+    double& operator[] (const int);
+    int save();
+    int load(); 
+    void insert(int i);
+    string toString();
+    void adjust(State b, double error);
+    double Vhat(State b);
 
 };
 
@@ -120,7 +120,7 @@ struct Weight
 
 Weight::Weight(string filename) {
 	this->filename = filename;
-	eta = .05;
+	eta = .001;
     load();
 }
 
@@ -183,7 +183,7 @@ string Weight::toString() {
 }
 	  
 
-int Weight::Vhat(State b) {
+double Weight::Vhat(State b) {
 	// empty w or b is exceptional.
 	if (!b.size() || !w.size())
 		throw logic_error("Weight or B is empty.");
@@ -199,7 +199,7 @@ int Weight::Vhat(State b) {
 
 
 	// Implicit w0 var.
-	int result = w[0];
+	double result = w[0];
    
 	// Multiply up the rest of the xi*wi vars.
 	for (int i = 0; i < len; i++)

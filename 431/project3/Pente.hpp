@@ -403,8 +403,11 @@ int Pente::getCaptures(char color) {
 }
 
 int Pente::chkCapture(int r, int c, char color, bool remove) {
-    /* placing a piece in r,c of color `color`, if this would be a capture
-       remote the two middle pieces otherwise do nothing. */
+    /* placing a piece in r,c of color `color`, if this would
+       result in any capture, record the number. If `remove` is true,
+       update the scores and remove the captured pieces.
+
+       always return the number of captures at r,c for `color`. */
 
     cell *tCell, *one, *two, *end;
     char eColor = ((color == 'B') ? 'W' : 'B');
@@ -429,12 +432,13 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
         }
     }
 
-    if (color == 'B')
-        blkCaps += caps;
-    else
-        whtCaps += caps;
+    if (remove) 
+        if (color == 'B')
+            blkCaps += caps;
+        else
+            whtCaps += caps;
 
-    return 0;
+    return caps;
 }
 
 string Pente::toString() {
@@ -644,37 +648,67 @@ State Pente::toState() {
        2: quads (ours)
        3: pentes (ours) // useful when looking at potential moves
        4: possible captures (ours)
+       5: Resulting captures from the last move (ours).
        
-       5: doubles (theirs)
-       6: triples (theirs)
-       7: quads (theirs)
-       8: pentes (theirs) // useful when looking at potential moves
-       9: possible captures (theirs)
+       6: doubles (theirs)
+       7: triples (theirs)
+       8: quads (theirs)
+       9: pentes (theirs) // useful when looking at potential moves
+       10: possible captures (theirs)
+       11: resulting captures from the last move (theirs)
        
     */
 
     // Construct and return the state of the game.
-    State s(10);
-    if(playerNumber("COMPUTER")==0) {
-        // Figure for white pieces...
-        getCertain(s[0], s[1], s[2], s[3], WHITE);
-        s[4] = getCaptures(WHITE);
+    State s(12);
 
-        // Figure for black pieces.
-        getCertain(s[4], s[5], s[6], s[7], BLACK);
-        s[8] = getCaptures(BLACK);
+    char ours, theirs;
+
+    if (playerNumber("COMPUTER") == 0) {
+        ours = WHITE;
+        theirs = BLACK;
+    } else {
+        ours = BLACK;
+        theirs = WHITE;
+    }
+            
+
+    /*    if(playerNumber("COMPUTER")==0) {
+     */
+       
+    // Figure for our pieces...
+    getCertain(s[0], s[1], s[2], s[3], ours);
+    s[4] = getCaptures(ours);
+    s[5] = (gametrace.empty()) ? 0 : 
+        chkCapture( gametrace.back()->r, gametrace.back()->c,
+                    ours );
+    
+    // Figure for their pieces.
+    getCertain(s[6], s[7], s[8], s[9], theirs);
+    s[10] = getCaptures(theirs);
+    s[11] = (gametrace.empty()) ? 0 :
+        chkCapture( gametrace.back()->r, gametrace.back()->c,
+                    theirs );
+
+
+        /*
     } else if(playerNumber("COMPUTER")==1) {
         // Figure for black pieces...
         getCertain(s[0], s[1], s[2], s[3], BLACK);
         s[4] = getCaptures(BLACK);
-
+        s[5] = (gametrace.empty()) ? 0 : 
+            chkCapture( gametrace.back()->r, gametrace.back()->c,
+                        gametrace.back()->color );
         // Figure for white pieces.
-        getCertain(s[4], s[5], s[6], s[7], WHITE);
-        s[8] = getCaptures(WHITE);
+        getCertain(s[6], s[7], s[8], s[9], WHITE);
+        s[10] = getCaptures(WHITE);
+        s[11] = gametrace.empty() ? 0 :
+                 chkCapture( gametrace.back()->r, gametrace.back()->c,
+                            gametrace.back()->color );
     } 
         
     //s[8] = (playerColor("COMPUTER"));
-
+    */
     return s;
 }
 
@@ -700,7 +734,7 @@ void Pente::make_move(Weight &weight) {
     // Make a computerized move.
     // srand(time(NULL));
     vector<cell*> possible_moves = getEmpty();
-    random_shuffle(possible_moves.begin(), possible_moves.end());
+    //random_shuffle(possible_moves.begin(), possible_moves.end());
     cell* best_move = possible_moves[0];
     // Figure out our color
     char computer_color;
