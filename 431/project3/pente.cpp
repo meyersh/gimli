@@ -88,12 +88,8 @@ int main() {
    assert (p.getCaptures(WHITE) == 1);
 
    // Test getCaptures()
-   int certD, certT, certQ;
-   certD = certT = certQ = 0;
-   p.getCertain(certD, certT, certQ, BLACK);
-   cout << "certD -> " << certD << endl
-        << "certT -> " << certT << endl
-        << "certQ -> " << certQ << endl;
+   int certD, certT, certQ, certP;
+   p.getCertain(certD, certT, certQ, certP, BLACK);
 
    // Verify chkCapture()
 
@@ -124,6 +120,19 @@ int main() {
    // Assert that we've scored correctly.
    assert (p.whtCaps == 1);
    assert (p.blkCaps == 1);
+
+
+   // Reset the board to factory settings
+   p.reset();
+   assert(p.getEmpty().size() == 361);
+   
+   // Test that getCaptures()
+   p.fillCell(0,1, BLACK);
+   p.fillCell(0,2, BLACK);
+   p.fillCell(0,3, WHITE);
+   assert(p.getCaptures(WHITE) == 1);
+   assert(p.getCaptures(BLACK) == 0);
+   
 
    //   p.make_move(Vhat);
    

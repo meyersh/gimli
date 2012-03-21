@@ -82,7 +82,7 @@ public:
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
     int getCertain(int &certD, int &certT, int &certQ, int &certP, char color);
     int getCaptures(char color);
-    int chkCapture(int r, int c, char color);
+    int chkCapture(int r, int c, char color, bool remove = false);
     string toString();
     string serialize();
     void deserialize(ifstream &f);
@@ -402,7 +402,7 @@ int Pente::getCaptures(char color) {
 
 }
 
-int Pente::chkCapture(int r, int c, char color) {
+int Pente::chkCapture(int r, int c, char color, bool remove) {
     /* placing a piece in r,c of color `color`, if this would be a capture
        remote the two middle pieces otherwise do nothing. */
 
@@ -422,9 +422,10 @@ int Pente::chkCapture(int r, int c, char color) {
             continue;
         else if ((end->filled == true) && (end->color == color)) {
             caps++;
-
-            one->filled = two->filled = false;
-            one->color = two->color = '*';
+            if(remove) {
+                one->filled = two->filled = false;
+                one->color = two->color = '*';
+            }
         }
     }
 
@@ -596,7 +597,7 @@ void Pente::playToken(int r, int c, char color) {
     int found;
 
     fillCell(r, c, color);
-    chkCapture(r, c, color);
+    chkCapture(r, c, color, true);
     found = nInARow(5, color);
     gametrace.push_back(getCell(r, c));
 
@@ -681,10 +682,16 @@ State Pente::tryMove(int r, int c, char color) {
     // Fill our imagionary cell.
     fillCell(r, c, color);
 
+    // Add it to the stack
+    gametrace.push_back(getCell(r,c));
+
     State s = toState();
 
     //Undo that move
     clearCell(r, c);
+
+    // Clear the fake move from the stack
+    gametrace.pop_back();
 
     return s;
 }
