@@ -484,7 +484,41 @@ function status_of_button(button) {
 		return "UNKNOWN";
 }
 
+function generate_directions(button) {
+    var directions = new Array();
+    var dir_pairs = [ [-3, 3], [3, 3], [3, -3], [0, -3], [0, 3] ];
+
+    var row = button.name.split(' ')[0];
+    var col = button.name.split(' ')[1];
+
+    for (var dir = 0; dir < 8; dir++)
+        ; 
+
+}
+
+function generate_points(minx, miny, maxx, maxy, points) {
+    /* Generate the points on a line using an algorithm from
+       http://www.unix.com/shell-programming-scripting/118725-interpolating-line-between-points.html 
+       returns: an element of "r c" of the buttons from center to edge. */
+
+    var row = button.name.split(' ')[0];
+    var col = button.name.split(' ')[1];
+
+    var directions = new Array();
+        
+}
+
+function check_for_captures(button, color) {
+    // We're placing a piece at `button` of color `color`. Check
+    // For captures and remove them if necessary.
+    
+}
+
+
 function place_piece(button, color) {
+    
+    check_for_captures(button);
+
 	if (color == 'WHITE')
 		button.src = button.src.replace(/\/([0-9]).gif/, '\/w$1.gif');
 	else
