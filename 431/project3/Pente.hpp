@@ -597,7 +597,7 @@ void Pente::playToken(int r, int c, char color) {
     int found;
 
     fillCell(r, c, color);
-    chkCapture(r, c, color);
+    chkCapture(r, c, color, true);
     found = nInARow(5, color);
     gametrace.push_back(getCell(r, c));
 
@@ -682,10 +682,16 @@ State Pente::tryMove(int r, int c, char color) {
     // Fill our imagionary cell.
     fillCell(r, c, color);
 
+    // Add it to the stack
+    gametrace.push_back(getCell(r,c));
+
     State s = toState();
 
     //Undo that move
     clearCell(r, c);
+
+    // Clear the fake move from the stack
+    gametrace.pop_back();
 
     return s;
 }
