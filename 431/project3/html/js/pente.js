@@ -14,7 +14,7 @@ function draw_board() {
 
 	for (var x = 0; x < board_size; x++) {
 	    var img = "";
-	    var name = x + ' ' + y;
+	    var name = y + ' ' + x;
 
 	    
 	    if (y == 0 && x==0)
@@ -54,17 +54,17 @@ function draw_board() {
 
 }
 
-function add_capture_to_table(color) {
-    var element;
-    var black_piece = "images/b4.gif";
-    var white_piece = "images/w4.gif";
-    
-    if (color == 'WHITE') {
-        var html = "<img src='" + black_piece + "'/>";
-        $("#white_captures").append(html + html + "<br/>");
-    }
-    else if (color == 'BLACK') {
-        var html = "<img src='" + white_piece + "'/>";
-        $("#black_captures").append(html + html + "<br/>");
-    }
+function reset_state() {
+    clearInterval(window.auto_check);
+
+    draw_board();
+    window.turn = false;
+    window.last_piece=null;
+
+    $("#gameid").val("gameid");
+    $("#sessionid").val("sessionid");
+
+
+    hideAllMessages();
+
 }

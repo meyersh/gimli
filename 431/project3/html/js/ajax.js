@@ -12,6 +12,19 @@ var SUCCESS = 3;
 // define the messages types 
 var myMessages = ['info','warning','error','success']; 
 
+var dir = {
+    "W"  : 0,
+    "NW" : 1,
+    "N"  : 2,
+    "NE" : 3,
+    "E"  : 4,
+    "SE" : 5,
+    "S"  : 6,
+    "SW" : 7
+};
+
+var board_size = 19;
+
 function ge(id) {
 	return document.getElementById(id);
 }
@@ -262,6 +275,8 @@ function parseData(data)
 		// update the UI with the new piece
 		if (window.last_piece) {
 			place_piece(window.last_piece, 'WHITE');
+            chkCaptures(window.last_piece);
+
 			window.last_piece = null;
 		}
 		else 
@@ -314,7 +329,7 @@ function parseData(data)
 		var name = row + ' ' + col;
 		// place a move at button NAME. 
 		place_piece($('input[name="' + name + '"]')[0], 'BLACK');
-		
+		chkCaptures($('input[name="' + name + '"]')[0]);
 		// Update the UI to show that it is our turn
 		showTurn(true);
 
@@ -480,49 +495,123 @@ function status_of_button(button) {
 		return "WHITE";
 	else if (button.src.match(/\/b([0-9]).gif/))
 		return "BLACK";
-	else 
-		return "UNKNOWN";
 }
 
-function generate_directions(button) {
-    var directions = new Array();
-    var dir_pairs = [ [-3, 3], [3, 3], [3, -3], [0, -3], [0, 3] ];
+function get_neighbor(button, direction) {
+    var row, col;
 
-    var row = button.name.split(' ')[0];
-    var col = button.name.split(' ')[1];
+    if (button == null)
+        return null;
 
-    for (var dir = 0; dir < 8; dir++)
-        ; 
+    row = parseInt(button.name.split(' ')[0]);
+    col = parseInt(button.name.split(' ')[1]);
 
-}
+    var neighbor;
 
-function generate_points(minx, miny, maxx, maxy, points) {
-    /* Generate the points on a line using an algorithm from
-       http://www.unix.com/shell-programming-scripting/118725-interpolating-line-between-points.html 
-       returns: an element of "r c" of the buttons from center to edge. */
+    if (direction < 0 || direction > 7)
+        return null;
 
-    var row = button.name.split(' ')[0];
-    var col = button.name.split(' ')[1];
-
-    var directions = new Array();
-        
-}
-
-function check_for_captures(button, color) {
-    // We're placing a piece at `button` of color `color`. Check
-    // For captures and remove them if necessary.
+    switch (direction) {
+    case dir.W:
+        neighbor = new Array(row, col-1);
+        break;
+    case dir.NW:
+        neighbor = new Array(row-1, col-1);
+        break;
+    case dir.N:
+        neighbor = new Array(row-1, col);
+        break;
+    case dir.NE:
+        neighbor = new Array(row-1, col+1);
+        break;
+    case dir.E:
+        neighbor = new Array(row, col+1);
+        break;
+    case dir.SE:
+        neighbor = new Array(row+1, col+1);
+        break;
+    case dir.S:
+        neighbor = new Array(row+1, col);
+        break;
+    case dir.SW:
+        neighbor = new Array(row+1, col-1);
+    }
     
-}
+    for (var i = 0; i < 2; i++)
+        if (neighbor[i] < 0 || neighbor[i] > board_size)
+            return null;
 
+    var name = neighbor[0] + ' ' + neighbor[1];
+
+    return $('input[name="' + name + '"]')[0];
+}
 
 function place_piece(button, color) {
     
-    check_for_captures(button);
-
 	if (color == 'WHITE')
 		button.src = button.src.replace(/\/([0-9]).gif/, '\/w$1.gif');
-	else
+	else if (color == 'BLACK')
 		button.src = button.src.replace(/\/([0-9]).gif/, '\/b$1.gif');
+    else if (color == 'EMPTY')
+        button.src = button.src.replace(/\/[wb]([0-9]).gif/, '\/$1.gif');
+
+}
+function opposite_color(color) {
+    if (color == 'WHITE')
+        return 'BLACK';
+    else if (color == 'BLACK')
+        return 'WHITE';
+    else 
+        return null;
+}
+
+function add_capture_to_table(color) {
+    var element;
+    var black_piece = "images/b4.gif";
+    var white_piece = "images/w4.gif";
+    
+    if (color == 'WHITE') {
+        var html = "<img src='" + black_piece + "'/>";
+        $("#white_captures").append(html + html + "<br/>");
+    }
+    else if (color == 'BLACK') {
+        var html = "<img src='" + white_piece + "'/>";
+        $("#black_captures").append(html + html + "<br/>");
+    }
+}
+
+function chkCaptures(button) {
+    /* Logistically, this function will act just like its C++ cousin.
+       Given a button, it will check all cardinal directions and remove
+       any new captures as detected. In doing so, it will also update
+       the white/black captures score in the UI. */
+
+    for (var d = 0; d < 9; d++) {
+        var middlea = get_neighbor(button, d);
+        var middleb = get_neighbor(middlea, d);
+
+        var end = get_neighbor(middleb, d);
+
+        // skip empty sets.
+        if (!end || !middlea || !middleb)
+            continue; 
+
+        // Have we found a capture?
+        if (status_of_button(end) == status_of_button(button)
+            && (status_of_button(middlea) == status_of_button(middleb)) 
+            && (status_of_button(middleb) == opposite_color(status_of_button(end))))
+        {
+            // Remove the middle pieces
+            place_piece(middlea, 'EMPTY');
+            place_piece(middleb, 'EMPTY');
+
+            // add them to the score
+            add_capture_to_table( status_of_button(button) );
+        }
+
+
+    }
+
 }
 
 function check_for_move() {
