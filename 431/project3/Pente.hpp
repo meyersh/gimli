@@ -83,6 +83,7 @@ public:
     int getCertain(int &certD, int &certT, int &certQ, int &certP, char color);
     int getCaptures(char color);
     int chkCapture(int r, int c, char color, bool remove = false);
+    int chkBlocks(int &Block3, int &Block4, int &Block5);
     string toString();
     string serialize();
     void deserialize(ifstream &f);
@@ -441,6 +442,50 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
     return caps;
 }
 
+int Pente::chkBlocks(int& Block3, int& Block4, int& Block5) {
+    if(gametrace.empty())
+        return 0;
+    char color = gametrace.back()->color;
+    int fdir, bdir, f=0, b=0, tot;
+    cell *tCell = gametrace.back();
+    cell *nxt;
+
+    Block3 = Block4 = Block5 = 0;
+
+    for(fdir=E;fdir<=SW;fdir++) {
+        bdir = fdir-4;
+        //check forwards
+        nxt = tCell->neighbors[fdir];
+        while(nxt && (nxt->color == color) && (nxt->filled == true)) {
+            f++;
+            nxt = nxt->neighbors[fdir];
+        }
+        //check backwards
+        nxt = tCell->neighbors[bdir];
+        while(nxt && (nxt->color == color) && (nxt->filled == true)) {
+            b++;
+            nxt = nxt->neighbors[bdir];
+        }
+    }
+
+    tot = f+b;  tot = (tot>5)?5:tot;
+    switch(tot) {
+        case 3:
+            Block3++;
+            break;
+        case 4:
+            Block4++;
+            break;
+        case 5:
+            Block5++;
+            break;
+        default:
+            break;
+    }
+
+    return 0;
+}
+
 string Pente::toString() {
     stringstream ss;
 
@@ -656,11 +701,13 @@ State Pente::toState() {
        9: pentes (theirs) // useful when looking at potential moves
        10: possible captures (theirs)
        11: resulting captures from the last move (theirs)
+
+       12: chkBlocks (last piece)
        
     */
 
     // Construct and return the state of the game.
-    State s(12);
+    State s(18);
 
     char ours, theirs;
 
