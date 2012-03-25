@@ -540,7 +540,7 @@ void Pente::deserialize(ifstream &f) {
     int row, col;
     int foo;
 
-    f >> turn; // first line is the turn.
+    f >> foo; // first line is the turn, but playToken updates this.
     f >> players[0]; // second line is session id (or COMPUTER) of the white player.
     f >> players[1]; //third line is the session id (or COMPUTER) of the black player.
 
