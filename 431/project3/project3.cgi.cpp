@@ -3,7 +3,6 @@
  * Shaun Meyer, Mar 2012
  */
 
-// TODO: Session persistance
 // TODO: Game serialization for saving + loading
 // TODO: game_id persistance
 // TODO: game_id timeouts
@@ -37,13 +36,14 @@ int main() {
 
 	getline(cin, instr); // all requests are by POST.
    
+    // Initialize `params`, skipping empty lines.
 	while (getline(cin, param))
 		if (param != "")
 			params.push_back(param);
 
 	cout << "Content-Type: text/plain\n\n";
 
-	// Filter out blank params.
+	// Filter out blank instructions (initial instruction).
 	if (instr == "")
 		die("msg: Expected parameter.");
 
@@ -176,27 +176,29 @@ int main() {
 
             cout << "JOIN" << endl
                  << gameid << endl;
-            // TODO: figure out session ID.
 
+            // Both players have joined (are != WAITING)
             if (game.players[0] != "WAITING" && game.players[1] != "WAITING")
                 cout << "GAME_UNDERWAY" << endl;
 
+            // The player has joined as player2
             if (game.players[0] == "WAITING") {
                 game.players[0] = generate_sessionid();
                 cout << game.players[0] << endl
                      << "hh2" << endl
                      << "9" << endl
                      << "9" << endl
-                     << "MOVE" << endl;
+                     << "WAITING" << endl;
             }
 
+            // The player has joined as player1
             else if (game.players[1] == "WAITING") {
                 game.players[1] = generate_sessionid();
                 cout << game.players[1] << endl
                      << "hh1" << endl 
                      << "9" << endl
                      << "9" << endl
-                     << "WAITING" << endl;
+                     << "MOVE" << endl;
             }
 
             // Save our game.

@@ -562,8 +562,7 @@ void Pente::deserialize(ifstream &f) {
 
         // Everything is good. Insert the piece.
         placeToken(row, col, (color == 'B' ? BLACK : WHITE));
-        gametrace.push_back(getCell(row,col));
-
+        
     }
 
 }
