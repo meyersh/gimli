@@ -337,7 +337,9 @@ int main() {
                 ogame_file << game.serialize() << endl;
                 ogame_file.close();
             }
-            else if (game.turn % 2 != game.playerNumber(sessionid)) {
+
+            // Stop here if it is not the requesting players' turn.
+            else if (game.players[game.turn % 2] != sessionid) {
                 cout << "WAITING" << endl;
                 exit(1);
             }
