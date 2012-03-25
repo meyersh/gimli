@@ -522,9 +522,9 @@ string Pente::serialize() {
     ss << blkCaps << endl;
 
     for (vector<cell*>::iterator c = gametrace.begin(); c != gametrace.end(); c++) {
-        char contents = (*c)->color;
+        char color = (*c)->color;
 
-        ss << (contents == BLACK ? 'B' : 'W')
+        ss << (color == BLACK ? 'B' : 'W')
            << " " << (*c)->r << " " << (*c)->c << endl;
     }
 
@@ -648,9 +648,11 @@ void Pente::playToken(int r, int c, char color) {
     int found;
 
     fillCell(r, c, color);
+    gametrace.push_back(getCell(r, c)); 
+
     chkCapture(r, c, color, true);
     found = nInARow(5, color);
-    gametrace.push_back(getCell(r, c));
+
 
     turn++; // increment the move counter.
 }
