@@ -168,8 +168,6 @@ int main() {
 
             Pente game;
 		
-
-
             ifstream game_file( gameid_file_path(gameid) );
             game.deserialize(game_file);
             game_file.close();
@@ -239,7 +237,7 @@ int main() {
             infile.close();
 
             // Die for invalid sessionid
-            if (game.players[0] != sessionid && game.players[1] != sessionid)
+            if (game.playerNumber(sessionid) == -1)
                 die("'" + sessionid + "' is not a valid sessionid.");
 
             // Die for invalid coords
@@ -253,17 +251,12 @@ int main() {
                 die(ss.str());
             }
 
-            // Determine our player #. 
-            int player=0; 
-            for (int i = 0; i < 2; i++)
-                if (game.players[i] == sessionid)
-                    player = i;
-
-            if (game.turn % 2 != player)
+            // Validate that it is, in fact, our turn.
+            if (game.turn % 2 != game.playerNumber(sessionid))
                 die("It's not even your turn to move!");
 
             // go ahead and lay the piece.
-            game.playToken(row, col, player ? BLACK : WHITE);
+            game.playToken(row, col, game.playerColor(sessionid));
 
             // Save the game
             ofstream game_file(gameid_file_path(gameid));
@@ -312,6 +305,10 @@ int main() {
                 cout << "9" << endl    // bogus row + col because it can't matter.
                      << "9" << endl
                      << "TIMEOUT" << endl;
+
+                // remove the old game.
+                remove_game(gameid);
+
                 exit(1);
             }
 
@@ -323,16 +320,9 @@ int main() {
 	
 
             // Validate sessionid
-            if (game.players[0] != sessionid && game.players[1] != sessionid)
+            if (game.playerNumber(sessionid) == -1)
                 die("Invalid sessionid: '" + sessionid + "'");
 
-            // Is it our turn?
-            int player=0; 
-            for (int i = 0; i < 2; i++)
-                if (game.players[i] == sessionid)
-                    player = i;
-
-        
             // If the computer is playing and we're waiting on them,
             // go ahead and initiate a computer move.
 
@@ -347,12 +337,12 @@ int main() {
                 ogame_file << game.serialize() << endl;
                 ogame_file.close();
             }
-            else if (game.turn % 2 != player) {
+            else if (game.turn % 2 != game.playerNumber(sessionid)) {
                 cout << "WAITING" << endl;
                 exit(1);
             }
 
-            // Somethen went horribly wrong
+            // Maybe something went horribly wrong
             if (game.gametrace.size() == 0)
                 die("Something went horribly wrong and we're reading an empty gametrace.");
     
@@ -366,9 +356,6 @@ int main() {
 
             else if (game.gameOutcome( game.playerColor(sessionid) ) == -1)
                 cout << "LOSE" << endl;
-
-		
-	
 
         }
    
