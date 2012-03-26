@@ -254,6 +254,19 @@ function parseData(data)
 							   lines[1]);
 
 		showMessage('info', 'JOIN', 'Gameid: ' + lines[1] + '<br>Sessionid: ' + lines[2]);
+
+        /* We now get hh1/hh2 information.
+           JOIN\n<gameid>\n<sessionid>\nhh1\n9\n9\nMOVE	You've joined as player 2
+           JOIN\n<gameid>\n<sessionid>\nhh2\n9\n9\nWAITING	You've joined as player 1
+        */
+        
+        if (lines[3] == "hh1") // we're player2, as we've just joined a game started as hh1
+            place_piece($("input[name='9 9']")[0], 'BLACK');
+
+        else if (lines[3] == "hh2") // we're player1 having just joined a game started w/ hh2
+            place_piece($("input[name='9 9']")[0], 'WHITE');
+
+        // update gameid + sessionid text boxes.
 		$('#gameid').val(lines[1]);
 		$('#sessionid').val(lines[2]);
 
@@ -343,7 +356,7 @@ function parseData(data)
                 showMessage('success', 'Victory',
 							   'Victory is yours!');
             else if (lines[5] == "LOSE")
-                showMessage('warn', 'Loser detected',
+                showMessage('warning', 'Loser detected',
                             'You have lost this game.');
 
 		}

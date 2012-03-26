@@ -538,12 +538,15 @@ void Pente::deserialize(ifstream &f) {
     string line;
     char color;
     int row, col;
+    int foo;
 
-    f >> turn; // first line is the turn.
+    f >> foo; // first line is the turn, but playToken updates this.
     f >> players[0]; // second line is session id (or COMPUTER) of the white player.
     f >> players[1]; //third line is the session id (or COMPUTER) of the black player.
-    f >> whtCaps;
-    f >> blkCaps;
+
+    f >> foo >> foo; // Throw away the next to lines, they are deprecated.
+    //    f >> whtCaps;
+    //    f >> blkCaps;
 
     while (getline(f, line)) {
         // Skipping empty lines
@@ -562,7 +565,6 @@ void Pente::deserialize(ifstream &f) {
 
         // Everything is good. Insert the piece.
         playToken(row, col, (color == 'B' ? BLACK : WHITE));
-        gametrace.push_back(getCell(row,col));
 
     }
 
