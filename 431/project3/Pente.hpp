@@ -516,17 +516,15 @@ string Pente::serialize() {
 
     stringstream ss;
 
-    //    ss << turn << endl;
     ss << players[0] << endl;
     ss << players[1] << endl;
-    //    ss << whtCaps << endl;
-    //    ss << blkCaps << endl;
 
     for (vector<cell*>::iterator c = gametrace.begin(); c != gametrace.end(); c++) {
         char color = (*c)->color;
 
-        ss << (color == BLACK ? 'B' : 'W')
-           << " " << (*c)->r << " " << (*c)->c << endl;
+        ss << (*c)->color
+           << " " << (*c)->r 
+           << " " << (*c)->c << endl;
     }
 
     return ss.str();
