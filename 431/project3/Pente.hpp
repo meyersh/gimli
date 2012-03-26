@@ -516,11 +516,11 @@ string Pente::serialize() {
 
     stringstream ss;
 
-    ss << turn << endl;
+    //    ss << turn << endl;
     ss << players[0] << endl;
     ss << players[1] << endl;
-    ss << whtCaps << endl;
-    ss << blkCaps << endl;
+    //    ss << whtCaps << endl;
+    //    ss << blkCaps << endl;
 
     for (vector<cell*>::iterator c = gametrace.begin(); c != gametrace.end(); c++) {
         char color = (*c)->color;
@@ -539,15 +539,9 @@ void Pente::deserialize(ifstream &f) {
     string line;
     char color;
     int row, col;
-    int foo;
 
-    f >> foo; // first line is the turn, but playToken updates this.
     f >> players[0]; // second line is session id (or COMPUTER) of the white player.
     f >> players[1]; //third line is the session id (or COMPUTER) of the black player.
-
-    f >> foo >> foo; // Throw away the next to lines, they are deprecated.
-    //    f >> whtCaps;
-    //    f >> blkCaps;
 
     while (getline(f, line)) {
         // Skipping empty lines
