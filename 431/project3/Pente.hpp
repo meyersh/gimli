@@ -83,7 +83,7 @@ public:
     int getCertain(int &certD, int &certT, int &certQ, int &certP, char color);
     int getCaptures(char color);
     int chkCapture(int r, int c, char color, bool remove = false);
-    int chkBlocks(int &Block3, int &Block4, int &Block5);
+    int chkBlocks(int &Block3, int &Block4, int &Block5, char color = EMPTY);
     string toString();
     string serialize();
     void deserialize(ifstream &f);
@@ -442,10 +442,11 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
     return caps;
 }
 
-int Pente::chkBlocks(int& Block3, int& Block4, int& Block5) {
+int Pente::chkBlocks(int& Block3, int& Block4, int& Block5, char color) {
+    // Check the last move to see how many 3, 4, and 5 in-a-row's it blocked.
     if(gametrace.empty())
         return 0;
-    char color = gametrace.back()->color;
+    color = (color == EMPTY) ? gametrace.back()->color  : color;
     int fdir, bdir, f=0, b=0, tot;
     cell *tCell = gametrace.back();
     cell *nxt;
@@ -698,15 +699,20 @@ State Pente::toState() {
        3: pentes (ours) // useful when looking at potential moves
        4: possible captures (ours)
        5: Resulting captures from the last move (ours).
+       6: Resulting 3x blocks (ours)
+       7: Resulting 4x blocks (ours)
+       8: Resulting 5x blocks (ours)
        
-       6: doubles (theirs)
-       7: triples (theirs)
-       8: quads (theirs)
-       9: pentes (theirs) // useful when looking at potential moves
-       10: possible captures (theirs)
-       11: resulting captures from the last move (theirs)
+       9: doubles (theirs)
+       10: triples (theirs)
+       11: quads (theirs)
+       12: pentes (theirs) // useful when looking at potential moves
+       13: possible captures (theirs)
+       14: resulting captures from the last move (theirs)
+       15: Resulting 3x blocks (ours)
+       16: Resulting 4x blocks (ours)
+       17: Resulting 5x blocks (ours)
 
-       12: chkBlocks (last piece)
        
     */
 
@@ -733,14 +739,17 @@ State Pente::toState() {
     s[5] = (gametrace.empty()) ? 0 : 
         chkCapture( gametrace.back()->r, gametrace.back()->c,
                     ours );
+
+    chkBlocks(s[6], s[7], s[8], ours);
     
     // Figure for their pieces.
-    getCertain(s[6], s[7], s[8], s[9], theirs);
-    s[10] = getCaptures(theirs);
-    s[11] = (gametrace.empty()) ? 0 :
+    getCertain(s[9], s[10], s[11], s[12], theirs);
+    s[13] = getCaptures(theirs);
+    s[14] = (gametrace.empty()) ? 0 :
         chkCapture( gametrace.back()->r, gametrace.back()->c,
                     theirs );
 
+    chkBlocks(s[15], s[16], s[17], theirs);
 
         /*
     } else if(playerNumber("COMPUTER")==1) {
