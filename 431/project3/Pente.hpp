@@ -490,7 +490,7 @@ int Pente::chkBlocks(int& Block3, int& Block4, int& Block5, char color) {
 
 int Pente::getProximity(char color, int radius) {
 	cell *tCell, *nxt;
-	vector<*cell> filled = getFilled(color);
+	vector<Pente::cell*> filled = getFilled(color);
 	int c = 0, prox = 0;
 	
 	for(int i=0;i<filled.size();i++) {
