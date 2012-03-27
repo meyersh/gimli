@@ -84,6 +84,7 @@ public:
     int getCaptures(char color);
     int chkCapture(int r, int c, char color, bool remove = false);
     int chkBlocks(int &Block3, int &Block4, int &Block5, char color = EMPTY);
+    int getProximity(char color, int radius);
     string toString();
     string serialize();
     void deserialize(ifstream &f);
@@ -485,6 +486,28 @@ int Pente::chkBlocks(int& Block3, int& Block4, int& Block5, char color) {
     }
 
     return 0;
+}
+
+int Pente::getProximity(char color, int radius) {
+	cell *tCell, *nxt;
+	vector<*cell> filled = getFilled(color);
+	int c = 0, prox = 0;
+	
+	for(int i=0;i<filled.size();i++) {
+		tCell = filled[i];
+		for(int dir=E;dir<W;dir++) {
+			nxt = tCell->neighbors[dir];
+			while(nxt && (c<radius)) {
+				if(nxt->filled && nxt->color == color)
+					prox++;
+				nxt = nxt->neighbors[dir];
+				c++;
+			}
+			c = 0;
+		}
+	}
+	
+	return prox;
 }
 
 string Pente::toString() {
