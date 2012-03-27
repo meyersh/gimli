@@ -33,6 +33,8 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <ctime>
+#include <cstdlib>
 
 using namespace std;
 
@@ -113,6 +115,8 @@ struct Weight
     string toString();
     void adjust(State b, double error);
     double Vhat(State b);
+    double random();
+    
 
 };
 
@@ -120,7 +124,7 @@ struct Weight
 
 Weight::Weight(string filename) {
 	this->filename = filename;
-	eta = .001;
+	eta = .005;
     load();
 }
 
@@ -199,8 +203,9 @@ double Weight::Vhat(State b) {
 
 
 	// Implicit w0 var.
-	double result = w[0];
-   
+    //	double result = w[0];
+    double result = random(); // set w0 randomly.
+
 	// Multiply up the rest of the xi*wi vars.
 	for (int i = 0; i < len; i++)
 		result += b[i] * w[i+1];
@@ -228,6 +233,14 @@ void Weight::adjust(State b, double error) {
 		w[i+1] += modifier;
 	}
 	  
+}
+
+double Weight::random() {
+    // Return a random number between -16 and 16
+    srand(clock());
+    int r = rand();
+    return (r & 31) - 16;
+
 }
 
 int Vhat(State b) {

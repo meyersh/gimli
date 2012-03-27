@@ -56,6 +56,8 @@ int main() {
 		<< "Vhat(b) -> " << w.Vhat(b) << endl;
 
    w.save();
+
+   cout << w.random() << endl;
    return 0;
 
 }
