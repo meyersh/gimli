@@ -717,6 +717,7 @@ State Pente::toState() {
        6: Resulting 3x blocks (ours)
        7: Resulting 4x blocks (ours)
        8: Resulting 5x blocks (ours)
+       9: Proximity(ours, 2)
        
        9: doubles (theirs)
        10: triples (theirs)
@@ -727,12 +728,13 @@ State Pente::toState() {
        15: Resulting 3x blocks (ours)
        16: Resulting 4x blocks (ours)
        17: Resulting 5x blocks (ours)
+       19: Proximity(theirs, 2)
 
        
     */
 
     // Construct and return the state of the game.
-    State s(18);
+    State s(20);
 
     char ours, theirs;
 
@@ -756,15 +758,19 @@ State Pente::toState() {
                     ours );
 
     chkBlocks(s[6], s[7], s[8], ours);
+
+    s[9] = getProximity(ours, 2);
     
     // Figure for their pieces.
-    getCertain(s[9], s[10], s[11], s[12], theirs);
-    s[13] = getCaptures(theirs);
-    s[14] = (gametrace.empty()) ? 0 :
+    getCertain(s[10], s[11], s[12], s[13], theirs);
+    s[14] = getCaptures(theirs);
+    s[15] = (gametrace.empty()) ? 0 :
         chkCapture( gametrace.back()->r, gametrace.back()->c,
                     theirs );
 
-    chkBlocks(s[15], s[16], s[17], theirs);
+    chkBlocks(s[16], s[17], s[18], theirs);
+
+    s[19] = getProximity(theirs, 2);
 
         /*
     } else if(playerNumber("COMPUTER")==1) {
