@@ -82,6 +82,7 @@ public:
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
     int getCertain(int &certD, int &certT, int &certQ, int &certP, char color);
     int getCaptures(char color);
+    int chkTotalCapture(char color);
     int chkCapture(int r, int c, char color, bool remove = false);
     int chkTotalBlocks(int &Block3, int &Block4, int &Block5, char color);
     int chkBlocks(int &Block3, int &Block4, int &Block5, char color = EMPTY);
@@ -403,6 +404,18 @@ int Pente::getCaptures(char color) {
 
     return caps;
 
+}
+
+int Pente::chkTotalCapture(char color) {
+    int n = 0;
+
+    vector<Pente::cell*> filled = getFilled(color);
+    
+    for (int i = 0; i < filled.size(); i++) {
+        n += chkCapture(filled[i]->r, filled[i]->c, color, false);
+    }
+
+    return n;
 }
 
 int Pente::chkCapture(int r, int c, char color, bool remove) {
@@ -764,10 +777,9 @@ State Pente::toState() {
     theirs = (ours == WHITE) ? BLACK : WHITE;
 
     int ourCaps = (playerColor("COMPUTER") == WHITE) ? whtCaps : blkCaps;
-    int theirCaps = (playerColor("COMPUTER") == WHITE) ? blkCaps : whtCaps;
+    int theirCaps = (theirs == WHITE) ? whtCaps : blkCaps;
 
     // Get the current board state for us.
-    getCertain(certD, certT, certQ, certP, ours);
     
     /* Now, rationalize the cert* variables, where 
        a certD is 20% of a possible win, certT is 60%,
@@ -777,38 +789,34 @@ State Pente::toState() {
        contibuting...
 
     */
-    s[0] = (certD*20 + certT*60 + certQ*80 + certP*100)/(.5*turn+1.0);
 
-    getCertain(certD, certT, certQ, certP, theirs);
+    // For us...
+    getCertain(certD, certT, certQ, certP, ours);
+    s[0] = (certD*20+1) * (certT*60+1) * (certQ*80+1) * (certP*100+1);
 
     // Now do the same for THEM...
-    s[1] = (certD*20 + certT*60 + certQ*80 + certP*100)/(.5*turn+1.0);
-    
+    getCertain(certD, certT, certQ, certP, theirs);
+    s[1] = (certD*20+1) * (certT*60+1) * (certQ*80+1) * (certP*100+1);
+
     /* In keeping with ratio idea, lets look at how many of our pieces are
-       threatening a capture times how many capture we already have */
-    s[2] = getCaptures(ours)*20 * (ourCaps);
-    s[3] = getCaptures(theirs)*20 * (theirCaps);
+       threatening a capture times how many captures we already have */
+    s[2] = getCaptures(ours)*(20*(ourCaps+1));
+    s[3] = getCaptures(theirs)*(20*(theirCaps+1));
 
     /* Ratios reflecting a possible capture. */
-    s[4] = gametrace.empty() ? 0 : 
-        chkCapture( gametrace.back()->r, 
-                    gametrace.back()->c,
-                    ours )*20 * (ourCaps+.01) / (.5*turn+1.0);
+    s[4] = chkTotalCapture(ours)*20*(ourCaps+1);
 
-    s[5] = gametrace.empty() ? 0 : 
-        chkCapture( gametrace.back()->r, 
-                    gametrace.back()->c,
-                    theirs )*20 * (theirCaps+.01) / (.5*turn+1.0);
+    s[5] = chkTotalCapture(theirs)*20*(theirCaps+1);
 
     
     /* Rationalize any blocks we may consider...
      */
     int  possT, possQ, possP;
     chkTotalBlocks(possT, possQ, possP, ours);
-    s[6] = (possT*60 + possQ*80 + possP*100)/(.5*turn+1.0);
+    s[6] = (possT*60+1) * (possQ*80+1) * (possP*100+1);
     
     chkTotalBlocks(possT, possQ, possP, theirs);
-    s[7] = (possT*60 + possQ*80 + possP*100)/(.5*turn+1.0);
+    s[7] = (possT*60+1) * (possQ*80+1) * (possP*100+1);
 
     return s;
 

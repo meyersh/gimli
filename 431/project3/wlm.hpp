@@ -37,6 +37,7 @@
 #include <stdexcept>
 #include <ctime>
 #include <cstdlib>
+#include <cmath>
 
 using namespace std;
 
@@ -212,12 +213,21 @@ double Weight::Vhat(State b) {
 	for (int i = 0; i < len; i++)
 		result += b[i] * w[i+1];
 
+    /*
     if (result > 100)
         return 100;
     else if (result < -100)
         return -100;
     
 	return result;
+    */
+    if (result < 0) {
+        result *= -1;
+        return log10(result)*-6;
+    }
+    else {
+        return log10(result)*6;
+    }
 
 }
 
