@@ -349,8 +349,8 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, int &certP, char color
 }
 
 int Pente::getCaptures(char color) {
-    // Check for the number of captures we can get away with
-    // (WBB_ is one, for instance.
+    // Check for the number of captures available to `color` on the board.
+    // (WBB_ is one for white, for instance.
 
     int caps = 0;
 
@@ -769,7 +769,8 @@ int Pente::gameOutcome(char color) {
 
 State Pente::toState() {
     int certD, certT, certQ, certP;
-    State s(8);
+    int possT, possQ, possP;
+    State s(10);
 
     char ours, theirs;
 
@@ -779,8 +780,6 @@ State Pente::toState() {
     int ourCaps = (playerColor("COMPUTER") == WHITE) ? whtCaps : blkCaps;
     int theirCaps = (theirs == WHITE) ? whtCaps : blkCaps;
 
-    // Get the current board state for us.
-    
     /* Now, rationalize the cert* variables, where 
        a certD is 20% of a possible win, certT is 60%,
        certQ is 80% and certP is (of course) 100% of a win.
@@ -792,31 +791,34 @@ State Pente::toState() {
 
     // For us...
     getCertain(certD, certT, certQ, certP, ours);
-    s[0] = (certD*20+1) * (certT*60+1) * (certQ*80+1) * (certP*100+1);
+    s[0] = (certD*.20+1) * (certT*.60+1) * (certQ*.80+1) * (certP*1.00+1);
 
     // Now do the same for THEM...
     getCertain(certD, certT, certQ, certP, theirs);
-    s[1] = (certD*20+1) * (certT*60+1) * (certQ*80+1) * (certP*100+1);
+    s[1] = (certD*.20+1) * (certT*.60+1) * (certQ*.80+1) * (certP*1.00+1);
 
     /* In keeping with ratio idea, lets look at how many of our pieces are
        threatening a capture times how many captures we already have */
-    s[2] = getCaptures(ours)*(20*(ourCaps+1));
-    s[3] = getCaptures(theirs)*(20*(theirCaps+1));
+    s[2] = getCaptures(ours)*.20*(ourCaps+1);
+    s[3] = getCaptures(theirs)*.20*(theirCaps+1);
 
     /* Ratios reflecting a possible capture. */
-    s[4] = chkTotalCapture(ours)*20*(ourCaps+1);
+    s[4] = chkTotalCapture(ours)*.20*(ourCaps+1);
 
-    s[5] = chkTotalCapture(theirs)*20*(theirCaps+1);
+    s[5] = chkTotalCapture(theirs)*.20*(theirCaps+1);
 
     
     /* Rationalize any blocks we may consider...
      */
-    int  possT, possQ, possP;
     chkTotalBlocks(possT, possQ, possP, ours);
-    s[6] = (possT*60+1) * (possQ*80+1) * (possP*100+1);
+    s[6] = (possT*.60+1) * (possQ*.80+1) * (possP*1.00+1);
     
     chkTotalBlocks(possT, possQ, possP, theirs);
-    s[7] = (possT*60+1) * (possQ*80+1) * (possP*100+1);
+    s[7] = (possT*.60+1) * (possQ*.80+1) * (possP*1.00+1);
+
+    /* Compare blocks with our certains */
+    s[8] = s[0]*s[6]; // ours
+    s[9] = s[1]*s[7]; // theirs
 
     return s;
 
