@@ -812,13 +812,12 @@ int Pente::nInARow(int n, char color) {
 void Pente::playToken(int r, int c, char color) {
 
     turn++; // increment the move counter.
-    
-
 
     fillCell(r, c, color);
     gametrace.push_back(getCell(r, c)); 
 
-    chkCapture(r, c, color, true); // this will put cell* in captureBuffer[turn] for each capture.
+    // this will put cell* in captureBuffer[turn] for each capture.
+    chkCapture(r, c, color, true); 
 
 }
 
@@ -830,6 +829,7 @@ void Pente::unPlayToken() {
     clearCell(gametrace.back()->r, gametrace.back()->c);
 
     // replace captured pieces.
+    // TODO: change capture count BACKwards.
     if (!captureBuffer[last_turn].empty())
         {
             Pente::cell *tCell;
@@ -1058,7 +1058,9 @@ void Pente::make_move(Weight &weight) {
     char computer_color = playerColor("COMPUTER");
 
     // Assume the best
-    int best_state = weight.Vhat(tryMove(best_move->r, best_move->c, computer_color));
+    double best_state = weight.Vhat(tryMove(best_move->r, 
+                                            best_move->c, 
+                                            computer_color));
 
     // Compare every other move
     for (int i = 0; i < possible_moves.size(); i++) {
