@@ -16,11 +16,11 @@ int main(int argc, char** argv)
     }
 
     string gameid = argv[1];
-    ifstream game_file(gameid_file_path(gameid));
+    ifstream game_file(gameid.c_str());
 
     if (!game_file) {
         cout << "Unable to open file at " 
-             << gameid_file_path(gameid) << "." << endl;
+             << gameid << "." << endl;
         exit(1);
     }
 
@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     p.deserialize(game_file);
 
     
-    cout << "Reading " << gameid 
+    cout << "Reading " << gameid << endl
          << p.toString() << endl
          << "Sessions:" << endl
          << "   players[0] => " << p.players[0] << endl
