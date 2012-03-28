@@ -83,8 +83,9 @@ public:
     int getCertain(int &certD, int &certT, int &certQ, int &certP, char color);
     int getCaptures(char color);
     int chkCapture(int r, int c, char color, bool remove = false);
+    int chkTotalBlocks(int &Block3, int &Block4, int &Block5, char color);
     int chkBlocks(int &Block3, int &Block4, int &Block5, char color = EMPTY);
-    int getProximity(char color, int radius);
+    double getProximity(char color, int radius);
     string toString();
     string serialize();
     void deserialize(ifstream &f);
@@ -97,7 +98,8 @@ public:
     int gameOutcome(char color);
 
 
-    State toState();
+    State toState();    
+    State toStateOld();
     State tryMove(int r, int c, char color);
     void make_move(Weight &weight);
 
@@ -356,11 +358,11 @@ int Pente::getCaptures(char color) {
     for (int i = 0; i < Board.size(); i++) {
         cell *tCell = getCell(i);
 
-        // Skip the other color.
-        if (tCell->color != color)
+        // Skip the empty cells and cells which arn't `color`.
+        if (tCell->color != color || !tCell->filled)
             continue;
 
-        // only search from E to SW since we've come from the NW.
+        // Search all directions for our CEE_ pattern
         for (int dir = W; dir <= SW; dir++) {
             cell * cellSet[] = {tCell, NULL, NULL, NULL};
             bool setOK = true;
@@ -368,7 +370,6 @@ int Pente::getCaptures(char color) {
             for (int c = 1; c < 4 && setOK; c++) {
                 if (cellSet[c - 1])
                     cellSet[c] = cellSet[c - 1]->neighbors[dir];
-
 
                 if (cellSet[c] == NULL)
                     setOK = false;
@@ -443,6 +444,53 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
     return caps;
 }
 
+int Pente::chkTotalBlocks(int& Block3, int& Block4, int& Block5, char color) {
+    // Check to see how many 3, 4, and 5 in-a-row's have been blocked.
+
+    int fdir, bdir, f=0, b=0, tot;
+    vector<cell*> filled = getFilled(color);
+    cell *tCell;
+    cell *nxt;
+
+    Block3 = Block4 = Block5 = 0;
+
+    for (int i = 0; i < filled.size(); i++) {
+        tCell = getCell(i);
+        for(fdir=E;fdir<=SW;fdir++) {
+            bdir = fdir-4;
+            //check forwards
+            nxt = tCell->neighbors[fdir];
+            while(nxt && (nxt->color == color) && (nxt->filled == true)) {
+                f++;
+                nxt = nxt->neighbors[fdir];
+            }
+            //check backwards
+            nxt = tCell->neighbors[bdir];
+            while(nxt && (nxt->color == color) && (nxt->filled == true)) {
+                b++;
+                nxt = nxt->neighbors[bdir];
+            }
+        }
+
+        tot = f+b;  tot = (tot>5)?5:tot;
+        switch(tot) {
+        case 3:
+            Block3++;
+            break;
+        case 4:
+            Block4++;
+            break;
+        case 5:
+            Block5++;
+            break;
+        default:
+            break;
+        }
+    }
+    return 0;
+}
+
+
 int Pente::chkBlocks(int& Block3, int& Block4, int& Block5, char color) {
     // Check the last move to see how many 3, 4, and 5 in-a-row's it blocked.
     if(gametrace.empty())
@@ -472,30 +520,30 @@ int Pente::chkBlocks(int& Block3, int& Block4, int& Block5, char color) {
 
     tot = f+b;  tot = (tot>5)?5:tot;
     switch(tot) {
-        case 3:
-            Block3++;
-            break;
-        case 4:
-            Block4++;
-            break;
-        case 5:
-            Block5++;
-            break;
-        default:
-            break;
+    case 3:
+        Block3++;
+        break;
+    case 4:
+        Block4++;
+        break;
+    case 5:
+        Block5++;
+        break;
+    default:
+        break;
     }
 
     return 0;
 }
 
-int Pente::getProximity(char color, int radius) {
+double Pente::getProximity(char color, int radius) {
 	cell *tCell, *nxt;
 	vector<Pente::cell*> filled = getFilled(color);
 	int c = 0, prox = 0;
 	
 	for(int i=0;i<filled.size();i++) {
 		tCell = filled[i];
-		for(int dir=E;dir<W;dir++) {
+		for(int dir=E;dir<=SW;dir++) {
 			nxt = tCell->neighbors[dir];
 			while(nxt && (c<radius)) {
 				if(nxt->filled && nxt->color == color)
@@ -507,7 +555,7 @@ int Pente::getProximity(char color, int radius) {
 		}
 	}
 	
-	return prox;
+	return (double)(prox/(filled.size()+1));
 }
 
 string Pente::toString() {
@@ -707,6 +755,66 @@ int Pente::gameOutcome(char color) {
 }
 
 State Pente::toState() {
+    int certD, certT, certQ, certP;
+    State s(8);
+
+    char ours, theirs;
+
+    ours = playerColor("COMPUTER");
+    theirs = (ours == WHITE) ? BLACK : WHITE;
+
+    int ourCaps = (playerColor("COMPUTER") == WHITE) ? whtCaps : blkCaps;
+    int theirCaps = (playerColor("COMPUTER") == WHITE) ? blkCaps : whtCaps;
+
+    // Get the current board state for us.
+    getCertain(certD, certT, certQ, certP, ours);
+    
+    /* Now, rationalize the cert* variables, where 
+       a certD is 20% of a possible win, certT is 60%,
+       certQ is 80% and certP is (of course) 100% of a win.
+
+       with these ratios, find what % of our pieces are 
+       contibuting...
+
+    */
+    s[0] = (certD*20 + certT*60 + certQ*80 + certP*100)/(.5*turn+1.0);
+
+    getCertain(certD, certT, certQ, certP, theirs);
+
+    // Now do the same for THEM...
+    s[1] = (certD*20 + certT*60 + certQ*80 + certP*100)/(.5*turn+1.0);
+    
+    /* In keeping with ratio idea, lets look at how many of our pieces are
+       threatening a capture times how many capture we already have */
+    s[2] = getCaptures(ours)*20 * (ourCaps);
+    s[3] = getCaptures(theirs)*20 * (theirCaps);
+
+    /* Ratios reflecting a possible capture. */
+    s[4] = gametrace.empty() ? 0 : 
+        chkCapture( gametrace.back()->r, 
+                    gametrace.back()->c,
+                    ours )*20 * (ourCaps+.01) / (.5*turn+1.0);
+
+    s[5] = gametrace.empty() ? 0 : 
+        chkCapture( gametrace.back()->r, 
+                    gametrace.back()->c,
+                    theirs )*20 * (theirCaps+.01) / (.5*turn+1.0);
+
+    
+    /* Rationalize any blocks we may consider...
+     */
+    int  possT, possQ, possP;
+    chkTotalBlocks(possT, possQ, possP, ours);
+    s[6] = (possT*60 + possQ*80 + possP*100)/(.5*turn+1.0);
+    
+    chkTotalBlocks(possT, possQ, possP, theirs);
+    s[7] = (possT*60 + possQ*80 + possP*100)/(.5*turn+1.0);
+
+    return s;
+
+}
+
+State Pente::toStateOld() {
     /* X variables:
        0: doubles (ours)
        1: triples (ours)
@@ -719,15 +827,15 @@ State Pente::toState() {
        8: Resulting 5x blocks (ours)
        9: Proximity(ours, 2)
        
-       9: doubles (theirs)
-       10: triples (theirs)
-       11: quads (theirs)
-       12: pentes (theirs) // useful when looking at potential moves
-       13: possible captures (theirs)
-       14: resulting captures from the last move (theirs)
-       15: Resulting 3x blocks (ours)
-       16: Resulting 4x blocks (ours)
-       17: Resulting 5x blocks (ours)
+       10: doubles (theirs)
+       11: triples (theirs)
+       12: quads (theirs)
+       13: pentes (theirs) // useful when looking at potential moves
+       14: possible captures (theirs)
+       15: resulting captures from the last move (theirs)
+       16: Resulting 3x blocks (ours)
+       17: Resulting 4x blocks (ours)
+       18: Resulting 5x blocks (ours)
        19: Proximity(theirs, 2)
 
        
@@ -772,24 +880,24 @@ State Pente::toState() {
 
     s[19] = getProximity(theirs, 2);
 
-        /*
-    } else if(playerNumber("COMPUTER")==1) {
-        // Figure for black pieces...
-        getCertain(s[0], s[1], s[2], s[3], BLACK);
-        s[4] = getCaptures(BLACK);
-        s[5] = (gametrace.empty()) ? 0 : 
-            chkCapture( gametrace.back()->r, gametrace.back()->c,
-                        gametrace.back()->color );
-        // Figure for white pieces.
-        getCertain(s[6], s[7], s[8], s[9], WHITE);
-        s[10] = getCaptures(WHITE);
-        s[11] = gametrace.empty() ? 0 :
-                 chkCapture( gametrace.back()->r, gametrace.back()->c,
-                            gametrace.back()->color );
-    } 
+    /*
+      } else if(playerNumber("COMPUTER")==1) {
+      // Figure for black pieces...
+      getCertain(s[0], s[1], s[2], s[3], BLACK);
+      s[4] = getCaptures(BLACK);
+      s[5] = (gametrace.empty()) ? 0 : 
+      chkCapture( gametrace.back()->r, gametrace.back()->c,
+      gametrace.back()->color );
+      // Figure for white pieces.
+      getCertain(s[6], s[7], s[8], s[9], WHITE);
+      s[10] = getCaptures(WHITE);
+      s[11] = gametrace.empty() ? 0 :
+      chkCapture( gametrace.back()->r, gametrace.back()->c,
+      gametrace.back()->color );
+      } 
         
-    //s[8] = (playerColor("COMPUTER"));
-    */
+      //s[8] = (playerColor("COMPUTER"));
+      */
     return s;
 }
 
