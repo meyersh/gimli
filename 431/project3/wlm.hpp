@@ -2,6 +2,8 @@
 #define __WLM_HPP__
 
 #define WEIGHTS_FILE "weights.txt"
+#define ETA_FILE "eta.txt"
+#define DEFAULT_ETA .001
 
 /*
  * Weighted Learning Machine . hpp
@@ -33,6 +35,10 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <ctime>
+#include <sys/timeb.h>
+#include <cstdlib>
+#include <cmath>
 
 using namespace std;
 
@@ -113,6 +119,8 @@ struct Weight
     string toString();
     void adjust(State b, double error);
     double Vhat(State b);
+    double random();
+    void load_eta();
 
 };
 
@@ -120,7 +128,7 @@ struct Weight
 
 Weight::Weight(string filename) {
 	this->filename = filename;
-	eta = .001;
+	load_eta();
     load();
 }
 
@@ -199,26 +207,39 @@ double Weight::Vhat(State b) {
 
 
 	// Implicit w0 var.
-	double result = w[0];
-   
+    //	double result = w[0];
+    double result = random()*w[0]; // set w0 randomly.
+
 	// Multiply up the rest of the xi*wi vars.
 	for (int i = 0; i < len; i++)
 		result += b[i] * w[i+1];
 
+    
     if (result > 100)
         return 100;
     else if (result < -100)
         return -100;
     
 	return result;
+    
+
+    /* Ln() result
+    if (result < 0) {
+        result *= -1;
+        return log10(result)*-6;
+    }
+    else {
+        return log10(result)*6;
+    }
+    */
 
 }
 
 void Weight::adjust(State b, double error) {
 	/* Adjust the weights with wi <- wi + n(error)*xi */
 
-	// Ensure that we have as many weights states.
-	if (b.size() >= w.size())
+	// Ensure that we have as many weights as states.
+	if (b.size()+1 != w.size())
 		w.resize(b.size()+1);
 
 	for (int i=0; i<w.size(); i++) {
@@ -230,31 +251,28 @@ void Weight::adjust(State b, double error) {
 	  
 }
 
-int Vhat(State b) {
-    Weight w(WEIGHTS_FILE);
+double Weight::random() {
+    // Return a random number between -16 and 16 
+    timeb t_start;
+    ftime(&t_start);
+    srand(t_start.millitm);
+    int r = rand();
+    return log(r)-20;
 
-	// empty w or b is exceptional.
-	if (!b.size() || !w.size())
-		throw logic_error("Weight or B is empty.");
+}
 
-	// We have dynamic-length state & weight,
-	// calculate for the shorter.
-	int len = 0;
+void Weight::load_eta() {
+    // Attempt to read the eta file from eta.txt, otherwise return
+    // DEFAULT_ETA
 
-	if (b.size() < w.size())
-		len = b.size();
-	else 
-		len = w.size() - 1;
+    ifstream eta_file("eta.txt");
 
+    if (!eta_file)
+        eta = DEFAULT_ETA;
+    else
+        eta_file >> eta;
 
-	// Implicit w0 var.
-	int result = w[0];
-   
-	// Multiply up the rest of the xi*wi vars.
-	for (int i = 0; i < len; i++)
-		result += b[i] * w[i+1];
-
-	return result;
+    eta_file.close();
 
 }
 

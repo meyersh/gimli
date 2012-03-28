@@ -12,22 +12,23 @@ int main(int argc, char **argv) {
                                      we want to keep it up to date between calculations
                                      so I'll use this has a pointer. */
 
-    // for init, don't read in the file but init to 0's.
-    if (argc > 1 && string(argv[1]) == "init") {
-        weights.w.resize(p1.toState().size() + 1);
-        for (int i = 0; i < weights.size(); i++)
-            weights[i] = i;
-
-        cout << "reinitializing weights..." << endl;
-    }
-    else
-        weights.load();
 
 	p1.players[0] = p2.players[1] = "COMPUTER";
 	p1.players[1] = p2.players[0] = "OTHER";
 
 	p1.fillCell(9,9, WHITE);
 	p2.fillCell(9,9, WHITE);
+
+    // for init, don't read in the file but init to 0's.
+    if (argc > 1 && string(argv[1]) == "init") {
+        weights.w.resize(p1.toState().size() + 1);
+        for (int i = 1; i < weights.size(); i++)
+            weights[i] = 2;
+
+        cout << "reinitializing weights..." << endl;
+    }
+    else
+        weights.load();
 
 	// Play a game with 0 players.
 	while (p1.gameOutcome(WHITE) == 0) {
@@ -37,6 +38,9 @@ int main(int argc, char **argv) {
 		// Copy the black move into p1
 		p1.playToken(p2.gametrace.back()->r, p2.gametrace.back()->c, BLACK);
 
+        if (p1.gameOutcome(WHITE) != 0)
+            break;
+        
 		// White moves
 		p1.make_move(weights);
 
@@ -70,6 +74,7 @@ int main(int argc, char **argv) {
 
 	for (int i = 0; i < 2; i++) {
 		cout << "Analyzing P" << i << endl;
+        cout << "eta: " << weights.eta << endl;
 		Pente *game = games[i];
         computer_color = game->playerColor("COMPUTER");
 
@@ -78,12 +83,13 @@ int main(int argc, char **argv) {
 		State successor = game->toState(); 
 
 		double error = 
-            ((double)(game->gameOutcome(computer_color)*100)) - weights.Vhat(b);
+            game->gameOutcome(computer_color)*100 - weights.Vhat(b);
 		weights.adjust(b, error);
         cout << "Initial error: (" << 
             game->gameOutcome(computer_color)*100 << " - " << 
             weights.Vhat(b) << ") = " << error << endl;
 
+        cout << "Errors => ";
 		while (game->gametrace.size()) {
 			successor = game->toState();
 		
@@ -99,10 +105,12 @@ int main(int argc, char **argv) {
 			weights.adjust(game->toState(), error);
 
 			if (error)
-				cout << "Error => " << error << endl;
+				cout << error << " ";
 		}
+        cout << endl;
 	   
 	}
+    cout << "Weights: " << weights.toString() << endl;
 
     weights.save();
 

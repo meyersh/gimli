@@ -49,6 +49,7 @@ public:
     int blkCaps;
     int whtCaps;
     vector<cell*> gametrace;
+    vector< vector<cell*> > captureBuffer;
 
     /* Member Functions */
     Pente() {
@@ -80,11 +81,14 @@ public:
     void clearCell(int r, int c);
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
+    int getCertainSpaces(int &D, int &T, int &Q, int &P, char color);
     int getCertain(int &certD, int &certT, int &certQ, int &certP, char color);
     int getCaptures(char color);
+    int chkTotalCapture(char color);
     int chkCapture(int r, int c, char color, bool remove = false);
+    int chkTotalBlocks(int &Block3, int &Block4, int &Block5, char color);
     int chkBlocks(int &Block3, int &Block4, int &Block5, char color = EMPTY);
-    int getProximity(char color, int radius);
+    double getProximity(char color, int radius);
     string toString();
     string serialize();
     void deserialize(ifstream &f);
@@ -94,10 +98,12 @@ public:
     char playerColor(string sessionid);
     int nInARow(int n, char color = WHITE);
     void playToken(int r, int c, char color);
+    void unPlayToken();
     int gameOutcome(char color);
 
 
-    State toState();
+    State toState();    
+    State toStateOld();
     State tryMove(int r, int c, char color);
     void make_move(Weight &weight);
 
@@ -287,6 +293,80 @@ int Pente::getPossible(int &possD, int &possT, int &possQ, int &possWins, char c
     return 0;
 
 }
+int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
+    // getCertain with a twist: we require space on either end.
+    cell *tCell, *nxt;
+    vector<cell*> filled = getFilled(color);
+    int count = 1;
+
+    D = T = Q = P = 0; // Initialize the values
+
+    if (!isValidColor(color))
+        throw runtime_error("Invalid color");
+
+    if (filled.size() == 0)
+        return 0;
+
+    for (int i = 0; i < filled.size(); i++) {
+        tCell = filled[i];
+        for (int j = 4; j < 8; j++) {
+            bool has_beginning_space = false;
+            bool has_ending_space = false;
+
+            // Check for leading space
+            if (tCell->neighbors[j-4] && !tCell->neighbors[j-4]->filled)
+                has_beginning_space = true;
+
+            // Skip cells we've already visited.
+            if ((tCell->neighbors[j - 4] != NULL)
+                && (tCell->neighbors[j - 4]->filled == true)
+                && (tCell->neighbors[j - 4]->color == color)) {
+                count = 1;
+                continue;
+            }
+
+            nxt = tCell->neighbors[j];
+            while ((nxt != NULL) && (nxt->filled == true)) {
+                if (nxt->color == color)
+                    count++;
+                else {
+                    break;
+                    nxt = nxt->neighbors[j];
+                }
+                nxt = nxt->neighbors[j];
+            }
+            
+            if (nxt && !nxt->filled)
+                has_ending_space = true;
+            
+            // no beginning and no ending spaces:
+            if (!has_beginning_space && !has_ending_space)
+                continue;
+
+            if (nxt && (!nxt->filled || nxt->color != color))
+                switch (count) {
+                case 2:
+                    D += has_beginning_space + has_ending_space;
+                    break;
+                case 3:
+                    T += has_beginning_space + has_ending_space;
+                    break;
+                case 4:
+                    Q += has_beginning_space + has_ending_space;
+                    break;
+                case 5:
+                    P += has_beginning_space + has_ending_space;
+                    break;
+                default:
+                    break;
+                }
+
+            count = 1;
+        }
+    }
+
+    return 0;
+}
 
 int Pente::getCertain(int &certD, int &certT, int &certQ, int &certP, char color) {
     cell *tCell, *nxt;
@@ -346,8 +426,8 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, int &certP, char color
 }
 
 int Pente::getCaptures(char color) {
-    // Check for the number of captures we can get away with
-    // (WBB_ is one, for instance.
+    // Check for the number of captures available to `color` on the board.
+    // (WBB_ is one for white, for instance.
 
     int caps = 0;
 
@@ -356,11 +436,11 @@ int Pente::getCaptures(char color) {
     for (int i = 0; i < Board.size(); i++) {
         cell *tCell = getCell(i);
 
-        // Skip the other color.
-        if (tCell->color != color)
+        // Skip the empty cells and cells which arn't `color`.
+        if (tCell->color != color || !tCell->filled)
             continue;
 
-        // only search from E to SW since we've come from the NW.
+        // Search all directions for our CNN_ pattern
         for (int dir = W; dir <= SW; dir++) {
             cell * cellSet[] = {tCell, NULL, NULL, NULL};
             bool setOK = true;
@@ -369,9 +449,10 @@ int Pente::getCaptures(char color) {
                 if (cellSet[c - 1])
                     cellSet[c] = cellSet[c - 1]->neighbors[dir];
 
-
-                if (cellSet[c] == NULL)
+                if (cellSet[c] == NULL) {
                     setOK = false;
+                    break;
+                }
             }
 
             if (!setOK)
@@ -393,7 +474,7 @@ int Pente::getCaptures(char color) {
             if (cellSet[3]->filled)
                 continue;
 
-            // By now, we have a situtation where we can capture.
+            // By now, we have a situtation where `color` can capture.
             caps++;
 
         }
@@ -402,6 +483,18 @@ int Pente::getCaptures(char color) {
 
     return caps;
 
+}
+
+int Pente::chkTotalCapture(char color) {
+    int n = 0;
+
+    vector<Pente::cell*> filled = getFilled(color);
+    
+    for (int i = 0; i < filled.size(); i++) {
+        n += chkCapture(filled[i]->r, filled[i]->c, color, false);
+    }
+
+    return n;
 }
 
 int Pente::chkCapture(int r, int c, char color, bool remove) {
@@ -415,6 +508,9 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
     char eColor = ((color == 'B') ? 'W' : 'B');
     tCell = getCell(r,c);
     int caps = 0;
+
+    captureBuffer.push_back( vector<cell*>() ); // Add a slot onto the end of captureBuffer.
+
     for (int j = 0; j < 8; j++) {
         one = tCell->neighbors[j];
         if ((one == NULL) || (one->filled == false) || (one->color != eColor))
@@ -428,6 +524,12 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
         else if ((end->filled == true) && (end->color == color)) {
             caps++;
             if(remove) {
+                vector<cell*> removals;
+
+                removals.push_back(one);
+                removals.push_back(two);
+                captureBuffer[turn-1]=removals;
+
                 one->filled = two->filled = false;
                 one->color = two->color = '*';
             }
@@ -442,6 +544,53 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
 
     return caps;
 }
+
+int Pente::chkTotalBlocks(int& Block3, int& Block4, int& Block5, char color) {
+    // Check to see how many 3, 4, and 5 in-a-row's have been blocked.
+
+    int fdir, bdir, f=0, b=0, tot;
+    vector<cell*> filled = getFilled(color);
+    cell *tCell;
+    cell *nxt;
+
+    Block3 = Block4 = Block5 = 0;
+
+    for (int i = 0; i < filled.size(); i++) {
+        tCell = getCell(i);
+        for(fdir=E;fdir<=SW;fdir++) {
+            bdir = fdir-4;
+            //check forwards
+            nxt = tCell->neighbors[fdir];
+            while(nxt && (nxt->color == color) && (nxt->filled == true)) {
+                f++;
+                nxt = nxt->neighbors[fdir];
+            }
+            //check backwards
+            nxt = tCell->neighbors[bdir];
+            while(nxt && (nxt->color == color) && (nxt->filled == true)) {
+                b++;
+                nxt = nxt->neighbors[bdir];
+            }
+        }
+
+        tot = f+b;  tot = (tot>5)?5:tot;
+        switch(tot) {
+        case 3:
+            Block3++;
+            break;
+        case 4:
+            Block4++;
+            break;
+        case 5:
+            Block5++;
+            break;
+        default:
+            break;
+        }
+    }
+    return 0;
+}
+
 
 int Pente::chkBlocks(int& Block3, int& Block4, int& Block5, char color) {
     // Check the last move to see how many 3, 4, and 5 in-a-row's it blocked.
@@ -472,30 +621,30 @@ int Pente::chkBlocks(int& Block3, int& Block4, int& Block5, char color) {
 
     tot = f+b;  tot = (tot>5)?5:tot;
     switch(tot) {
-        case 3:
-            Block3++;
-            break;
-        case 4:
-            Block4++;
-            break;
-        case 5:
-            Block5++;
-            break;
-        default:
-            break;
+    case 3:
+        Block3++;
+        break;
+    case 4:
+        Block4++;
+        break;
+    case 5:
+        Block5++;
+        break;
+    default:
+        break;
     }
 
     return 0;
 }
 
-int Pente::getProximity(char color, int radius) {
+double Pente::getProximity(char color, int radius) {
 	cell *tCell, *nxt;
 	vector<Pente::cell*> filled = getFilled(color);
 	int c = 0, prox = 0;
 	
 	for(int i=0;i<filled.size();i++) {
 		tCell = filled[i];
-		for(int dir=E;dir<W;dir++) {
+		for(int dir=E;dir<=SW;dir++) {
 			nxt = tCell->neighbors[dir];
 			while(nxt && (c<radius)) {
 				if(nxt->filled && nxt->color == color)
@@ -507,7 +656,7 @@ int Pente::getProximity(char color, int radius) {
 		}
 	}
 	
-	return prox;
+	return (double)(prox/(filled.size()+1));
 }
 
 string Pente::toString() {
@@ -661,16 +810,47 @@ int Pente::nInARow(int n, char color) {
 }
 
 void Pente::playToken(int r, int c, char color) {
-    int found;
+
+    turn++; // increment the move counter.
 
     fillCell(r, c, color);
     gametrace.push_back(getCell(r, c)); 
 
-    chkCapture(r, c, color, true);
-    found = nInARow(5, color);
+    // this will put cell* in captureBuffer[turn] for each capture.
+    chkCapture(r, c, color, true); 
+
+}
+
+void Pente::unPlayToken() {
+    // Undo the last move.
+    int last_turn = turn - 1;
+
+    // remove the piece.
+    clearCell(gametrace.back()->r, gametrace.back()->c);
+
+    // replace captured pieces.
+    // TODO: change capture count BACKwards.
+    if (!captureBuffer[last_turn].empty())
+        {
+            Pente::cell *tCell;
+            for (int c = 0; c < captureBuffer[last_turn].size(); c++)
+                {
+                    tCell = captureBuffer[last_turn][c];
+                    
+                    fillCell(tCell->r, tCell->c, tCell->color);
+                    
+                }
+        }
 
 
-    turn++; // increment the move counter.
+    // undo our memory.
+    gametrace.pop_back();
+
+    // undo that the turn ever happened...
+    captureBuffer.pop_back();
+
+    turn = last_turn;
+
 }
 
 int Pente::gameOutcome(char color) {
@@ -707,6 +887,66 @@ int Pente::gameOutcome(char color) {
 }
 
 State Pente::toState() {
+    int certD, certT, certQ, certP;
+    int possT, possQ, possP;
+    int totCaps;
+    State s(6);
+
+    char ours, theirs;
+
+    ours = playerColor("COMPUTER");
+    theirs = (ours == WHITE) ? BLACK : WHITE;
+
+    int ourCaps = (playerColor("COMPUTER") == WHITE) ? whtCaps : blkCaps;
+    int theirCaps = (theirs == WHITE) ? whtCaps : blkCaps;
+
+    /* Now, rationalize the cert* variables, where 
+       a certD is 20% of a possible win, certT is 60%,
+       certQ is 80% and certP is (of course) 100% of a win.
+
+       with these ratios, find what % of our pieces are 
+       contibuting...
+
+    */
+
+    // For us...
+    getCertainSpaces(certD, certT, certQ, certP, ours);
+    s[0] = (certD*.20+1) * (certT*.60+1) * (certQ*.80+1) * (certP*1.00+1) / (turn*.1);
+
+    // Now do the same for THEM...
+    getCertainSpaces(certD, certT, certQ, certP, theirs);
+    s[1] = (certD*.20+1) * (certT*.60+1) * (certQ*.80+1) * (certP*1.00+1) / (turn*.1);
+
+    /* In keeping with ratio idea, lets look at how many available 
+       captures are available. */
+    s[2] = getCaptures(ours)*.20*(ourCaps+1);
+    s[3] = getCaptures(theirs)*.20*(theirCaps+1);
+
+    // Rationalize our captures in terms of %-of-a-win.
+    s[4] = ourCaps/5;
+    s[5] = theirCaps/5;
+    
+
+    /* Rationalize any blocks we may consider...
+     */
+    /*
+    chkTotalBlocks(possT, possQ, possP, ours);
+    s[6] = (possT*.60+1) * (possQ*.80+1) * (possP*1.00+1);
+    
+    chkTotalBlocks(possT, possQ, possP, theirs);
+    s[7] = (possT*.60+1) * (possQ*.80+1) * (possP*1.00+1);
+    */
+
+    /* Compare blocks with our certains */
+    /*
+    s[8] = s[0]*s[6]; // ours
+    s[9] = s[1]*s[7]; // theirs
+    */
+    return s;
+
+}
+
+State Pente::toStateOld() {
     /* X variables:
        0: doubles (ours)
        1: triples (ours)
@@ -717,22 +957,24 @@ State Pente::toState() {
        6: Resulting 3x blocks (ours)
        7: Resulting 4x blocks (ours)
        8: Resulting 5x blocks (ours)
+       9: Proximity(ours, 2)
        
-       9: doubles (theirs)
-       10: triples (theirs)
-       11: quads (theirs)
-       12: pentes (theirs) // useful when looking at potential moves
-       13: possible captures (theirs)
-       14: resulting captures from the last move (theirs)
-       15: Resulting 3x blocks (ours)
-       16: Resulting 4x blocks (ours)
-       17: Resulting 5x blocks (ours)
+       10: doubles (theirs)
+       11: triples (theirs)
+       12: quads (theirs)
+       13: pentes (theirs) // useful when looking at potential moves
+       14: possible captures (theirs)
+       15: resulting captures from the last move (theirs)
+       16: Resulting 3x blocks (ours)
+       17: Resulting 4x blocks (ours)
+       18: Resulting 5x blocks (ours)
+       19: Proximity(theirs, 2)
 
        
     */
 
     // Construct and return the state of the game.
-    State s(18);
+    State s(20);
 
     char ours, theirs;
 
@@ -756,51 +998,52 @@ State Pente::toState() {
                     ours );
 
     chkBlocks(s[6], s[7], s[8], ours);
+
+    s[9] = getProximity(ours, 2);
     
     // Figure for their pieces.
-    getCertain(s[9], s[10], s[11], s[12], theirs);
-    s[13] = getCaptures(theirs);
-    s[14] = (gametrace.empty()) ? 0 :
+    getCertain(s[10], s[11], s[12], s[13], theirs);
+    s[14] = getCaptures(theirs);
+    s[15] = (gametrace.empty()) ? 0 :
         chkCapture( gametrace.back()->r, gametrace.back()->c,
                     theirs );
 
-    chkBlocks(s[15], s[16], s[17], theirs);
+    chkBlocks(s[16], s[17], s[18], theirs);
 
-        /*
-    } else if(playerNumber("COMPUTER")==1) {
-        // Figure for black pieces...
-        getCertain(s[0], s[1], s[2], s[3], BLACK);
-        s[4] = getCaptures(BLACK);
-        s[5] = (gametrace.empty()) ? 0 : 
-            chkCapture( gametrace.back()->r, gametrace.back()->c,
-                        gametrace.back()->color );
-        // Figure for white pieces.
-        getCertain(s[6], s[7], s[8], s[9], WHITE);
-        s[10] = getCaptures(WHITE);
-        s[11] = gametrace.empty() ? 0 :
-                 chkCapture( gametrace.back()->r, gametrace.back()->c,
-                            gametrace.back()->color );
-    } 
+    s[19] = getProximity(theirs, 2);
+
+    /*
+      } else if(playerNumber("COMPUTER")==1) {
+      // Figure for black pieces...
+      getCertain(s[0], s[1], s[2], s[3], BLACK);
+      s[4] = getCaptures(BLACK);
+      s[5] = (gametrace.empty()) ? 0 : 
+      chkCapture( gametrace.back()->r, gametrace.back()->c,
+      gametrace.back()->color );
+      // Figure for white pieces.
+      getCertain(s[6], s[7], s[8], s[9], WHITE);
+      s[10] = getCaptures(WHITE);
+      s[11] = gametrace.empty() ? 0 :
+      chkCapture( gametrace.back()->r, gametrace.back()->c,
+      gametrace.back()->color );
+      } 
         
-    //s[8] = (playerColor("COMPUTER"));
-    */
+      //s[8] = (playerColor("COMPUTER"));
+      */
     return s;
 }
 
 State Pente::tryMove(int r, int c, char color) {
-    // Fill our imagionary cell.
-    fillCell(r, c, color);
 
-    // Add it to the stack
-    gametrace.push_back(getCell(r,c));
-
+    // Try a move
+    playToken(r, c, color);
+    
+    // Record the state
     State s = toState();
 
-    //Undo that move
-    clearCell(r, c);
+    //Undo the fantasy.
+    unPlayToken();
 
-    // Clear the fake move from the stack
-    gametrace.pop_back();
 
     return s;
 }
@@ -812,14 +1055,12 @@ void Pente::make_move(Weight &weight) {
     //random_shuffle(possible_moves.begin(), possible_moves.end());
     cell* best_move = possible_moves[0];
     // Figure out our color
-    char computer_color;
-    for (int i = 0; i < 2; i++)
-        if (players[i] == "COMPUTER")
-            computer_color = (i == 0) ? WHITE : BLACK;
-
+    char computer_color = playerColor("COMPUTER");
 
     // Assume the best
-    int best_state = weight.Vhat(tryMove(best_move->r, best_move->c, computer_color));
+    double best_state = weight.Vhat(tryMove(best_move->r, 
+                                            best_move->c, 
+                                            computer_color));
 
     // Compare every other move
     for (int i = 0; i < possible_moves.size(); i++) {
