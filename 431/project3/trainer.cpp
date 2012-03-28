@@ -12,6 +12,13 @@ int main(int argc, char **argv) {
                                      we want to keep it up to date between calculations
                                      so I'll use this has a pointer. */
 
+
+	p1.players[0] = p2.players[1] = "COMPUTER";
+	p1.players[1] = p2.players[0] = "OTHER";
+
+	p1.fillCell(9,9, WHITE);
+	p2.fillCell(9,9, WHITE);
+
     // for init, don't read in the file but init to 0's.
     if (argc > 1 && string(argv[1]) == "init") {
         weights.w.resize(p1.toState().size() + 1);
@@ -22,12 +29,6 @@ int main(int argc, char **argv) {
     }
     else
         weights.load();
-
-	p1.players[0] = p2.players[1] = "COMPUTER";
-	p1.players[1] = p2.players[0] = "OTHER";
-
-	p1.fillCell(9,9, WHITE);
-	p2.fillCell(9,9, WHITE);
 
 	// Play a game with 0 players.
 	while (p1.gameOutcome(WHITE) == 0) {
@@ -109,6 +110,7 @@ int main(int argc, char **argv) {
         cout << endl;
 	   
 	}
+    cout << "Weights: " << weights.toString() << endl;
 
     weights.save();
 

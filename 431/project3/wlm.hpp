@@ -213,14 +213,16 @@ double Weight::Vhat(State b) {
 	for (int i = 0; i < len; i++)
 		result += b[i] * w[i+1];
 
-    /*
+    
     if (result > 100)
         return 100;
     else if (result < -100)
         return -100;
     
 	return result;
-    */
+    
+
+    /* Ln() result
     if (result < 0) {
         result *= -1;
         return log10(result)*-6;
@@ -228,14 +230,15 @@ double Weight::Vhat(State b) {
     else {
         return log10(result)*6;
     }
+    */
 
 }
 
 void Weight::adjust(State b, double error) {
 	/* Adjust the weights with wi <- wi + n(error)*xi */
 
-	// Ensure that we have as many weights states.
-	if (b.size() >= w.size())
+	// Ensure that we have as many weights as states.
+	if (b.size()+1 != w.size())
 		w.resize(b.size()+1);
 
 	for (int i=0; i<w.size(); i++) {
@@ -267,34 +270,6 @@ void Weight::load_eta() {
         eta_file >> eta;
 
     eta_file.close();
-
-}
-
-int Vhat(State b) {
-    Weight w(WEIGHTS_FILE);
-
-	// empty w or b is exceptional.
-	if (!b.size() || !w.size())
-		throw logic_error("Weight or B is empty.");
-
-	// We have dynamic-length state & weight,
-	// calculate for the shorter.
-	int len = 0;
-
-	if (b.size() < w.size())
-		len = b.size();
-	else 
-		len = w.size() - 1;
-
-
-	// Implicit w0 var.
-	int result = w[0];
-   
-	// Multiply up the rest of the xi*wi vars.
-	for (int i = 0; i < len; i++)
-		result += b[i] * w[i+1];
-
-	return result;
 
 }
 
