@@ -2,6 +2,8 @@
 #define __WLM_HPP__
 
 #define WEIGHTS_FILE "weights.txt"
+#define ETA_FILE "eta.txt"
+#define DEFAULT_ETA .001
 
 /*
  * Weighted Learning Machine . hpp
@@ -116,7 +118,7 @@ struct Weight
     void adjust(State b, double error);
     double Vhat(State b);
     double random();
-    
+    void load_eta();
 
 };
 
@@ -124,7 +126,7 @@ struct Weight
 
 Weight::Weight(string filename) {
 	this->filename = filename;
-	eta = .005;
+	load_eta();
     load();
 }
 
@@ -204,7 +206,7 @@ double Weight::Vhat(State b) {
 
 	// Implicit w0 var.
     //	double result = w[0];
-    double result = random(); // set w0 randomly.
+    double result = random()*w[0]; // set w0 randomly.
 
 	// Multiply up the rest of the xi*wi vars.
 	for (int i = 0; i < len; i++)
@@ -236,10 +238,25 @@ void Weight::adjust(State b, double error) {
 }
 
 double Weight::random() {
-    // Return a random number between -16 and 16
+    // Return a random number between -16 and 16 
     srand(clock());
     int r = rand();
-    return (r & 31) - 16;
+    return ((r & 31) - 16);
+
+}
+
+void Weight::load_eta() {
+    // Attempt to read the eta file from eta.txt, otherwise return
+    // DEFAULT_ETA
+
+    ifstream eta_file("eta.txt");
+
+    if (!eta_file)
+        eta = DEFAULT_ETA;
+    else
+        eta_file >> eta;
+
+    eta_file.close();
 
 }
 
