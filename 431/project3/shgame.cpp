@@ -36,7 +36,9 @@ int main(int argc, char** argv)
          << "   players[1] => " << p.players[1] << endl
          << "Captures:" << endl
          << "   White: " << p.whtCaps << endl
-         << "   Black: " << p.blkCaps << endl;
+         << "   Black: " << p.blkCaps << endl
+         << "GameOutcome(WHITE) => " p.gameOutcome(WHITE) << endl;
+
     
     game_file.close();
     
