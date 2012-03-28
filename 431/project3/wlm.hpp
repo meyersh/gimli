@@ -36,6 +36,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <ctime>
+#include <sys/timeb.h>
 #include <cstdlib>
 #include <cmath>
 
@@ -252,9 +253,11 @@ void Weight::adjust(State b, double error) {
 
 double Weight::random() {
     // Return a random number between -16 and 16 
-    srand(clock());
+    timeb t_start;
+    ftime(&t_start);
+    srand(t_start.millitm);
     int r = rand();
-    return ((r & 31) - 16);
+    return log(r)-20;
 
 }
 
