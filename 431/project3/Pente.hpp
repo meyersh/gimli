@@ -24,7 +24,6 @@ using namespace std;
 enum {
     W, NW, N, NE, E, SE, S, SW
 }; // Directions
-int reverse_dir[] = {E, SE, S, SW, W, NW, N, NE}; // reverse mapping
 
 enum {
     BLACK = 'B', WHITE = 'W', EMPTY = '*'
