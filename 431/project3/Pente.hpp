@@ -67,6 +67,16 @@ public:
         _killBoard_();
         _initBoard_();
     }
+    
+    int& captures(char color) {
+        // Return an integer reference to the appropriate capture counter for `color`.
+        if (color == WHITE)
+            return whtCaps;
+        else if (color == BLACK)
+            return blkCaps;
+        else
+            throw new logic_error("Captures must be WHITE or BLACK.");
+    }
 
     void _initBoard_();
     void _killBoard_();
@@ -683,7 +693,7 @@ string Pente::toString() {
 
 string Pente::serialize() {
     // A simple string serialization of the board.
-    // All of the occupied cells in {W|B} <row> <col> format seems fine.
+    // All of the occupied cells in "{W|B} <row> <col>" format seems fine.
 
     stringstream ss;
 
@@ -824,6 +834,8 @@ void Pente::unPlayToken() {
     // Undo the last move.
     int last_turn = turn - 1;
 
+    Pente *last_piece = gametrace.back();
+
     // remove the piece.
     clearCell(gametrace.back()->r, gametrace.back()->c);
 
@@ -832,6 +844,10 @@ void Pente::unPlayToken() {
     if (!captureBuffer[last_turn].empty())
         {
             Pente::cell *tCell;
+
+            // Reduce the capture count.
+            captures(last_piece->color) -= captureBuffer[last_turn].size()/2;
+
             for (int c = 0; c < captureBuffer[last_turn].size(); c++)
                 {
                     tCell = captureBuffer[last_turn][c];
