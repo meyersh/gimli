@@ -690,7 +690,7 @@ string Pente::toString() {
 
 string Pente::serialize() {
     // A simple string serialization of the board.
-    // All of the occupied cells in "{W|B} <row> <col>" format seems fine.
+    // All of the occupied cells in "<row> <col>" format seems fine.
 
     stringstream ss;
 
@@ -698,10 +698,7 @@ string Pente::serialize() {
     ss << players[1] << endl;
 
     for (vector<cell*>::iterator c = gametrace.begin(); c != gametrace.end(); c++) {
-        char color = (*c)->color;
-
-        ss << (*c)->color
-           << " " << (*c)->r 
+        ss << " " << (*c)->r 
            << " " << (*c)->c << endl;
     }
 
@@ -710,23 +707,25 @@ string Pente::serialize() {
 
 void Pente::deserialize(ifstream &f) {
     // read the file `f` (already open) for our serial format:
-    // {W|B} <row> <col>
+    // <row> <col>
 
     string line;
     char color;
     int row, col;
 
-    f >> players[0]; // second line is session id (or COMPUTER) of the white player.
-    f >> players[1]; //third line is the session id (or COMPUTER) of the black player.
+    f >> players[0]; // first line is session id (or COMPUTER) of the white player.
+    f >> players[1]; // second line is the session id (or COMPUTER) of the black player.
 
     while (getline(f, line)) {
-        // Skipping empty lines
+        // Skipping any empty lines
         if (line == "")
             continue;
 
+        color = (turn % 2 == 0) ? WHITE : BLACK; 
+
         stringstream ss(line);
 
-        ss >> color >> row >> col; // space separated...
+        ss >> row >> col; // space separated...
 
         if (!isValidColor(color))
             continue; // invalid row.
@@ -848,8 +847,7 @@ void Pente::unPlayToken() {
             for (int c = 0; c < captureBuffer[last_turn].size(); c++)
                 {
                     tCell = captureBuffer[last_turn][c];
-                    
-                    fillCell(tCell->r, tCell->c, tCell->color);
+                                        fillCell(tCell->r, tCell->c, tCell->color);
                     
                 }
         }
