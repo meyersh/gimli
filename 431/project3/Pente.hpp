@@ -546,10 +546,7 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
     }
 
     if (remove) 
-        if (color == 'B')
-            blkCaps += caps;
-        else
-            whtCaps += caps;
+        captures(color) += caps;
 
     return caps;
 }
@@ -834,7 +831,7 @@ void Pente::unPlayToken() {
     // Undo the last move.
     int last_turn = turn - 1;
 
-    Pente *last_piece = gametrace.back();
+    Pente::cell *last_piece = gametrace.back();
 
     // remove the piece.
     clearCell(gametrace.back()->r, gametrace.back()->c);
@@ -878,19 +875,10 @@ int Pente::gameOutcome(char color) {
 
     char theirColor = (color == WHITE) ? BLACK : WHITE;
 
-    int myCaps, theirCaps;
-    if (color == WHITE) {
-        myCaps = whtCaps;
-        theirCaps = blkCaps;
-    } else {
-        myCaps = blkCaps;
-        theirCaps = whtCaps;
-    }
-
-    if (theirCaps >= 5)
+    if (captures(theirColor) >= 5)
         return LOST;
 
-    if (myCaps >= 5)
+    if (captures(color) >= 5)
         return WON;
 
     if (nInARow(5, color) > 0)
