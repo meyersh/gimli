@@ -1,17 +1,18 @@
 #include <iostream>
-#include <sys/timeb.h>
+#include <sys/time.h>
 #include <cmath>
 //#include <rand>
 
 using namespace std;
 
 int main() {
-    struct timeb t_start;
-    ftime(&t_start);
+    struct timeval t;
+    struct timezone tz;
+    gettimeofday(&t, &tz);
 
-    cout << t_start.millitm << endl;
+    cout << t.tv_usec << endl;
 
-    srand(t_start.millitm);
+    srand(t.tv_usec);
 
     for (int i = 0; i<25; i++)
         cout << log(rand())-20 << endl;
