@@ -832,6 +832,9 @@ void Pente::unPlayToken() {
 
     Pente::cell *last_piece = gametrace.back();
 
+    // This is the color of the most recent move.
+    char last_move_color = (turn % 2 == 0) ? WHITE : BLACK;
+
     // remove the piece.
     clearCell(gametrace.back()->r, gametrace.back()->c);
 
@@ -842,7 +845,9 @@ void Pente::unPlayToken() {
             Pente::cell *tCell;
 
             // Reduce the capture count.
-            captures(last_piece->color) -= captureBuffer[last_turn].size()/2;
+            captures(last_move_color) -= captureBuffer[last_turn].size()/2;
+            if (captures(last_move_color) < 0)
+                throw logic_error("captures have gone negative.");
 
             for (int c = 0; c < captureBuffer[last_turn].size(); c++)
                 {
@@ -851,7 +856,6 @@ void Pente::unPlayToken() {
                     
                 }
         }
-
 
     // undo our memory.
     gametrace.pop_back();
