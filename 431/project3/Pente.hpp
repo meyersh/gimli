@@ -584,7 +584,8 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
     tCell = getCell(r,c);
     int caps = 0;
 
-    captureBuffer.push_back( vector<cell*>() ); // Add a slot onto the end of captureBuffer.
+    // Add a slot onto the end of captureBuffer.
+    captureBuffer.push_back( vector<cell*>() ); 
 
     for (int j = 0; j < 8; j++) {
         one = tCell->neighbors[j];
@@ -599,11 +600,10 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
         else if ((end->filled == true) && (end->color == color)) {
             caps++;
             if(remove) {
-                vector<cell*> removals;
 
-                removals.push_back(one);
-                removals.push_back(two);
-                captureBuffer[turn-1]=removals;
+                // Note these pieces in our buffer.
+                captureBuffer[turn-1].push_back(one);
+                captureBuffer[turn-1].push_back(two);
 
                 one->filled = two->filled = false;
                 one->color = two->color = '*';
@@ -896,7 +896,7 @@ void Pente::unPlayToken() {
     Pente::cell *last_piece = gametrace.back();
     
     // This is the color of the most recent move.
-    char last_move_color = (turn % 2 == 0) ? WHITE : BLACK;
+    char last_move_color = last_piece->color;
 
     // remove the piece.
     clearCell(gametrace.back()->r, gametrace.back()->c);
