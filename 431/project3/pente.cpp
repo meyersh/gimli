@@ -76,18 +76,18 @@ int main() {
    assert (p.nInARow(2, WHITE) == 2);
    assert (p.nInARow(2, BLACK) == 1);
 
-   // Test getCaptures
+   // Test getPossibleCaptures
 
-   assert (p.getCaptures(BLACK) == 1);
-   assert (p.getCaptures(WHITE) == 0);
+   assert (p.getPossibleCaptures(BLACK) == 1);
+   assert (p.getPossibleCaptures(WHITE) == 0);
 
    p.fillCell(1, 4, BLACK);
    p.fillCell(2, 5, BLACK);
 
-   assert (p.getCaptures(BLACK) == 1);
-   assert (p.getCaptures(WHITE) == 1);
+   assert (p.getPossibleCaptures(BLACK) == 1);
+   assert (p.getPossibleCaptures(WHITE) == 1);
 
-   // Test getCaptures()
+   // Test getPossibleCaptures()
    int certD, certT, certQ, certP;
    p.getCertain(certD, certT, certQ, certP, BLACK);
 
@@ -126,12 +126,12 @@ int main() {
    p.reset();
    assert(p.getEmpty().size() == 361);
    
-   // Test that getCaptures()
+   // Test that getPossibleCaptures()
    p.fillCell(0,1, BLACK);
    p.fillCell(0,2, BLACK);
    p.fillCell(0,3, WHITE);
-   assert(p.getCaptures(WHITE) == 1);
-   assert(p.getCaptures(BLACK) == 0);
+   assert(p.getPossibleCaptures(WHITE) == 1);
+   assert(p.getPossibleCaptures(BLACK) == 0);
    
 
    // Test playToken(), unPlayToken();
