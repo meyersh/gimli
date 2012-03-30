@@ -226,17 +226,28 @@ function parseData(data)
 
 		showMessage('info', 'SETUP', 'Gameid: ' + lines[1] + '<br>Sessionid: ' + lines[2]);
 
-		
-
 		// Update UI to show the game screen
 		$('#accordion').accordion( "activate" , 1 );
 		$('#gameid').val(lines[1]);
 		$('#sessionid').val(lines[2]);
 
+        // if this is an hc1 game, we get the computer's move from this response.
+        if (lines.length == 8) {
+            var coords = lines[5] + ' ' + lines[6];
+            var computer_move = $('input[name="' + coords + '"]')[0];
+            place_piece(computer_move, "BLACK");
+        }
+
 		// Start auto-refresh (refreshing every 3 seconds)
 		window.auto_check = setInterval("check_for_move();", 3000); 
 
 		window.joined = true;
+
+        // Display some turn informations.
+        if (lines[lines.length-1] == "MOVE")
+            showTurn(true);
+        else
+            showTurn(false);
 	}
 
 	if (message == "JOIN") {

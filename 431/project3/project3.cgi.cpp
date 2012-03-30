@@ -122,11 +122,10 @@ int main() {
                         }
                 }
 
-            // Finally, place the white piece on the board and 
-            // save the file.
+            // Finally, place the white piece on the board
+
             new_game.playToken(9,9,WHITE);
-            game_file << new_game.serialize();
-            game_file.close();
+
 
             // return the details to the client
             cout << "SETUP" << endl
@@ -135,11 +134,24 @@ int main() {
                  << "9" << endl
                  << "9" << endl;
 		
-            if (human_only && creator_is_white)
+            if (game_type == "hh1")
                 cout << "WAITING" << endl;
-            else
+            else if (game_type == "hh2")
                 cout << "MOVE" << endl;
-			 
+            else if (game_type == "hc1")
+                {
+                    // generate a computer move and return it.
+                    new_game.make_move();
+                    cout << new_game.gametrace.back()->r << endl
+                         << new_game.gametrace.back()->c << endl
+                         << "MOVE" << endl;
+                }
+            else if (game_type == "hc2")
+                cout << "MOVE";
+
+            // Save the file.
+            game_file << new_game.serialize();
+            game_file.close();
         }
 
 	/*
