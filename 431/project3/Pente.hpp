@@ -355,16 +355,16 @@ int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
             if (nxt && (!nxt->filled || nxt->color != color))
                 switch (count) {
                 case 2:
-                    D += has_beginning_space + has_ending_space;
+                    D += has_beginning_space || has_ending_space;
                     break;
                 case 3:
-                    T += has_beginning_space + has_ending_space;
+                    T += has_beginning_space || has_ending_space;
                     break;
                 case 4:
-                    Q += has_beginning_space + has_ending_space;
+                    Q += has_beginning_space || has_ending_space;
                     break;
                 case 5:
-                    P += has_beginning_space + has_ending_space;
+                    P += has_beginning_space || has_ending_space;
                     break;
                 default:
                     break;
@@ -895,10 +895,10 @@ int Pente::gameOutcome(char color) {
 }
 
 State Pente::toState() {
-    int certD, certT, certQ, certP;
+    int D, T, Q, P;
     int possT, possQ, possP;
     int totCaps;
-    State s(6);
+    State s(2);
 
     char ours, theirs;
 
@@ -918,21 +918,30 @@ State Pente::toState() {
     */
 
     // For us...
-    getCertainSpaces(certD, certT, certQ, certP, ours);
-    s[0] = (certD*.20+1) * (certT*.60+1) * (certQ*.80+1) * (certP*1.00+1) / (turn*.1) + .5;
+    getCertainSpaces(D, T, Q, P, ours);
+    s.insert(D);
+    s.insert(T);
+    s.insert(Q);
+    s.insert(P);
 
     // Now do the same for THEM...
-    getCertainSpaces(certD, certT, certQ, certP, theirs);
-    s[1] = (certD*.20+1) * (certT*.60+1) * (certQ*.80+1) * (certP*1.00+1) / (turn*.1) + .5;
+    getCertainSpaces(D, T, Q, P, theirs);
+    s.insert(D);
+    s.insert(T);
+    s.insert(Q);
+    s.insert(P);
 
     /* In keeping with ratio idea, lets look at how many available 
        captures are available. */
-    s[2] = getPossibleCaptures(ours)*.20*(ourCaps+1) + .5;
-    s[3] = getPossibleCaptures(theirs)*.20*(theirCaps+1) + .5;
+    //s[2] = getPossibleCaptures(ours)*.20*(ourCaps+1) + .5;
+    //s[3] = getPossibleCaptures(theirs)*.20*(theirCaps+1) + .5;
+
+    s.insert(getPossibleCaptures(ours));
+    s.insert(getPossibleCaptures(theirs));
 
     // The captures...
-    s[4] = ourCaps;
-    s[5] = theirCaps;
+    s.insert(captures(ours));
+    s.insert(captures(theirs));
     
 
     /* Rationalize any blocks we may consider...
