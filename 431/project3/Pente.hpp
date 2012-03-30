@@ -93,7 +93,7 @@ public:
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
     int getCertainSpaces(int &D, int &T, int &Q, int &P, char color);
     int getCertain(int &certD, int &certT, int &certQ, int &certP, char color);
-    int getCaptures(char color);
+    int getPossibleCaptures(char color);
     int chkTotalCapture(char color);
     int chkCapture(int r, int c, char color, bool remove = false);
     int chkTotalBlocks(int &Block3, int &Block4, int &Block5, char color);
@@ -433,7 +433,7 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, int &certP, char color
     return 0;
 }
 
-int Pente::getCaptures(char color) {
+int Pente::getPossibleCaptures(char color) {
     // Check for the number of captures available to `color` on the board.
     // (WBB_ is one for white, for instance.
 
@@ -919,20 +919,20 @@ State Pente::toState() {
 
     // For us...
     getCertainSpaces(certD, certT, certQ, certP, ours);
-    s[0] = (certD*.20+1) * (certT*.60+1) * (certQ*.80+1) * (certP*1.00+1) / (turn*.1);
+    s[0] = (certD*.20+1) * (certT*.60+1) * (certQ*.80+1) * (certP*1.00+1) / (turn*.1) + .5;
 
     // Now do the same for THEM...
     getCertainSpaces(certD, certT, certQ, certP, theirs);
-    s[1] = (certD*.20+1) * (certT*.60+1) * (certQ*.80+1) * (certP*1.00+1) / (turn*.1);
+    s[1] = (certD*.20+1) * (certT*.60+1) * (certQ*.80+1) * (certP*1.00+1) / (turn*.1) + .5;
 
     /* In keeping with ratio idea, lets look at how many available 
        captures are available. */
-    s[2] = getCaptures(ours)*.20*(ourCaps+1);
-    s[3] = getCaptures(theirs)*.20*(theirCaps+1);
+    s[2] = getPossibleCaptures(ours)*.20*(ourCaps+1) + .5;
+    s[3] = getPossibleCaptures(theirs)*.20*(theirCaps+1) + .5;
 
-    // Rationalize our captures in terms of %-of-a-win.
-    s[4] = ourCaps/5;
-    s[5] = theirCaps/5;
+    // The captures...
+    s[4] = ourCaps;
+    s[5] = theirCaps;
     
 
     /* Rationalize any blocks we may consider...
@@ -1000,7 +1000,7 @@ State Pente::toStateOld() {
        
     // Figure for our pieces...
     getCertain(s[0], s[1], s[2], s[3], ours);
-    s[4] = getCaptures(ours);
+    s[4] = getPossibleCaptures(ours);
     s[5] = (gametrace.empty()) ? 0 : 
         chkCapture( gametrace.back()->r, gametrace.back()->c,
                     ours );
@@ -1011,7 +1011,7 @@ State Pente::toStateOld() {
     
     // Figure for their pieces.
     getCertain(s[10], s[11], s[12], s[13], theirs);
-    s[14] = getCaptures(theirs);
+    s[14] = getPossibleCaptures(theirs);
     s[15] = (gametrace.empty()) ? 0 :
         chkCapture( gametrace.back()->r, gametrace.back()->c,
                     theirs );
@@ -1024,13 +1024,13 @@ State Pente::toStateOld() {
       } else if(playerNumber("COMPUTER")==1) {
       // Figure for black pieces...
       getCertain(s[0], s[1], s[2], s[3], BLACK);
-      s[4] = getCaptures(BLACK);
+      s[4] = getPossibleCaptures(BLACK);
       s[5] = (gametrace.empty()) ? 0 : 
       chkCapture( gametrace.back()->r, gametrace.back()->c,
       gametrace.back()->color );
       // Figure for white pieces.
       getCertain(s[6], s[7], s[8], s[9], WHITE);
-      s[10] = getCaptures(WHITE);
+      s[10] = getPossibleCaptures(WHITE);
       s[11] = gametrace.empty() ? 0 :
       chkCapture( gametrace.back()->r, gametrace.back()->c,
       gametrace.back()->color );
