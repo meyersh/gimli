@@ -100,22 +100,22 @@ int main() {
             if (human_only) 
                 {
 
-                    if (creator_is_white) 
+                    if (creator_is_white) // hh1
                         new_game.players[0] = sessionkey;
 		  
-                    else 
+                    else // hh2
                         new_game.players[1] = sessionkey;
 
                 } 
             else 
                 {
 		
-                    if (creator_is_white) 
+                    if (creator_is_white) // hc1
                         {
                             new_game.players[0] = sessionkey;
                             new_game.players[1] = "COMPUTER";
                         } 
-                    else 
+                    else // hc2
                         {
                             new_game.players[0] = "COMPUTER";
                             new_game.players[1] = sessionkey;
