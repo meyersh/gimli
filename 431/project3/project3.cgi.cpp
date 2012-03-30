@@ -141,7 +141,9 @@ int main() {
             else if (game_type == "hc1")
                 {
                     // generate a computer move and return it.
-                    new_game.make_move();
+                    Weight weights(WEIGHTS_FILE);
+                    weights.load();
+                    new_game.make_move(weights);
                     cout << new_game.gametrace.back()->r << endl
                          << new_game.gametrace.back()->c << endl
                          << "MOVE" << endl;
