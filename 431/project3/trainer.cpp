@@ -24,7 +24,8 @@ int main(int argc, char **argv) {
         weights.w.resize(p1.toState().size() + 1);
         for (int i = 1; i < weights.size(); i++)
             weights[i] = 2;
-
+        
+        weights.save();
         cout << "reinitializing weights..." << endl;
     }
     else
