@@ -183,7 +183,7 @@ int main() {
    
    p.clearCell(0,4);
    p.getCertainSpaces(D, T, Q, P, BLACK);
-   assert(T == 2);
+   assert(T == 1);
 
    cout << p.toString() << endl;
 
