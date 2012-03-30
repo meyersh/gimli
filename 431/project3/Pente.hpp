@@ -356,18 +356,14 @@ int Pente::getAllBlocks(int &D, int &T, int &Q, int &P, char color) {
 
             if (nxt && (!nxt->filled || nxt->color != color))
                 switch (count) {
-                case 2:
-                    D += has_beginning_space + has_ending_space;
-                    break;
-                case 3:
-                    T += has_beginning_space + has_ending_space;
-                    break;
-                case 4:
-                    Q += has_beginning_space + has_ending_space;
-                    break;
                 case 5:
                     P += has_beginning_space + has_ending_space;
-                    break;
+                case 4:
+                    Q += has_beginning_space + has_ending_space;
+                case 3:
+                    T += has_beginning_space + has_ending_space;
+                case 2:
+                    D += has_beginning_space + has_ending_space;
                 default:
                     break;
                 }
@@ -429,18 +425,14 @@ int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
 
             if (nxt && (!nxt->filled || nxt->color != color))
                 switch (count) {
-                case 2:
-                    D += has_beginning_space || has_ending_space;
-                    break;
-                case 3:
-                    T += has_beginning_space || has_ending_space;
-                    break;
-                case 4:
-                    Q += has_beginning_space || has_ending_space;
-                    break;
                 case 5:
                     P += has_beginning_space || has_ending_space;
-                    break;
+                case 4:
+                    Q += has_beginning_space || has_ending_space;
+                case 3:
+                    T += has_beginning_space || has_ending_space;
+                case 2:
+                    D += has_beginning_space || has_ending_space;
                 default:
                     break;
                 }
@@ -655,15 +647,12 @@ int Pente::chkTotalBlocks(int& Block3, int& Block4, int& Block5, char color) {
 
         tot = f+b;  tot = (tot>5)?5:tot;
         switch(tot) {
-        case 3:
-            Block3++;
-            break;
-        case 4:
-            Block4++;
-            break;
         case 5:
             Block5++;
-            break;
+        case 4:
+            Block4++;
+        case 3:
+            Block3++;
         default:
             break;
         }
@@ -1013,7 +1002,7 @@ State Pente::toState() {
     s.insert(captures(ours));
     s.insert(captures(theirs));
     
-    // Handle interrupting a forming line:
+    // Register interruptions to a line.
     chkTotalBlocks(T, Q, P, ours);
     s.insert(T);
     s.insert(Q);
