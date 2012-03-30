@@ -961,7 +961,7 @@ int Pente::gameOutcome(char color) {
 State Pente::toState() {
     int D, T, Q, P;
 
-    State s(2);
+    State s;
 
     char ours, theirs;
 

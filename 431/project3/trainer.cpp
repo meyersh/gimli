@@ -105,8 +105,7 @@ int main(int argc, char **argv) {
 
 			weights.adjust(game->toState(), error);
 
-			if (error)
-				cout << error << " ";
+            cout << error << " ";
 		}
         cout << endl;
 	   
