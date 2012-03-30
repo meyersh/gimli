@@ -134,8 +134,57 @@ int main() {
    assert(p.getCaptures(BLACK) == 0);
    
 
-   //   p.make_move(Vhat);
+   // Test playToken(), unPlayToken();
+   p.reset();
+   p.playToken(0,1, BLACK);
+   p.playToken(0,2, BLACK);
+   p.playToken(0,3, WHITE);
+
+   // Check that our captures scores are initialized OK
+   assert(p.captures(WHITE) == 0);
+   assert(p.captures(BLACK) == 0);
+
+   p.playToken(0,0, WHITE); // CAPTURE!
+
+   assert(p.captures(WHITE) == 1);
+   assert(p.captures(BLACK) == 0);
+
+   // Assert missing pieces.
+   assert(p.getCell(0,1)->filled == false);
+   assert(p.getCell(0,2)->filled == false);
+
+   p.unPlayToken(); // undo last move
+
+   // verify that pieces were properly replaced.
+   assert(p.getCell(0,1)->filled == true);
+   assert(p.getCell(0,1)->color == BLACK);
+   assert(p.getCell(0,2)->filled == true);
+   assert(p.getCell(0,2)->color == BLACK);
+
+   // Verify that we re-played the score properly.
+   assert(p.captures(WHITE) == 0);
+   assert(p.captures(BLACK) == 0);
+
+   /* Test our with spaces stuff */
+   p.reset();
+   p.playToken(0,0, WHITE);
+   p.playToken(0,1, BLACK);
+   p.playToken(0,2, BLACK);
+   p.playToken(0,3, BLACK);
+   p.playToken(0,4, WHITE);
+
+   int D, T, Q, P;
+   p.getCertainSpaces(D, T, Q, P, BLACK);
+   assert(T == 0);
+
+   p.clearCell(0,0);
+   p.getCertainSpaces(D, T, Q, P, BLACK);
+   assert(T == 1);
    
+   p.clearCell(0,4);
+   p.getCertainSpaces(D, T, Q, P, BLACK);
+   assert(T == 2);
+
    cout << p.toString() << endl;
 
 

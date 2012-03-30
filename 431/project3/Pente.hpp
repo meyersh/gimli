@@ -66,6 +66,7 @@ public:
     void reset() {
         _killBoard_();
         _initBoard_();
+        captures(WHITE) = captures(BLACK) = 0;
     }
     
     int& captures(char color) {
@@ -306,7 +307,6 @@ int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
     // getCertain with a twist: we require space on either end.
     cell *tCell, *nxt;
     vector<cell*> filled = getFilled(color);
-    int count = 1;
 
     D = T = Q = P = 0; // Initialize the values
 
@@ -319,6 +319,7 @@ int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
     for (int i = 0; i < filled.size(); i++) {
         tCell = filled[i];
         for (int j = 4; j < 8; j++) {
+            int count = 1;
             bool has_beginning_space = false;
             bool has_ending_space = false;
 
@@ -330,7 +331,6 @@ int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
             if ((tCell->neighbors[j - 4] != NULL)
                 && (tCell->neighbors[j - 4]->filled == true)
                 && (tCell->neighbors[j - 4]->color == color)) {
-                count = 1;
                 continue;
             }
 
@@ -339,8 +339,8 @@ int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
                 if (nxt->color == color)
                     count++;
                 else {
+                    has_ending_space = false;
                     break;
-                    nxt = nxt->neighbors[j];
                 }
                 nxt = nxt->neighbors[j];
             }
@@ -370,7 +370,6 @@ int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
                     break;
                 }
 
-            count = 1;
         }
     }
 
@@ -831,7 +830,7 @@ void Pente::unPlayToken() {
     int last_turn = turn - 1;
 
     Pente::cell *last_piece = gametrace.back();
-
+    
     // This is the color of the most recent move.
     char last_move_color = (turn % 2 == 0) ? WHITE : BLACK;
 
@@ -844,15 +843,19 @@ void Pente::unPlayToken() {
         {
             Pente::cell *tCell;
 
+            // This is the color of the pieces which were captured.
+            char capture_color = (last_move_color == WHITE) ? BLACK : WHITE;
+
             // Reduce the capture count.
             captures(last_move_color) -= captureBuffer[last_turn].size()/2;
+
             if (captures(last_move_color) < 0)
                 throw logic_error("captures have gone negative.");
 
             for (int c = 0; c < captureBuffer[last_turn].size(); c++)
                 {
                     tCell = captureBuffer[last_turn][c];
-                                        fillCell(tCell->r, tCell->c, tCell->color);
+                                        fillCell(tCell->r, tCell->c, capture_color);
                     
                 }
         }
