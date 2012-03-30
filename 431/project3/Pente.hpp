@@ -357,16 +357,16 @@ int Pente::getAllBlocks(int &D, int &T, int &Q, int &P, char color) {
             if (nxt && (!nxt->filled || nxt->color != color))
                 switch (count) {
                 case 2:
-                    D += has_beginning_space || has_ending_space;
+                    D += has_beginning_space + has_ending_space;
                     break;
                 case 3:
-                    T += has_beginning_space || has_ending_space;
+                    T += has_beginning_space + has_ending_space;
                     break;
                 case 4:
-                    Q += has_beginning_space || has_ending_space;
+                    Q += has_beginning_space + has_ending_space;
                     break;
                 case 5:
-                    P += has_beginning_space || has_ending_space;
+                    P += has_beginning_space + has_ending_space;
                     break;
                 default:
                     break;
@@ -979,21 +979,20 @@ State Pente::toState() {
     ours = playerColor("COMPUTER");
     theirs = (ours == WHITE) ? BLACK : WHITE;
 
-    // For us...
+    // Register all sets that are free to develop further
     getCertainSpaces(D, T, Q, P, ours);
     s.insert(D);
     s.insert(T);
     s.insert(Q);
     s.insert(P);
 
-    // Now do the same for THEM...
     getCertainSpaces(D, T, Q, P, theirs);
     s.insert(D);
     s.insert(T);
     s.insert(Q);
     s.insert(P);
 
-    // Register blocked sets
+    // Register blocked sets (that is, sets which are blocked on each end)
     getAllBlocks(D, T, Q, P, ours);
     s.insert(D);
     s.insert(T);
@@ -1006,18 +1005,24 @@ State Pente::toState() {
     s.insert(Q);
     s.insert(P);
 
-    /* In keeping with ratio idea, lets look at how many available 
-       captures are available. */
-    //s[2] = getPossibleCaptures(ours)*.20*(ourCaps+1) + .5;
-    //s[3] = getPossibleCaptures(theirs)*.20*(theirCaps+1) + .5;
-
+    // Register the potential captures OTT_ setups.
     s.insert(getPossibleCaptures(ours));
     s.insert(getPossibleCaptures(theirs));
 
-    // The captures...
+    // Note the number of captures. 
     s.insert(captures(ours));
     s.insert(captures(theirs));
     
+    // Handle interrupting a forming line:
+    chkTotalBlocks(T, Q, P, ours);
+    s.insert(T);
+    s.insert(Q);
+    s.insert(P);
+    
+    chkTotalBlocks(T, Q, P, theirs);
+    s.insert(T);
+    s.insert(Q);
+    s.insert(P);
 
     /* Rationalize any blocks we may consider...
      */
@@ -1142,9 +1147,9 @@ State Pente::tryMove(int r, int c, char color) {
 
 void Pente::make_move(Weight &weight) {
     // Make a computerized move.
-    // srand(time(NULL));
+    srand(weight.random());
     vector<cell*> possible_moves = getEmpty();
-    //random_shuffle(possible_moves.begin(), possible_moves.end());
+    random_shuffle(possible_moves.begin(), possible_moves.end());
     cell* best_move = possible_moves[0];
     // Figure out our color
     char computer_color = playerColor("COMPUTER");
