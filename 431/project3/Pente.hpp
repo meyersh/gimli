@@ -91,6 +91,7 @@ public:
     void clearCell(int r, int c);
     vector<cell*> getFilled(char color);
     int getPossible(int &possD, int &possT, int &possQ, int &possWins, char color);
+    int getAllBlocks(int &D, int &T, int &Q, int &P, char color);
     int getCertainSpaces(int &D, int &T, int &Q, int &P, char color);
     int getCertain(int &certD, int &certT, int &certQ, int &certP, char color);
     int getPossibleCaptures(char color);
@@ -303,6 +304,80 @@ int Pente::getPossible(int &possD, int &possT, int &possQ, int &possWins, char c
     return 0;
 
 }
+
+int Pente::getAllBlocks(int &D, int &T, int &Q, int &P, char color) {
+    // getCertainSpaces with a twist: we require zero space on either end.
+    cell *tCell, *nxt;
+    vector<cell*> filled = getFilled(color);
+
+    D = T = Q = P = 0; // Initialize the values
+
+    if (!isValidColor(color))
+        throw runtime_error("Invalid color");
+
+    if (filled.size() == 0)
+        return 0;
+
+    for (int i = 0; i < filled.size(); i++) {
+        tCell = filled[i];
+        for (int j = 4; j < 8; j++) {
+            int count = 1;
+            bool has_beginning_space = false;
+            bool has_ending_space = false;
+
+            // Check for leading space
+            if (tCell->neighbors[j-4] && !tCell->neighbors[j-4]->filled)
+                has_beginning_space = true;
+
+            // Skip cells we've already visited.
+            if ((tCell->neighbors[j - 4] != NULL)
+                && (tCell->neighbors[j - 4]->filled == true)
+                && (tCell->neighbors[j - 4]->color == color)) {
+                continue;
+            }
+
+            nxt = tCell->neighbors[j];
+            while ((nxt != NULL) && (nxt->filled == true)) {
+                if (nxt->color == color)
+                    count++;
+                else {
+                    has_ending_space = false;
+                    break;
+                }
+                nxt = nxt->neighbors[j];
+            }
+            
+            if (nxt && !nxt->filled)
+                has_ending_space = true;
+            
+            // no beginning and no ending spaces:
+            if (has_beginning_space && has_ending_space)
+                continue;
+
+            if (nxt && (!nxt->filled || nxt->color != color))
+                switch (count) {
+                case 2:
+                    D += has_beginning_space || has_ending_space;
+                    break;
+                case 3:
+                    T += has_beginning_space || has_ending_space;
+                    break;
+                case 4:
+                    Q += has_beginning_space || has_ending_space;
+                    break;
+                case 5:
+                    P += has_beginning_space || has_ending_space;
+                    break;
+                default:
+                    break;
+                }
+
+        }
+    }
+
+    return 0;
+}
+
 int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
     // getCertain with a twist: we require space on either end.
     cell *tCell, *nxt;
@@ -896,26 +971,13 @@ int Pente::gameOutcome(char color) {
 
 State Pente::toState() {
     int D, T, Q, P;
-    int possT, possQ, possP;
-    int totCaps;
+
     State s(2);
 
     char ours, theirs;
 
     ours = playerColor("COMPUTER");
     theirs = (ours == WHITE) ? BLACK : WHITE;
-
-    int ourCaps = (playerColor("COMPUTER") == WHITE) ? whtCaps : blkCaps;
-    int theirCaps = (theirs == WHITE) ? whtCaps : blkCaps;
-
-    /* Now, rationalize the cert* variables, where 
-       a certD is 20% of a possible win, certT is 60%,
-       certQ is 80% and certP is (of course) 100% of a win.
-
-       with these ratios, find what % of our pieces are 
-       contibuting...
-
-    */
 
     // For us...
     getCertainSpaces(D, T, Q, P, ours);
@@ -926,6 +988,19 @@ State Pente::toState() {
 
     // Now do the same for THEM...
     getCertainSpaces(D, T, Q, P, theirs);
+    s.insert(D);
+    s.insert(T);
+    s.insert(Q);
+    s.insert(P);
+
+    // Register blocked sets
+    getAllBlocks(D, T, Q, P, ours);
+    s.insert(D);
+    s.insert(T);
+    s.insert(Q);
+    s.insert(P);
+
+    getAllBlocks(D, T, Q, P, theirs);
     s.insert(D);
     s.insert(T);
     s.insert(Q);
