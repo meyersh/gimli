@@ -271,6 +271,10 @@ int main() {
                 die(ss.str());
             }
 
+            // Die if the game is already completed. 
+            if (game.gameOutcome(WHITE) != 0)
+                die("This game has already been decided.");
+
             // Validate that it is, in fact, our turn.
             if (game.turn % 2 != game.playerNumber(sessionid))
                 die("It's not even your turn to move!");
