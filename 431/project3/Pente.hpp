@@ -502,7 +502,7 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, int &certP, char color
 
 int Pente::getPossibleCaptures(char color) {
     // Check for the number of captures available to `color` on the board.
-    // (WBB_ is one for white, for instance.
+    // (WBB_ is one for white, for instance.)
 
     int caps = 0;
 
@@ -864,7 +864,7 @@ int Pente::nInARow(int n, char color) {
 
             if (tCell->neighbors[dir - 4]
                 && tCell->neighbors[dir - 4]->filled
-                && tCell->neighbors[dir - 4]->color == color) // <-- bug fix, maybe?
+                && tCell->neighbors[dir - 4]->color == color) 
                 continue;
 
             if (count == n)
@@ -1002,7 +1002,7 @@ State Pente::toState() {
     s.insert(captures(ours));
     s.insert(captures(theirs));
     
-    // Register interruptions to a line.
+    // Register interruptions to a line such as OTOO
     chkTotalBlocks(T, Q, P, ours);
     s.insert(T);
     s.insert(Q);
@@ -1013,21 +1013,6 @@ State Pente::toState() {
     s.insert(Q);
     s.insert(P);
 
-    /* Rationalize any blocks we may consider...
-     */
-    /*
-    chkTotalBlocks(possT, possQ, possP, ours);
-    s[6] = (possT*.60+1) * (possQ*.80+1) * (possP*1.00+1);
-    
-    chkTotalBlocks(possT, possQ, possP, theirs);
-    s[7] = (possT*.60+1) * (possQ*.80+1) * (possP*1.00+1);
-    */
-
-    /* Compare blocks with our certains */
-    /*
-    s[8] = s[0]*s[6]; // ours
-    s[9] = s[1]*s[7]; // theirs
-    */
     return s;
 
 }
