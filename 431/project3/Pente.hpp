@@ -358,10 +358,13 @@ int Pente::getAllBlocks(int &D, int &T, int &Q, int &P, char color) {
                 switch (count) {
                 case 5:
                     P += has_beginning_space + has_ending_space;
+                    Q += has_beginning_space && has_ending_space; 
                 case 4:
                     Q += has_beginning_space + has_ending_space;
+                    T += has_beginning_space && has_ending_space; 
                 case 3:
                     T += has_beginning_space + has_ending_space;
+                    D += has_beginning_space && has_ending_space; 
                 case 2:
                     D += has_beginning_space + has_ending_space;
                 default:
@@ -427,10 +430,13 @@ int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
                 switch (count) {
                 case 5:
                     P += has_beginning_space || has_ending_space;
+                    Q += has_beginning_space && has_ending_space;
                 case 4:
                     Q += has_beginning_space || has_ending_space;
+                    T += has_beginning_space && has_ending_space;
                 case 3:
                     T += has_beginning_space || has_ending_space;
+                    D += has_beginning_space && has_ending_space;
                 case 2:
                     D += has_beginning_space || has_ending_space;
                 default:
@@ -629,6 +635,16 @@ int Pente::chkTotalBlocks(int& Block3, int& Block4, int& Block5, char color) {
 
     for (int i = 0; i < filled.size(); i++) {
         tCell = getCell(i);
+        
+        bool skip = false;
+        for (int dir=W;dir<E;dir++)
+            if (tCell->neighbors[dir] 
+                && tCell->neighbors[dir]->color == color)
+                skip = true;
+
+        if (skip)
+            continue;
+
         for(fdir=E;fdir<=SW;fdir++) {
             bdir = fdir-4;
             //check forwards
@@ -1002,6 +1018,7 @@ State Pente::toState() {
     s.insert(captures(ours));
     s.insert(captures(theirs));
     
+    /*
     // Register interruptions to a line such as OTOO
     chkTotalBlocks(T, Q, P, ours);
     s.insert(T);
@@ -1012,6 +1029,7 @@ State Pente::toState() {
     s.insert(T);
     s.insert(Q);
     s.insert(P);
+    */
 
     return s;
 
