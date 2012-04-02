@@ -429,16 +429,16 @@ int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
             if (nxt && (!nxt->filled || nxt->color != color))
                 switch (count) {
                 case 5:
-                    P += has_beginning_space || has_ending_space;
+                    P += has_beginning_space + has_ending_space;
                     Q += has_beginning_space && has_ending_space;
                 case 4:
-                    Q += has_beginning_space || has_ending_space;
+                    Q += has_beginning_space + has_ending_space;
                     T += has_beginning_space && has_ending_space;
                 case 3:
-                    T += has_beginning_space || has_ending_space;
+                    T += has_beginning_space + has_ending_space;
                     D += has_beginning_space && has_ending_space;
                 case 2:
-                    D += has_beginning_space || has_ending_space;
+                    D += has_beginning_space + has_ending_space;
                 default:
                     break;
                 }
