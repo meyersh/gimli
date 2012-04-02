@@ -16,7 +16,7 @@
 
 using namespace std;
 
-#define MAX_GAME_AGE 50000
+#define MAX_GAME_AGE (60*5)
 
 void die(string msg) {
 	cout << "ERROR_CAUSED_SHUTDOWN" << endl
@@ -55,6 +55,12 @@ int main() {
         {
             // check for four characters, noting all options
             // have size() == 4, begin with h and end with 1 or 2.
+            
+            // Housekeeping: delete all expired games.
+            vector<string> games = list_games();
+            for (int i = 0; i < games.size(); i++)
+                if (gameid_age(games[i]) > MAX_GAME_AGE) 
+                    remove_game(games[i]);
 
             bool human_only;
             bool creator_is_white;
@@ -264,6 +270,10 @@ int main() {
                 ss << "Cell already has a piece at (" << row << ',' << col << ")";
                 die(ss.str());
             }
+
+            // Die if the game is already completed. 
+            if (game.gameOutcome(WHITE) != 0)
+                die("This game has already been decided.");
 
             // Validate that it is, in fact, our turn.
             if (game.turn % 2 != game.playerNumber(sessionid))

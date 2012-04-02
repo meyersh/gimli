@@ -358,10 +358,13 @@ int Pente::getAllBlocks(int &D, int &T, int &Q, int &P, char color) {
                 switch (count) {
                 case 5:
                     P += has_beginning_space + has_ending_space;
+                    Q += has_beginning_space && has_ending_space; 
                 case 4:
                     Q += has_beginning_space + has_ending_space;
+                    T += has_beginning_space && has_ending_space; 
                 case 3:
                     T += has_beginning_space + has_ending_space;
+                    D += has_beginning_space && has_ending_space; 
                 case 2:
                     D += has_beginning_space + has_ending_space;
                 default:
@@ -426,13 +429,16 @@ int Pente::getCertainSpaces(int &D, int &T, int &Q, int &P, char color) {
             if (nxt && (!nxt->filled || nxt->color != color))
                 switch (count) {
                 case 5:
-                    P += has_beginning_space || has_ending_space;
+                    P += has_beginning_space + has_ending_space;
+                    Q += has_beginning_space && has_ending_space;
                 case 4:
-                    Q += has_beginning_space || has_ending_space;
+                    Q += has_beginning_space + has_ending_space;
+                    T += has_beginning_space && has_ending_space;
                 case 3:
-                    T += has_beginning_space || has_ending_space;
+                    T += has_beginning_space + has_ending_space;
+                    D += has_beginning_space && has_ending_space;
                 case 2:
-                    D += has_beginning_space || has_ending_space;
+                    D += has_beginning_space + has_ending_space;
                 default:
                     break;
                 }
@@ -502,7 +508,7 @@ int Pente::getCertain(int &certD, int &certT, int &certQ, int &certP, char color
 
 int Pente::getPossibleCaptures(char color) {
     // Check for the number of captures available to `color` on the board.
-    // (WBB_ is one for white, for instance.
+    // (WBB_ is one for white, for instance.)
 
     int caps = 0;
 
@@ -629,6 +635,16 @@ int Pente::chkTotalBlocks(int& Block3, int& Block4, int& Block5, char color) {
 
     for (int i = 0; i < filled.size(); i++) {
         tCell = getCell(i);
+        
+        bool skip = false;
+        for (int dir=W;dir<E;dir++)
+            if (tCell->neighbors[dir] 
+                && tCell->neighbors[dir]->color == color)
+                skip = true;
+
+        if (skip)
+            continue;
+
         for(fdir=E;fdir<=SW;fdir++) {
             bdir = fdir-4;
             //check forwards
@@ -864,7 +880,7 @@ int Pente::nInARow(int n, char color) {
 
             if (tCell->neighbors[dir - 4]
                 && tCell->neighbors[dir - 4]->filled
-                && tCell->neighbors[dir - 4]->color == color) // <-- bug fix, maybe?
+                && tCell->neighbors[dir - 4]->color == color) 
                 continue;
 
             if (count == n)
@@ -1002,7 +1018,8 @@ State Pente::toState() {
     s.insert(captures(ours));
     s.insert(captures(theirs));
     
-    // Register interruptions to a line.
+    /*
+    // Register interruptions to a line such as OTOO
     chkTotalBlocks(T, Q, P, ours);
     s.insert(T);
     s.insert(Q);
@@ -1012,22 +1029,8 @@ State Pente::toState() {
     s.insert(T);
     s.insert(Q);
     s.insert(P);
-
-    /* Rationalize any blocks we may consider...
-     */
-    /*
-    chkTotalBlocks(possT, possQ, possP, ours);
-    s[6] = (possT*.60+1) * (possQ*.80+1) * (possP*1.00+1);
-    
-    chkTotalBlocks(possT, possQ, possP, theirs);
-    s[7] = (possT*.60+1) * (possQ*.80+1) * (possP*1.00+1);
     */
 
-    /* Compare blocks with our certains */
-    /*
-    s[8] = s[0]*s[6]; // ours
-    s[9] = s[1]*s[7]; // theirs
-    */
     return s;
 
 }
@@ -1158,7 +1161,7 @@ void Pente::make_move(Weight &weight) {
         // Remember a better move
         if (weight.Vhat(fantasy_move) > best_state) {
             best_move = possible_moves[i];
-            best_state = weight.Vhat(toState());
+            best_state = weight.Vhat(fantasy_move);
         }
 
     } // end for
