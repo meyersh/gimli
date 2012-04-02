@@ -1161,7 +1161,7 @@ void Pente::make_move(Weight &weight) {
         // Remember a better move
         if (weight.Vhat(fantasy_move) > best_state) {
             best_move = possible_moves[i];
-            best_state = weight.Vhat(toState());
+            best_state = weight.Vhat(fantasy_move);
         }
 
     } // end for
