@@ -193,7 +193,7 @@ bool Pente::isValidCoords(int r, int c) {
 }
 
 bool Pente::isValidColor(char color) {
-    return (toupper(color) == 'B' || toupper(color) == 'W');
+    return (toupper(color) == BLACK || toupper(color) == WHITE);
 }
 
 bool Pente::isEmpty(int r, int c) {
@@ -580,7 +580,7 @@ int Pente::chkCapture(int r, int c, char color, bool remove) {
        always return the number of captures at r,c for `color`. */
 
     cell *tCell, *one, *two, *end;
-    char eColor = ((color == 'B') ? 'W' : 'B');
+    char eColor = ((color == BLACK) ? WHITE : BLACK);
     tCell = getCell(r,c);
     int caps = 0;
 
@@ -797,7 +797,7 @@ void Pente::deserialize(ifstream &f) {
             continue;
 
         // Everything is good. Insert the piece.
-        playToken(row, col, (color == 'B' ? BLACK : WHITE));
+        playToken(row, col, (color == 'W' ? BLACK : WHITE));
 
     }
 
