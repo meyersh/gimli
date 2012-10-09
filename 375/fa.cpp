@@ -6,6 +6,7 @@
 #include <cassert>
 #include <sstream>
 #include <cstdlib>
+#include <cctype>
 #include "shaun.hpp"
 
 using namespace std;
@@ -195,7 +196,8 @@ struct Alphabet {
     void fromString(string input_alphabet) 
     {
         for (int i = 0; i < input_alphabet.length(); i++)
-            alphabet[input_alphabet[i]] = true;
+            if (isalpha(input_alphabet[i]))
+                alphabet[input_alphabet[i]] = true;
     }
 
     bool contains(char o) 
