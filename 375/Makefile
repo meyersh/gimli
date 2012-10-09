@@ -1,2 +1,4 @@
+CXX=clang++
+CC=clang
 fa: shaun.o fa.o
-	g++ -g shaun.o fa.o -o fa
+	$(CXX) -g shaun.o fa.o -o fa
