@@ -126,16 +126,67 @@ struct Transition_Table {
                 }
             } while (new_marks > 0);
 
+        // Everything below here doesn't really work.
+
+        vector< vector<int> > groups(table.size());
+        vector<int> group_membership(table.size());
+
         for (int p = 0; p < nstates - 1; p++)
             {
-
             for (int q = p+1; q < nstates; q++)
                 {
-                int i = nstates - q;
                 if (triangle_array[(q-1)*q/2 + p] == false)
+                    { 
                     cout << "Combine " << p << " and " << q << endl;
+                    if (p < q)
+                        groups[q].push_back(p);
+                    else 
+                        groups[p].push_back(q);
+                    }                
                 }
             }
+
+        // Remove empty groups.
+        for (int i = 0; i < groups.size(); i++)
+            {
+            if (groups[i].size() == 0) {
+                groups.erase(groups.begin()+i);
+                i--;
+            }
+            }
+
+        // update group_membership
+        for (int g = 0; g < groups.size(); g++)
+            {
+            for (vector<int>::iterator s = groups[g].begin();
+                 s != groups[g].end();
+                 s++)
+                {
+                group_membership[*s] = g;
+                }
+            }
+
+        Transition_Table new_table;
+        new_table.resize(groups.size());
+    
+        for (int g = 0, i = 0; g < groups.size(); g++)
+            {
+            if (groups[g].size() == 0)
+                continue;
+
+            for (map<char,int>::iterator symbol = table[groups[g][0]].begin(); 
+                 symbol != table[groups[g][0]].end(); 
+                 symbol++)
+                {            // for all symbols in alphabet
+                char o = symbol->first;
+                int dest_state = delta(groups[g][0], o);
+                int mapped_dest_state = group_membership[dest_state];
+                new_table.insert(i, o, mapped_dest_state);
+                }
+            i++;
+            }
+
+        table = new_table.table;
     }
 };
 
@@ -323,7 +374,9 @@ int main(int argc, char *argv[])
 
     cout << "\nMinimizing: " << endl;
     transition_table.minimize(accepting_states);
-    
+
+    cout << "Resulting FA:" << endl
+         << transition_table.toString() << endl;
     cout << "Done." << endl;
     return 0;
 }
