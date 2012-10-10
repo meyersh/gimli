@@ -14,6 +14,11 @@ using namespace std;
 struct Transition_Table {
     vector< map<char,int> > table;
     
+    int size() 
+    {
+        return table.size();
+    }
+        
     void resize(int new_size) {
         table.resize(new_size);
     }
@@ -78,10 +83,12 @@ struct Transition_Table {
         
     }
     
-    void minimize(vector<bool> accepting_states)
+    vector<bool> minimize(vector<bool> accepting_states)
     {
         int nstates = table.size();
         vector<bool> triangle_array(nstates, false);
+        vector< vector<int> > groups(table.size());
+        vector<int> group_membership(table.size());
 
         // cout << "First pass." << endl;
 
@@ -129,8 +136,9 @@ struct Transition_Table {
 
                         if (p1 == q1)
                             continue;
-                        /* Re-order (p,q) because
-                           the index formula requires p<q */
+
+                        /* Re-order (p1,q1) because
+                           the index formula requires p1 < q1 */
                         if ((p1 < q1
                             && triangle_array[(q1-1) * q1 / 2 + p1])
                             || ((p1 > q1)
@@ -138,6 +146,7 @@ struct Transition_Table {
                             {
                             triangle_array[(q-1)*q / 2 + p] = true;
                             new_marks++;
+
                             // cout << "Marking " << p << ", " << q << endl;
                             
                             break;
@@ -147,8 +156,6 @@ struct Transition_Table {
                 }
             } while (new_marks > 0);
 
-        vector< vector<int> > groups(table.size());
-        vector<int> group_membership(table.size());
         // Initialize our groups && group_membership data structures.
         for (int i = 0; i < table.size(); ++i) {
             group_membership[i] = i;
@@ -200,7 +207,7 @@ struct Transition_Table {
                  s++)
                 {
                 group_membership[*s] = g;
-                cout << "g[" << g << "]: state " << *s << " -> group " << g << endl;
+                // cout << "g[" << g << "]: state " << *s << " -> group " << g << endl;
                 }
             }
 
@@ -215,7 +222,7 @@ struct Transition_Table {
             for (map<char,int>::iterator symbol = table[groups[g][0]].begin(); 
                  symbol != table[groups[g][0]].end(); 
                  symbol++)
-                {            // for all symbols in alphabet
+                { // for all symbols in alphabet
                 char o = symbol->first;
                 int dest_state = delta(groups[g][0], o);
                 int mapped_dest_state = group_membership[dest_state];
@@ -225,16 +232,34 @@ struct Transition_Table {
             }
 
         table = new_table.table;
+
+        // Compute and return the new accepting states.
+        vector<bool> new_accepting_states(table.size(), false);
+        for (int i = 0; i < accepting_states.size(); i++)
+            if (accepting_states[i])
+                new_accepting_states[group_membership[i]] = true;
+
+        return new_accepting_states;
     }
 };
 
 struct Alphabet {
     bool alphabet[255] = {false};
+    int alphabet_size = 0;
+    
+    int size() 
+    {
+        return alphabet_size;
+    }
+    
     void fromString(string input_alphabet) 
     {
         for (int i = 0; i < input_alphabet.length(); i++)
-            if (isalpha(input_alphabet[i]))
+            if (isalpha(input_alphabet[i])) 
+                {
                 alphabet[input_alphabet[i]] = true;
+                alphabet_size++;
+                }
     }
 
     bool contains(char o) 
@@ -252,18 +277,119 @@ struct Alphabet {
     string toString() 
     {
         stringstream ss;
-        for (int i = 0; i < 255; i++)
+        for (int i = 0, written=0; i < 255; i++)
             {
             if (alphabet[i])
                 {
-                if (i > 0)
+                if (written)
                     ss << " ";
                 ss << (char)i;
+                written++;
                 }
             }
         return ss.str();
     }
 };
+
+struct Deterministic_Finite_Automaton
+{
+    Transition_Table transition_table;
+    Alphabet alphabet;
+    vector<bool> accepting_states;
+    int n_accepting;
+    int n_states;
+    
+    int resize(int new_size) 
+    {
+        n_states = new_size;
+        transition_table.resize(new_size);
+        accepting_states.resize(new_size);
+        return n_states;
+    }
+    
+
+    bool accepts(string s) 
+    {
+        int delta = transition_table.delta(0, s);
+        if (delta == -1)
+            return false;
+        
+        return accepting_states[delta];
+    }
+    
+    int nstates() 
+    {
+        return transition_table.size();
+    }
+    
+    string accepting() 
+    {
+        stringstream ss;
+        
+        for (int i = 0, written=0; i < accepting_states.size(); i++) 
+            {
+            if (accepting_states[i]) 
+                {
+                if (written) 
+                    {
+                    ss << " ";
+                    }
+                
+                ss << i;
+                written++;
+                
+                }
+            }
+        return ss.str();
+        
+    }
+    
+    
+    void minimize() 
+    {
+        accepting_states = transition_table.minimize(accepting_states);
+        
+        // update n_accepting
+        n_accepting = 0;
+        for (int i = 0; i < accepting_states.size(); i++)
+            {
+            if (accepting_states[i]) 
+                n_accepting++;
+            }
+    }
+    
+    
+    string toString() 
+    {
+        stringstream ss;
+        
+        ss << "alphabet: " << alphabet.toString() << endl
+           << "nstates : " << nstates() << endl
+           << "astates : " << n_accepting
+           << " (" << accepting() << ')' << endl
+           << "Transitions: " << endl
+           << transition_table.toString() << endl;
+
+        return ss.str();
+        
+    }
+    
+    string toFile() 
+    {
+        stringstream ss;
+        ss << alphabet.toString() << endl
+           << nstates() << endl
+           << n_accepting << endl
+           << accepting() << endl
+           << transition_table.toFAString();
+        
+        return ss.str();
+                    
+    }
+    
+    
+};
+
 
 int main(int argc, char *argv[])
 {
@@ -282,42 +408,47 @@ int main(int argc, char *argv[])
     char *fa_definition_file_path = argv[0];
     char *strings_file_path = argv[1];
     char *output_file_path = argv[2];
-    
+    char *minimized_fa_file_path = (argc == 5) ? argv[3] : NULL;
+        
     ifstream fa_definition(fa_definition_file_path);
     ifstream strings_file(strings_file_path);
     ofstream output_file(output_file_path);
     
-    int nstates = 0;
-    int naccepting = 0;
-    Transition_Table transition_table;
-    vector<bool> accepting_states;
-    Alphabet alphabet;
+    Deterministic_Finite_Automaton fa;
     vector<string> strings;
+
+    /*
+     * Read in the FA definition file.
+     * This uses a basic FA to read in the file where
+     * the read_type variable contains one of our 
+     * "reading"-states.
+     */
 
     string line;
     enum {INIT, ALPHABET, NUM_STATES, NUM_ACCEPTING, 
           ACCEPTING_STATES, TRANSITIONS};
     unsigned int read_type = INIT;
+    int expected_transitions = 0;
+    int transitions_read = 0;
     while (getline(fa_definition, line)) 
         {
         read_type++;
         if (read_type == ALPHABET) 
-            alphabet.fromString(line);
+            fa.alphabet.fromString(line);
         
         else if (read_type == NUM_STATES) {
-            nstates = atoi(line.c_str());
-            transition_table.resize(nstates);
-            accepting_states.resize(nstates);
+        fa.resize(atoi(line.c_str()));
         }
         else if (read_type == NUM_ACCEPTING) {
-            naccepting = atoi(line.c_str());
+            fa.n_accepting = atoi(line.c_str());
         }
         else if (read_type == ACCEPTING_STATES)
             {
             vector<string> str_accepted_states = split(line, " ");
-            assert(str_accepted_states.size() == naccepting);
+            assert(str_accepted_states.size() == fa.n_accepting);
             for (int i = 0; i < str_accepted_states.size(); i++)
-                accepting_states[atoi(str_accepted_states[i].c_str())] = true;
+                fa.accepting_states[atoi(str_accepted_states[i].c_str())] = true;
+            expected_transitions = fa.nstates() * fa.alphabet.size();
             }
         else // reading a transition
             {
@@ -325,7 +456,7 @@ int main(int argc, char *argv[])
             if (transition.size() != 3)
                 {
                 cout << "Skipping (line " << read_type << "):" << line << endl
-                     << " Reason: invalid transition format."
+                     << " Reason: invalid transition format or empty line."
                      << endl;
                 continue;
                 }
@@ -342,7 +473,7 @@ int main(int argc, char *argv[])
             char symbol = transition[1][0];
             int dest_q = atoi(transition[2].c_str());
 
-            if (!alphabet.contains(symbol))
+            if (!fa.alphabet.contains(symbol))
                 {
                 cout << "Skipping (line " << read_type << "): " << line << endl
                      << " Reason: transition contains character that is "
@@ -351,7 +482,7 @@ int main(int argc, char *argv[])
                 continue;
                 }
 
-            if (source_q >= nstates || dest_q >= nstates) 
+            if (source_q >= fa.nstates() || dest_q >= fa.nstates()) 
                 {
                 cout << "Skipping (line " << read_type << "): " << line << endl
                      << " Reason: refers to a state that does not exist."
@@ -359,7 +490,7 @@ int main(int argc, char *argv[])
                 continue;
                 }
 
-            if (transition_table.delta(source_q, symbol) != -1) 
+            if (fa.transition_table.delta(source_q, symbol) != -1) 
                 {
                 cout << "Skipping (line " << read_type << "): " << line << endl
                      << " Reason: Entry already in transition table "
@@ -368,58 +499,98 @@ int main(int argc, char *argv[])
                 continue;
                 }
 
-            transition_table.insert(source_q, 
-                                    symbol,
-                                    dest_q);
+            fa.transition_table.insert(source_q, symbol, dest_q);
+            transitions_read++;
             }
 
         }
   
-    assert(read_type >= TRANSITIONS);
+    if (read_type < TRANSITIONS) 
+        {
+        cout << "ERROR! Incomplete or missing FA definition file at '" 
+             << fa_definition_file_path << "'!" << endl
+             << "Nothing to do, bailing out." << endl << endl;
+        return 1;
+        }
+
+    if (expected_transitions != transitions_read) 
+        {
+        cout << "WARNING! Read " << transitions_read << " transitions (expected: " 
+             << expected_transitions << ".)" << endl
+             << "  Unexpected behaviour may result." << endl;
+        }
+        
+    // Print the FA we've just loaded.
+    cout << "FA config:\n" << fa.toString() << endl;
 
     // Time to read in the strings file.
-
+    cout << "Reading strings file..." << endl;
+    int linum = 0;
     while (getline(strings_file, line) && line != "~")
         {
-        if (!alphabet.contains(line)) 
+        linum++;
+        if (!fa.alphabet.contains(line)) 
             {
-            cout << "Skipping: string '" << line << "' contains symbol(s) "
+            cout << "Strings file: (line: " << linum <<") '" << line << "' contains symbol(s) "
                  << "not found in the alphabet." << endl;
             continue;
             }
         strings.push_back(line);
         }
-
-
-    // Print status
-    cout << "\nalphabet: " << alphabet.toString() << endl
-         << "nstates : " << nstates << endl
-         << "astates : " << naccepting  
-         << " (" << vector_to_string(accepting_states) << ')' << endl
-         << "Transitions: " << endl
-         << transition_table.toString() << endl
-         << "Strings read: " << endl
-         << vector_to_string(strings) << endl << endl
-         << "String results:" << endl;
-    
-    // Test all strings
-    for (int i = 0; i < strings.size(); i++)
+    cout << strings.size() << " strings read." << endl;
+            
+    // Test all strings - writing to cout and output_file as we go
+    if (strings.size() == 0) 
         {
-        if (accepting_states[transition_table.delta(0, strings[i])])
-            cout << strings[i] << "\t" << "PASS" << endl;
-        else
-            cout << strings[i] << "\t" << "FAIL" << endl;
+        cout << "ERROR! No strings have been read in from '" 
+             << strings_file_path << "'!" << endl;
         }
-
-    if (argc == 5)
+    else 
+        {
+                     
+        cout << "Testing strings:" << endl;
+        for (int i = 0; i < strings.size(); i++)
+            {
+            if (fa.accepts(strings[i])) 
+                {
+                output_file << strings[i] << " " << "PASS" << endl;
+                cout << strings[i] << "\t" << "PASS" << endl;
+                }
+            else
+                {
+                cout << strings[i] << "\t" << "FAIL" << endl;
+                output_file << strings[i] << " " << "FAIL" << endl;
+                }
+            }
+        }
+    
+    output_file.close();
+    
+    // minimize if there is a fourth parameter
+    if (minimized_fa_file_path)
         {
         cout << "\nMinimizing: " << endl;
     
-        transition_table.minimize(accepting_states);
+        fa.minimize();
         
-        cout << "Resulting FA:" << endl
-             << transition_table.toString() << endl;
-
+        cout << endl << "Minimized FA:" << endl
+             << fa.toString();
+        
+        ofstream minimized_fa(minimized_fa_file_path);
+        
+        minimized_fa << fa.toFile();
+        
+        minimized_fa.close();
+                        
+        // Test all strings
+        for (int i = 0; i < strings.size(); i++)
+            {
+            if (fa.accepts(strings[i]))
+                cout << strings[i] << "\t" << "PASS" << endl;
+            else
+                cout << strings[i] << "\t" << "FAIL" << endl;
+            }
+        
         }
 
     cout << "Done." << endl;
