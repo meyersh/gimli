@@ -58,6 +58,26 @@ struct Transition_Table {
         return ss.str();
     }
 
+    string toFAString()
+    {
+        stringstream ss;
+
+        // Dump the transition table.
+        for (int q = 0; q < table.size(); q++)
+            {
+            for (map<char,int>::iterator iter = table[q].begin(); 
+                 iter != table[q].end(); 
+                 iter++)
+                {
+                ss << q << " " 
+                   << iter->first << " " 
+                   << iter->second << endl;
+                }
+            }
+        return ss.str();
+        
+    }
+    
     void minimize(vector<bool> accepting_states)
     {
         int nstates = table.size();
@@ -127,10 +147,13 @@ struct Transition_Table {
                 }
             } while (new_marks > 0);
 
-        // Everything below here doesn't really work.
-
         vector< vector<int> > groups(table.size());
         vector<int> group_membership(table.size());
+        // Initialize our groups && group_membership data structures.
+        for (int i = 0; i < table.size(); ++i) {
+            group_membership[i] = i;
+            groups[i].push_back(i);
+        }
 
         for (int p = 0; p < nstates - 1; p++)
             {
@@ -139,24 +162,37 @@ struct Transition_Table {
                 if (triangle_array[(q-1)*q/2 + p] == false)
                     { 
                     cout << "Combine " << p << " and " << q << endl;
-                    if (p < q)
-                        groups[q].push_back(p);
-                    else 
-                        groups[p].push_back(q);
+                    if (p < q) 
+                        {
+                        int dest_group = p;
+                        // find our 'final' group.
+                        while (group_membership[dest_group] != dest_group)
+                            dest_group = group_membership[dest_group];
+                            
+                        groups[dest_group].push_back(q);
+                        group_membership[q] = dest_group;
+                        }
                     }                
                 }
             }
 
+        // Remove nodes that have been combined with others.
+        for (int i = 0; i < group_membership.size(); i++)
+            if (group_membership[i] != i)
+                groups[i].erase(groups[i].begin());
+
         // Remove empty groups.
         for (int i = 0; i < groups.size(); i++)
             {
-            if (groups[i].size() == 0) {
+            if (groups[i].size() == 0) 
+                {
                 groups.erase(groups.begin()+i);
                 i--;
-            }
+                }
             }
 
-        // update group_membership
+        // update group_membership values to reflect groups 
+        // that have been removed.
         for (int g = 0; g < groups.size(); g++)
             {
             for (vector<int>::iterator s = groups[g].begin();
@@ -164,6 +200,7 @@ struct Transition_Table {
                  s++)
                 {
                 group_membership[*s] = g;
+                cout << "g[" << g << "]: state " << *s << " -> group " << g << endl;
                 }
             }
 
@@ -374,11 +411,17 @@ int main(int argc, char *argv[])
             cout << strings[i] << "\t" << "FAIL" << endl;
         }
 
-    cout << "\nMinimizing: " << endl;
-    transition_table.minimize(accepting_states);
+    if (argc == 5)
+        {
+        cout << "\nMinimizing: " << endl;
+    
+        transition_table.minimize(accepting_states);
+        
+        cout << "Resulting FA:" << endl
+             << transition_table.toString() << endl;
 
-    cout << "Resulting FA:" << endl
-         << transition_table.toString() << endl;
+        }
+
     cout << "Done." << endl;
     return 0;
 }
