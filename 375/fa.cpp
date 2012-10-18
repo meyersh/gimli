@@ -244,8 +244,8 @@ struct Transition_Table {
 };
 
 struct Alphabet {
-    bool alphabet[255] = {false};
-    int alphabet_size = 0;
+    bool alphabet[255];
+    int alphabet_size;
     
     int size() 
     {
@@ -254,6 +254,8 @@ struct Alphabet {
     
     void fromString(string input_alphabet) 
     {
+        alphabet_size = 0;
+
         for (int i = 0; i < input_alphabet.length(); i++)
             if (isalpha(input_alphabet[i])) 
                 {
