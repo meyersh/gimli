@@ -33,7 +33,6 @@ struct Nondeterministic_Finite_Automaton {
     Nondeterministic_Finite_Automaton(int nstates) 
     {
         table.resize(nstates);
-        alphabet.insert('^');
     }
     
     set<int> &delta(int src_q, char sigma) 
@@ -87,6 +86,9 @@ struct Nondeterministic_Finite_Automaton {
 
     void eliminate_lambda_transitions() 
     {
+        if (alphabet.count('^') == 0)
+            return;
+        
         set<int> s;
         
         // For each state, q...
