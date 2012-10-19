@@ -1,4 +1,4 @@
-#CXX=clang++
-#CC=clang
-fa: shaun.o fa.o
-	$(CXX) -g shaun.o fa.o -o fa
+CXX=clang++
+CC=clang
+nfa: shaun.cpp nfa.cpp
+	$(CXX) -g shaun.cpp nfa.cpp -o nfa
