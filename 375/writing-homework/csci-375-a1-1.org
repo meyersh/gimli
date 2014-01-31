@@ -1,0 +1,234 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+
+CSCI 375:A1.1
+
+Do the following exercises from the end of chapter 1 of the textbook.
+
+* DONE 1.1 d
+In each case below, construct a truth table for the statement and find
+another statement with at most one operator (\vee, \wedge, \not, or
+\rightarrow ) that is logically equivalent.
+
+- d. (p \rightarrow q ) \wedge (\not p \rightarrow q )
+
+  |   |   | 1               | 4      | 2      | 3                    |
+  | p | q | p \rightarrow q | \wedge | \not p | \not p \rightarrow q |
+  | F | F | T               | F      | T      | F                    |
+  | F | T | T               | T      | T      | T                    |
+  | T | F | F               | F      | F      | T                    |
+  | T | T | T               | T      | F      | T                    |
+
+Logically equilvalant truth table:
+
+| p | q | o |
+| F | F | F |
+| F | T | T |
+| T | F | F |
+| T | T | T |
+
+A logically equilvalent statement is q \wedge q.
+
+* DONE 1.3
+
+Suppose m_1 and m_2 are integers representing months $(1 \leq m_i \leq
+12)$, and d_{1} and d_{2} are integers representing days (d_i is at least 1
+and no larger than the number of days in month m_{i}). For each i, the
+pair (m_{i},d_{i}) can be thought of as representing a date; for
+example, (9,18) represents September 18. We wish to write a logical
+proposition involving the four integers that says (m_{1},d_{1}) comes
+before (m_{2},d_{2}) in the calendar.
+
+- a. Find such a proposition that is a disjunction of two propositions
+  (i.e., combines them using \vee).
+
+  $\neg(m_i \geq m_{i+1} \vee d_i \geq d_{i+1})$
+
+
+- b. Find such a proposition that is a conjunction of two propositions
+  (combines them using \wedge).
+
+  $m_i < m_{i+1} \wedge d_i < d_{i+1}$
+
+* DONE 1.4 b, f
+  In each case below, say whether the statement is a tautology, a
+  contradiction, or neither.
+
+  - b. p \wedge \not (p \rightarrow p)
+
+    | p | \wedge | \not (p \rightarrow p) |
+    | F | F      | F                      |
+    | T | F      | F                      | 
+
+    This statement is a contradiction.
+
+  - f. (p \wedge q) \vee (\not p) \vee (\not q)
+
+    | p | q | (p \wedge q) | \vee | \not p \vee \not q |
+    | F | F | F            | T    | T                  |
+    | F | T | F            | T    | T                  |
+    | T | F | F            | T    | T                  |
+    | T | T | T            | T    | F                  |
+
+    This statement is a tautology.
+
+* DONE 1.7 c
+  Describe each of the following infinite sets using set builder
+  notation.
+
+  - c. {\{0}, {0,1}, {0,1,2}, {0,1,2,3}, \cdots }
+
+    $\displaystyle\bigcup_{i \in N}\{\{n\} : n \leq i,  n \in N\}$
+
+* DONE 1.8 a, c
+  In each case below, find an expression for the indicated set,
+  involving A, B, C, and any of the operations \cup , \cap , $-$, and $'$.
+
+  - a. {x | x \in A or x \in B but not both}
+
+    $A \cup B - A \cap B$
+
+  - c. {x | x is an element of at most one of the three sets A, B, and C}
+    
+    $A \cup B \cup C - A \cap B - A \cap C - B \cap C$
+    
+* DONE 1.9 a, b, g, h
+
+  For each integer n, denote by C_n the set of all real numbers less
+  than n, and for each positive number n let D_n be the set of all
+  real numbers ess than 1/n. Express each of the following unions or
+  intersections in a simpler way. For example, the answer to (a) is
+  c_{10}. The answer is not always on of the sets C_i or D_i, but
+  there is an equally simple answer in each case. Since \infty is
+  not a number, the expressions C_{\infty} and D_{\infty} do not
+  make sense and should not appear in your answers.
+
+  - a. $\bigcup\{C_n | 1 \leq n \leq 10\}$
+
+    C_{10}
+
+  - b. $\bigcup\{D_n | 1 \leq n \leq 10\}$
+    
+    D_{1}
+
+  - g. $\bigcap\{C_n | 1 \leq n\}$
+
+    $D_{1}'$
+
+  - h. $\bigcap\{D_n | 1 \leq n\}$
+
+    $C_{1}$
+
+* DONE 1.11 a, d
+In each case below, say whether the given statement is true for the
+universe $(0,1) = \{x \in R : 0 < x < 1\}$, and say whether
+it is true for the universe $[0,1] = \{x \in R : 0 \leq x
+\leq 1\}$. For each of the cases, you should therefore give two
+true-or-false answers.
+
+  - a. $\forall_{x}(\exists_{y}(x \gt y))$
+
+    For all x, there exists a $y$ where $x > y$. 
+
+    $(0,1)$ - True. For every number > 0, there exists a number slightly closer to 0.
+
+    $[0,1]$ - False. At 0, there is no smaller number in this domain. 
+
+  - d. $\exists_{y}(\forall_{x}(x \geq y))$
+  
+    There exists y, such that all $x \geq y$.
+
+    $(0,1)$ - False, there is always a number slightly closer to zero.
+
+    $[0,1]$ - True, there exists 0 and all x is $\geq$ to it. 
+
+* DONE 1.12
+- a. How many elements are there in the set \{\emptyset, \{\emptyset\},
+  \{\emptyset, \{\emptyset\}\}, \{\emptyset, \{\{\emptyset, \{\emptyset\},
+  \{\emptyset, \{\emptyset\}\}\}\}\}\}
+  
+  The cardinality of the set is $4$.
+
+- b. Describe precisely the algorithm you used to answer part (a).
+
+  I view this set as:
+
+  #+BEGIN_EXAMPLE
+  { {}, 
+    {0}, 
+    {0, {0}}, 
+    {0, { {0,{0},{0, {0}}}}} 
+  } 
+  #+END_EXAMPLE
+
+  This shows that there are four slots, one $\emptyset$, shown as an
+  empty set, and three sets (of $\emptyset$'s). I do not count the
+  first empty set and do not count members of any 'child' sets.
+
+* DONE 1.15a
+Suppose that A and B are subsets of a universal set U.
+- a. What is the relationship between 2^{A \cup B} and 2^A \cup 2^B ?
+  (Under what circumstances are they equal? If they are not equal, is
+  one necessarily a subset of the other, and if so, which one?) Give
+  reasons for your answers.
+
+  The relationship is $2^A \cup 2^B \subseteq 2^{A \cup B}$
+
+  * Under what circumstances are they equal?
+    
+    $2^{A \cup B} = 2^A \cup 2^B$ when $A = B$.
+
+  * If they are not equal, is one necessarily a subset of the other, and if so, which one?
+
+    Yes, one is a subset because in $2^{A \cup B}$ will invariably
+    contain A and B. It will also possess sets containing elements of
+    both A and B intermixed which would not be present in $2^A \cup
+    2^B$.
+    
+* DONE 1.38 (all parts)
+
+In each case below, write a quantified statement, using the formal
+notation discussed in the chapter, that expresses the given
+statement. In both cases the set A is assumed to be a subset of the
+domain, not necessarily the entire domain.
+
+- a. There are at least two distinct elements in the set A satisfying
+  the condition P(i.e., for which the proposition P(x) holds).
+
+  $x,y \in A \wedge \exists_{x,y}(P(x) \wedge P(y))$
+
+- b. There is exactly one element x in the set A satisfying the condition P.
+
+  $x,y \in A \wedge \exists_{x}(P(x)) \wedge \neg \exists_{x,y}(P(x) \wedge P(y) \wedge x \neq y))$
+
+* DONE 1.54
+
+Prove that for every positive integer $n$, there is a nonnegative
+integer $i$ and an odd integer $j$ so that $n = 2^i \cdot j$.
+
+Odd numbers:
+
+1. multiplicative identity, which says $n*1 = n$.
+
+2. Any number raised to the 0th power is 1, therefore any odd number
+   may be represented by $2^0 * n = n$
+
+Powers of two:
+
+1. multiplicative identity, which says $n*1 = n$.
+
+2. Therefore, any power of two may be expressed as $2^i * 1 = n$
+
+Even numbers:
+
+1. Let us define a number as even if there exists an integer $k$ so that $n=2k$.
+
+2. Let us define a number as odd if there exists an integer $l$ such that $n = 2l+1$
+
+3. If a number has no odd factors, it is a power of two (see above rule)
+
+4. Even numbers that are non-powers of two, must possess an odd factor. $n = 2(2l + 1)$.
+
+5. Factoring: $n = 4l + 4 = 4(l+1)$ 
+
+6. Therefore, all even (non power-of-two) numbers may be represented as $n = 2^2*(l+1)$.

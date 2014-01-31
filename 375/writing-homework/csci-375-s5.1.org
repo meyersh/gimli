@@ -1,0 +1,38 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+
+CSCI 375: S5.1 
+
+Study the introduction to chapter 5 and sections 5.1-5.2 of the
+textbook.  Then do the following exercises from the end of the
+chapter.  Bring a printed copy to class.
+
+* 5.1a
+  For the PDA in Table 5.4, trace the sequence of moves made for the
+  following input strings:
+
+** string ab
+$(q_0, ab, Z_0) \vdash (q_1, b, aZ_0) \vdash (q_2, \Lambda, Z_0) \vdash (q_3, \Lambda, Z_0)$
+
+** string aab
+$(q_0, aab, Z_0) \vdash (q_1, ab, aZ_0) \vdash (q_1, b, aaZ_0) \vdash (q_2, \Lambda, aZ_0) \vdash (q_3, \Lambda, aZ_0)$
+
+We are not in an accepting state because the string has not been fully processed (the stack is not empty.). 
+
+** string abb
+$(q_0, abb, Z_0) \vdash (q_1, bb, aZ_0) \vdash (q_2, b, aZ_0) \vdash (q_2, b, Z_0) \vdash$ No move.
+
+We have consumed as much of the string as possible, but have not moves left for the configuration we are in.
+
+* 5.1b 
+  For the PDA in table 5.6, trace the sequence of moves made for the
+  following input string:
+
+** string baca
+$(q_0, baca, Z_0) \vdash (q_0, aca, bZ_0) \vdash (q_0, ca, abZ_0) \vdash (q_1, a, abZ_0) \vdash (q_2, \Lambda, bZ_0)$
+
+We are not in an accepting state because there are unprocessed
+elements on the stack.
+

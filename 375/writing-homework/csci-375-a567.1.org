@@ -1,0 +1,217 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+
+CSCI-375-a567.1.org
+
+Upload PDF when completed (and by the deadline)
+
+Do the following exercises:
+
+* Item 5.10 from the textbook
+Show that every regular language can be accepted by a deterministic
+PDA $M$ with only two states in which there are no
+$\lambda$-transitions and no symbols are ever removed from the stack.
+
+This question gives me strong deja vu! I shall give my same answer:
+
+For any regular language, we only need to states: Accepting and Rejecting.
+
+Every regular language can be accepted by an FA. To show that the
+machine in question can accept regular languages, it is sufficient to
+show how any FA may be transformed into a machine of this type.
+
+1) $\Sigma_{fa} = \Sigma_{dpda}$. The input alphabets are the same. 
+
+2) $\Gamma = Q_{fa}$. All states in the FA become stack symbols. The
+   empty stack symbol, $Z_0$, is represented by the FA's start state.
+
+3) The transition function of the FA is changed. For each $q, q_1 \in
+   Q_{fa}$ and $\sigma \in \Sigma_{fa}$, the FA transition $\delta(q, \sigma) \rightarrow q_1$
+   becomes $\delta(q_n, \sigma, q_1) \rightarrow q_m$ in the
+   DPDA. Here, $q_n$ and $q_m$ are chosen to match the accepting states of $q$ and $q_1$.
+
+In this way, the top-of-stack is treated as the current state from the
+FA. When the input is consumed, the current state of the DPDA will
+indicate whether the string was accepted or not.
+
+* Create NT (G) from the following grammer, $G$ 
+$S\rightarrow (S)\ |\ [S]\ |\ \{S\}\ |\ SS\ |\ ()\ |\ []\ |\ \{\}$  
+
+Use definition 5.17:
+
+|$Q = \{q_0, q_1, q_2\}$ | $A = \{q_2\}$ | $\Gamma = V \cup \Sigma \cup \{Z_0\}$ |
+
+The initial move of NT(G) is the $\Lambda$-transition
+
+$\delta(q_0, \Lambda, Z_0) = \{(q_1, SZ_0)\}$
+
+and the only move to the accepting state is the $\Lambda$-transition
+
+$\delta(q_1, \Lambda, Z_0) = \{(q_2, Z_0)\}$
+
+The moves from $q_1$ are the following:
+- For every $A \in V, \delta(q_1, \Lambda, A) = \{(q_1, \alpha) | A \rightarrow \alpha \in G\}$
+  - $\delta(q_1, \Lambda, S) = \{(q_1,(S)), (q_1,[S]), (q_1,\{S\}), (q_1, SS), (q_1, ()), (q_1, []), (q_1,\{\})\}$
+- For every $\sigma \in \Sigma, \delta(q_1, \sigma, \sigma) = \{(q_1, \Lambda)\}$
+  - (presuming the characters we see make up the entire alphabet)
+  - $\delta(q_1, (, () = \{(q_1, \Lambda)\}$
+  - $\delta(q_1, ), )) = \{(q_1, \Lambda)\}$
+  - $\delta(q_1, [, [) = \{(q_1, \Lambda)\}$
+  - $\delta(q_1, ], ]) = \{(q_1, \Lambda)\}$
+  - $\delta(q_1, \{, \{) = \{(q_1, \Lambda)\}$
+  - $\delta(q_1, \}, \}) = \{(q_1, \Lambda)\}$
+    
+* Starting with the PDA given by table 5.21 on page 180, 
+use the procedure from section 5.4 of the textbook to create a grammar
+for the CFL recognized by the PDA.
+
+| Move Number | State | Input     | Stack Symbol | Move                                    |
+|           1 | $q_0$ | $\Lambda$ | $Z_0$        | $(q_1, SZ_0)$                           |
+|           2 | $q_1$ | $\Lambda$ | $S$          | $(q_1, [S]), (q_1, SS), (q_1, \Lambda)$ |
+|           3 | $q_2$ | [         | $[$          | $(q_1, \Lambda)$                        |
+|           4 | $q_3$ | ]         | $]$          | $(q_1, \Lambda)$                        |
+|           5 | $q_4$ | $\Lambda$ | $Z_0$        | $(q_2, Z_0)$                            |
+|             |       | All other | combinations | None.                                   |
+
+Our machine:
+- $Q = \{q_0, q_1, q_2, q_3, q_4\}$
+- $\Sigma = \{[, ], \Lambda\}$
+- $\Gamma = \{Z_0, S\}$ (It is implied that this includes $\Sigma$.)
+
+** Solution:
+
+1) For every $q \in Q$, the production $S \rightarrow [q_0, Z_0, q]$ is in $P$.
+
+   - $S \rightarrow [q_0, Z_0, q_0]$
+   - $S \rightarrow [q_0, Z_0, q_1]$
+   - $S \rightarrow [q_0, Z_0, q_2]$
+   - $S \rightarrow [q_0, Z_0, q_3]$
+   - $S \rightarrow [q_0, Z_0, q_4]$
+
+2) For every $q, q_1 \in Q$, every $\sigma \in \Sigma \cup
+   \{\Lambda\}$, and every $A \in \Gamma$, if $\delta(q, \sigma, A)$
+   contains $(q_1, \Lambda)$, then the production $[q,A,q_1]
+   \rightarrow \sigma$ is in $P$.
+
+   Moves 2, 3, and 4 meet this criteria:
+   - $[q_1, S, q_1] \rightarrow \Lambda$
+   - $[q_2, [, q_1] \rightarrow [$
+   - $[q_3, ], q_1] \rightarrow [$
+
+3) For every $q, q_1 \in Q$, every $\sigma \in \Sigma \cup
+   \{\Lambda\}$, every $A \in \Gamma$, and every $m \geq 1$, if
+   $\delta(q, \sigma, A)$ contains $(q_1, B_1B_2\dots{}B_m)$ for some
+   $B_1,B_2,\dots,B_m$ in $\Gamma$, then for every choice of $q_2,
+   q_3,\dots,q_{m+1}$ in $Q$, the production:
+  
+   $[q, A, q_{m+1}] \rightarrow \sigma[q_1, B_1, q_2][q_2, B_2, q_3]\dots[q_m, B_m, q_{m+1}]$
+
+   is in $P$.
+
+   Moves 1, 2, and 5 meet this criteria. Below, $x_i$ represents each
+   possible combination of states.
+
+   - $[q_0, Z_0, x_0] \rightarrow \Lambda[x_1, S, x_2][x_2, Z_0, x_0]$
+
+   - $[q_1, S, x_0] \rightarrow \Lambda[x_1, S, x_2][x_2, S, x_0]$
+
+   - $[q_5, Z_0, x_0] \rightarrow \Lambda[x_1, Z_0, x_0]$
+
+* Item 6.2f from the textbook
+
+In the case below, show using the pumping lemma that the given language is not a CFL.
+
+- $L = \{x \in \{a,b,c\}^*\ |\ n_a(x) = min(n_b(x)_, n_c(x))\}$
+
+That is, the language over a's, b's, and c's where the number of a's
+is equal to whichever is fewer: b's or c's.
+
+Let our string, $u$, be $a^{n}b^{n}c^{n}$.
+
+Per theorem 6.1:
+
+1. $|wy| > 0$
+2. $|wxy| \leq n$
+3. for every $m \geq 0$, $vw^mxy^mz \in L$
+
+** Cases:
+$wy$ may not contain both a's and c's because there are at least $n$ b's between them. 
+
+1. $wy$ consists of some a's and b's.
+
+Any pumping will cause an imbalance of a's and c's (because b is now > c)
+
+1. $wy$ consists of some b's and some c's
+
+   Any pumping will cause an imbalance of a's to both b's and c's.
+
+3. $wy$ consists entirely of a's
+   
+   Any pumping will cause A to not match b's or c's.
+
+4. $wy$ consists entirely of b's.
+
+   Pumping to 0 will cause the number of b's to be the min, and a's will not match.
+
+5. $wy$ consists entirely of c's.
+
+   Pumping to 0 will cause the number of c's to be the min, and the a's will not match.
+
+* Redo item 6.2f using Ogden's Lemma
+In the case below, show using the pumping lemma that the given language is not a CFL.
+
+- $L = \{x \in \{a,b,c\}^*\ |\ n_a(x) = min(n_b(x)_, n_c(x))\}$
+
+That is, the language over a's, b's, and c's where the number of a's
+is equal to whichever is fewer: b's or c's.
+
+** Ogdens Lemma:
+
+1) The string $wy$ contains at least one distinguished position.
+2) The string $wxy$ contains $n$ of fewer distingished positions.
+3) For every $m \geq 0$, $vw^mxy^mz \in L$
+
+Let the string $u$ be $a^nb^{n\!}c^n$. 
+
+Observe that $min(n_b(u),n_c(u)) = c$ and $n_a(u) = n_c(u)$
+
+Let all $n$ distinguished positions be over the a's. Observe that any
+pumping will alter the number of a's in relation to the number of c's
+which causes a contradiction. Therefore, $L$ is not a CFL.
+
+* Do item 7.6 from the textbook.
+
+Draw a transition diagram for a TM accepting $Pal$, the lanauge of
+palindromes over $\{a,b\}$, using the following approach. Look at the
+leftmost symbol of the current string, erase it but remember it, move
+to the right most symbol and see if it matches the one on the left; if
+so, erase and go back to the left end of the remaining string. Repeat
+these steps until either the symbols are exhausted or the two symbols
+on the ends don't match.
+
+$\Gamma = \{a,b,\#\}$ Let $#$ be the erased characters. 
+
+| State     | Next | Reading | Writing | Delta | Comment                                            |
+| Q_0       | $Q_1$ | a       | #       | R     |                                                    |
+|           | $Q_3$ | b       | #       | R     |                                                    |
+|           | $Q_0$ | #       | #       | R     |                                                    |
+|           | $H_a$ | \Lambda | \Lambda | S     | We got to the end of the string. Bingo             |
+| Q_1       | $Q_1$ | a       | a       | R     | Remember a, move to end of string                  |
+|           | $Q_1$ | b       | b       | R     |                                                    |
+|           | $Q_1$ | #       | #       | L     | Looking left for that a.                           |
+|           | $H_r$ | \Lambda | \Lambda | S     | ran off the string. Not PAL.                       |
+| Q_2       | RET  | a       | #       | L     | Found it, go home.                                 |
+|           | $H_r$ | b       | b       | S     |                                                    |
+|           | $H_r$ | #       | #       | S     |                                                    |
+| Q_3       | $Q_3$ | a       | a       | R     | Remember b, move to end of string                  |
+|           | $Q_3$ | b       | b       | R     |                                                    |
+|           |      | #       | #       | L     | Looking left for that b.                           |
+|           | $H_r$ | \Lambda | \Lambda | S     | ran off the string. Not PAL. |
+| Q_4       | RET  | b       | #       | L     | Found it, go home.                                 |
+|           | $H_r$ | a       | a       | S     |                                                    |
+|           | $H_r$ | #       | #       | S     |                                                    |
+| Q_5 (RET) | $Q_5$ | a       | a       | L     | Going home                                         |
+|           | $Q_5$ | b       | b       | L     |                                                    |
+|           | $Q_0$ | #       | #       | R     | Looping                                            |

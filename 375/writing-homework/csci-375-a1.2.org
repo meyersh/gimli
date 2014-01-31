@@ -1,0 +1,199 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+#+LaTeX_HEADER: \usepackage{amsmath}
+
+CSCI 375:A1.2
+
+Do the following exercises from the end of chapter 1 of the textbook:
+
+* 1.17 c
+In each case below, say whether the indicated function is one-to-one
+and what its range is.
+-  c. $s:N \rightarrow N$ defined by $s(x)=m(x)+M(x)$
+
+This function is one-to-one with a range of $x \geq 2$.
+
+* 1.18
+Find a formula for a function from $\mathbb{Z}$ to $\mathbb{N}$ that is a bijection.
+
+
+- One may simple map 0 to 0, all negative numbers in $\mathbb{Z}$ to
+  the odd numbers in $\mathbb{N}$, and all positive numbers in
+  $\mathbb{Z} to the even numbers in $\mathbb{N}$.
+
+  Therefore:
+
+  $\text{let } z \in \mathbb{Z}$,
+
+#+BEGIN_LaTeX
+\[
+n(z) = 
+     \begin{cases}
+       0 & \text{if } z = 0 \\
+       |2z| - 1 & \text{if } z < 0\\
+       2z & \text{if } z > 0
+     \end{cases}
+\]
+#+END_LaTeX
+
+* 1.26
+Let $R$ be a relation on a set $S$. Write three quantified statements
+(the domain being $S$ in each case), which say, respectively, that $R$ is
+not reflexive, $R$ is not symmetric, and R is not transitive.
+
+- $x \in S$, $(x,x) \not \in R$
+- $x,y \in S$, $(x,y) \in R, (y,x) \not \in R$ 
+- $x,y,z \in S$, $(x,y) \in R, (y,z) \in R, (x,z) \not \in R$.
+
+* TODO 1.28 (all parts)
+Suppose $A$ and $B$ are sets, $f:A \rightarrow B$ is a function, and
+$R$ is the relation on $A$ so that for $x,y \in A$, $xRy$ if and only
+if $f(x)=f(y)$.
+
+- a. Show that $R$ is an equivalence relation on $A$.  
+
+$xRy$ if $f(x)=f(y)$, therefore $xRx$ because $f(x)=f(x)$. R is reflexive.
+
+If $xRy$ if $f(x)=f(y)$ then $xRy$ because $f(y)=f(x)$. R is symmetric.
+
+If $f(x)=f(y)=f(z)$, and $x \in R$, $xRy$ and $yRz$ implies $xRz$. R
+is transitive.
+
+Because R is reflexive, symmetric, and transitive this means it is an
+\emph{equivalence} relation
+
+- b. If $A=\{0,1,2,3,4,5,6,7,8\}$, $B=\mathbb{N}$, and $f(x)=(x-3)^2$ for every
+  $x \in A$, how many equivalence classes are there, and what are the
+  elements of each one?
+
+  For an equivalence relation $R$ on a set $A$, and an element $x \in
+  A$, the equivalence class containing $x$ is $[x]_R = \{y \in A |
+  yRx\}$
+
+  There are 6 equivalence classes:
+  - $|x|_0 = \{0, 6\}$
+
+  - $|x|_1 = \{1, 4\}$
+
+  - $|x|_2 = \{2, 4\}$
+
+  - $|x|_3 = \{0\}$
+
+  - $|x|_7 = \{7\}$
+
+  - $|x|_8 = \{8\}$
+
+- c. Suppose $A$ has $p$ elements and $B$ has $q$ elements. If the
+  function $f$ is one-to-one (not necessarily onto), how many
+  equivalence classes does the equivalence relation $R$ have? If the
+  function $f$ is onto (not necessarily one-to-one), how many
+  equivalence classes does R have?
+
+  - If $f(x)$ is one-to-one, $f(x) = f(y)$ implies $x = y$, therefore
+    no two numbers will be functionally equivalent and $R$ will have
+    $p \cdot q$ elements.
+
+  - If $f(x)$ is onto, $f(x) = f(y)$ does not imply $x = y$, therefore
+    multiple numbers may be functionally equivalent and $|R| \leq p
+    \cdot q$.
+
+* 1.36 a
+- a. Consider the language $L$ of all strings of a’s and b’s that
+  do not end with $b$ and do not contain the substring $bb$. Find a finite
+  language $S$ such that $L = S^{\ast}$.
+
+  1. $a \in S$
+
+  2. $x \in \{a,b\}, xa \in S$
+
+  3. $x,y \in S, xy \in S$
+
+* 1.45
+Prove using mathematical induction that for every nonnegative integer
+$n$, 
+
+$\displaystyle\sum^{n}_{i=1} \frac{1}{i(i + 1)} = \frac{n}{n+1}$ 
+
+(If n = 0, the sum on the left is 0 by definition.)
+
+\emph{Proof.} Let n = 1. $\frac{1}{1(1+1)} = \frac{1}{1+1}$. The formula holds for $n=1$. 
+
+Let n = k. $\frac{1}{1(k+1)} = \frac{k}{k+1}$. The formula holds for $n=k$.
+
+Show that it is true for $k+1$. 
+
+$\frac{k}{k(k+1)} + \frac{k+1}{(k+1)((k+1)+1)} = \frac{k+1}{(k+1)+1}$
+
+$(\frac{1}{(k+1)})(\frac{1}{k}+\frac{k+1}{k+2}) = \frac{k+1}{(k+1)+1}$
+
+$\frac{2(k+1)}{k(k+2)(k+1)} = \frac{k+1}{(k+1)+1}$
+
+$\frac{2}{k(k+2)} = \frac{k+1}{(k+1)+1}$
+
+$\therefore$ the formula holds for $k+1$ and for all $k$.
+
+$\blacksquare$
+
+* 1.58
+The numbers $a_n$, for $n \geq 0$, are defined recursively as
+follows. 
+
+$a_0 =-2$; $a_1 =-2$; for $n \geq 2$, $a_n = 5a_{n-1} - 6a_{n-2}$ 
+
+Use strong induction to show that for every $n \geq 0$, $a_n = 2 \cdot
+3^n-4*2^n$. (Refer to Example 1.24.)
+
+Basis step.
+- $n=0, a_0 = 2 \cdot 3^0 - 4 \cdot 2^0 = 2 - 4 = -2$
+- $n=1, a_1 = 2 \cdot 3^1 - 4 \cdot 2^1 = 2 - 4 = -2$
+- $a_2 = 5a_1 - 6a_0 = 5(-2) - 6(-2) = -10 + 12 = 2$
+
+The property holds for $n \leq 3$.
+
+Because $a_{(n \geq 2)}$ is built from $a_{(n-1)}$ and $a_{(n-2)}$, if the
+property holds for $n-1$ and $n-2$ it holds for all $n$.
+
+A simple calculation demonstrates that the property holds for $a_3$,
+therefore the property holds for all $a_n$ which are derived from
+these base factors. $\blacksquare$
+* 1.61
+Find a recursive definition for the language $L = \{a^ib^j | i \leq j
+\leq 2i\}$, and show that it is correct (i.e., show that the language
+described by the recursive definition is precisely $L$). In order to
+come up with a recursive definition, it may be helpful to start with
+recursive definitions for each of the languages $\{a^ib^i | i \geq
+0\}$ and $\{a^ib^{2i} | i \geq 0\}$.
+
+1. $\lambda \in L$
+2. $x \in L, axb \in L$
+3. $x \in L, axbb \in L$
+
+Rule 1 will always add 1 a and 1 b.
+
+Additionally, because we only add b's at a maximum of 2a, we'll never
+have $N_b(x) > 2\cdot N_a(x)$.
+
+Therefore, everything in $L_{\text{rd}} \in L$
+
+It is also not possible to have a string in $L$ that cannot be created
+by the recursive definition ($L_{\text{rd}}$).
+
+\emph{Proof.} 
+
+
+** Case 1: Same number of a's and b's
+1. $x \in L$
+2. $N_a(x) = N_b(x)$
+3. $x = ayb, y \in L$
+
+** Case 2: Fewer a's than b's
+1. $x \in L$
+2. $N_a(x) < N_b(x)$
+3. $x = aybb, y \in L$ 
+   - 3.1. $N_a(y) \leq N_b(y)$. 
+
+While $|x| > 0$, case 1 or Case 2 may always be applied. Therefore,
+there is no string in $L$ which has not been generated by
+$L_{\text{rd}}$ \blacksquare

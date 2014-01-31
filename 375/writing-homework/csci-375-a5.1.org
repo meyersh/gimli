@@ -1,0 +1,89 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+
+CSCI 375: A5.1
+
+Do the following exercises from the end of chapter 5 of the textbook.
+
+* DONE 5.5a
+Give transition tables for PDAs accepting each of the following
+languages.
+
+- A. The language of all odd-length strings over $\{a, b\}$ with a
+  middle symbol $a$.
+
+I was not sure at all how to procede here, so I used Definition 5.17:
+Creating a PDA from a CFG.
+
+Let $S \rightarrow a\ |\ aSb\ |\ bSa\ |\ bSb\ |\ aSa$.
+
+The resulting machine is:
+$Q = \{q_0, q_1, q_2\}, A = \{q_2\}, \Gamma = \{S, a, b, Z_0\}$
+
+| $\delta(q_0, \Lambda, Z_0) = \{(q_1,SZ_0)\}$                                           |
+| $\delta(q_1, \Lambda, Z_0) = \{(q_2,Z_0)\}$                                            |
+| $\delta(q_1, \Lambda, S) = \{(q_1,a), (q_1, aSb), (q_1, bSa), (q_1, bSb), (q_1, aSa)\}$ |
+| $\delta(q_1, a, a) = \{(q_1,\Lambda)\}$                                                |
+| $\delta(q_1, b, b) = \{(q_1,\Lambda)\}$                                                                                       |
+
+* DONE 5.9
+Table 5.6 shows the transions for a PDA accepting
+\emph{SimplePal}. Draw a transition table for another PDA accepting
+this language and having only two states, the nonaccepting state $q_0$
+and the accepting state $q_2$. (Use additional stack symbols.)
+
+| Move Number | State | Input     | Stack Symbol | Move(s)          |
+|           1 | $q_0$ | a         | $Z_0$        | ($q_0, aZ_0$)    |
+|           2 | $q_0$ | b         | $Z_0$        | ($q_0, bZ_0$)    |
+|           3 | $q_0$ | a         | a            | ($q_0, aa$)      |
+|           4 | $q_0$ | b         | b            | ($q_0, bb$)      |
+|           5 | $q_0$ | c         | a            | ($q_1, a$)       |
+|           6 | $q_0$ | c         | b            | ($q_1, b$)       |
+|           7 | $q_0$ | c         | c            | ($q_1, \Lambda$) |
+|           8 | $q_1$ | a         | a            | ($q_0, ca$)      |
+|           9 | $q_1$ | b         | b            | ($q_0, cb$)      |
+|          10 | $q_1$ | $\Lambda$ | $Z_0$        | ($q_1, Z_0$)      |
+
+This state machine uses the idea of "modes." In the first "mode", it
+loads up the stack with symbols until it reads a 'c'. It then moves
+(temporarily) into the accepting state which will immediately
+transition out to $q_0$ and put a 'c' on the top of the stack. The
+first state then strips this symbol and passes the state back
+to 2. The only way the machine stays in the accepting state is on an
+empty stack and the only way to get there in this configuration is
+when the string is a palindrome.
+
+* DONE 5.12
+Show that if $L$ is accepted by a PDA in which no symbols are ever
+removed from the stack, then $L$ is regular.
+
+- If no symbols are ever removed from the stack, you are simply using
+  two conditions for each delta (input character and top of stack.)
+  However, the stack it self cannot influence accepting states with
+  any meaning because the stack will only have the most recent element
+  on it.
+
+  Therefore, a machine of this nature could be satisfied by an FA and
+  FA's only accept regular languages.
+
+* DONE 5.16
+Show that if $L$ is accepted by a PDA, then $L$ is accepted by a PDA
+that never crashes (i.e., for which the stack never empties and no
+configuration is reached from which there is no move defined.)
+
+** Case 1: A string in L causes our PDA to crash (this never happens)
+- Assume that $L$ is accepted by a PDA that crashes reading $L$, then
+  $L$ is accepted by a PDA that crashes. A crashed PDA is not an
+  accepting PDA. Contradiction.
+
+** Case 2: A string not in L causes our PDA to crash 
+My solution to crashing PDA's is to create a purgatory state. On a
+nonvalid configuration (empty stack where we don't want one, short
+circuiting where there is obviously no need to progress, etc)
+transition to purgatory. 
+
+From purgatory, all configurations lead back to itself while we
+consume input.
+ 

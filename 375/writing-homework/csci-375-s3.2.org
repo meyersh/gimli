@@ -1,0 +1,62 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+
+CSCI 375: S3.2
+
+Read sections 3.2-3.3 of the textbook.  Then do the following
+exercises from the end of the chapter.  Bring a printed copy to class.
+
+* 3.18 a, b, c
+
+Figure 3.34, at the bottom of this page, shows a transition diagram for
+an NFA. For each string below, say whether the NFA accepts it.
+
+- A) $aba$
+
+The NFA could accept this string because there is a
+non-determininistic compute path to state 5 (1 $\rightarrow$ 2
+$\rightarrow$ 4 $\rightarrow \Lambda$ 5)
+
+- B) $abab$
+
+The NFA could accept this string because there is a non-deterministic
+compute path to state 5 (1 $\rightarrow$ 2 $\rightarrow \Lambda$ 3
+$\rightarrow$ 4 $\rightarrow \Lambda$ 5)
+
+- C) $aaabbb$
+
+The NFA could accept this string because there is a non-deterministic
+compute path for the prefix $aa$ to state 4 which has a
+$\Lambda$-transition into accepting state 5.
+
+* 3.33
+Give an example of a regular language $L$ containing $\Lambda$ that
+cannot be accepted by any NFA having only one accepting state and no
+$\Lambda$-transitions, and show that your answer is correct.
+
+- Let $L = a^*b^*$. Note that this includes the nullstring.  An FA
+  accepting this language is:
+
+#+BEGIN_LaTeX
+\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=2cm]
+\node [initial, state, accepting] (q0) {q0};
+\node [state] (q1) [right of=q0] {q1};
+\node [state,accepting] (q2) [below right of=q0] {q2};
+
+\path[->] (q0) edge [loop above] node {a} (q0)
+          (q0) edge              node {b} (q1)
+          (q1) edge              node {a} (q2) 
+          (q1) edge [loop above] node {b} (q1)
+          (q2) edge [loop right] node {a,b} (q2);
+
+\end{tikzpicture}
+#+END_LaTeX
+
+Because $L$ contains the nullstring, $q0$ must be an accepting
+state. However, because $L$ contains non-null strings, there must be a
+second accepting state for those. Thus, this regular language cannot
+be accepted by an NFA without multiple accepting states or a
+$\Lambda$-transition.
+

@@ -1,0 +1,70 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+
+CSCI 375: S6.1
+
+Study the introduction to chapter 6 and section 6.1 of the textbook.
+Then do the following exercises from the end of the chapter.  Bring a
+printed copy to class.
+
+* DONE 6.1
+Show using mathematical induction that a binary tree of height $h$ has
+no more than $2^h$ leaf nodes.
+
+Let $h = 0$. $2^1 = 2$, a binary tree of height 0 only a single node,
+so far so good.
+
+Let $h = 1$, $2^1 = 2$, a binary tree of height 1 has 2 leaf nodes.
+
+Inductive step, $h = h+1$. Every level has two more leaf nodes than it's parent.
+
+$2^h \cdot 2^1 = 2^{h+1}$ The rules of exponents support our
+conclusion, and therefore proves a binary tree has no more than $2^h$
+leaf nodes.
+
+
+
+* DONE 6.3 (Give at least 2 examples)
+In the pumping-lemma proof in Example 6.4, give some examples of
+choices of strings $u \in L$ with $|u| \geq n$ that would not work.
+
+The pumping lemma: There is an integer $n$ so that for every $u \in L$
+with $|u| \geq n$, $u$ can be written as $u = vwxyz$, for some strings
+$v$, $w$, $x$, $y$, and $z$ satisfying:
+
+1) $|wy| > 0$
+2) $|wxy| \leq n$
+3) for every $m \geq 0, vw^mxy^mz \in L$
+
+$L = \{xx | x \in \{a,b\}^*\}$
+
+** Strings that do not work:
+1) $a^nb^na^nb^n$
+2) $b^na^nb^nb^na^nb^n$
+
+* DONE 6.4
+In the proof given in example 6.4 using the pumping lemma, the
+contradiction was obtained in each case by considering the string
+$vw^0xy^0z$. Would it have been possible instead to use $vw^2xy^2z$ in
+each case? If so, give the proof in at least one case; if not, explain
+why not.
+
+The pumping lemma: There is an integer $n$ so that for every $u \in L$
+with $|u| \geq n$, $u$ can be written as $u = vwxyz$, for some strings
+$v$, $w$, $x$, $y$, and $z$ satisfying:
+
+1) $|wy| > 0$
+2) $|wxy| \leq n$
+3) for every $m \geq 0, vw^mxy^mz \in L$
+
+$L = \{xx | x \in \{a,b\}^*\}$
+
+According to the example, when $u = a^nb^na^nb^n$, the string $wxy$
+covers only one set of a's, either the left or the right. Therefore,
+$vw^0xy^0z = a^ib^ja^nb^n$ or $vw^0xy^0z = a^nb^ia^ia^n$.
+
+Because we're guaranteed to cover at most one side, and the language
+requires the sides to me symmetrical, pumping this to any value $\neq$
+1 will produce a string not in the language.

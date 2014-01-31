@@ -1,0 +1,202 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+
+CSCI 375: A3.1
+
+Do the following exercises from the end of chapter 3 of the textbook.
+
+* DONE 3.3a
+Let $r$ and $s$ be arbitrary regular expression over the alphabet
+$\Sigma$. In each case below, find a simpler equivalent regular
+expression.
+
+- A. $r(r^*r + r^*) + r^*$
+
+Simplifies to $r^*$.
+
+* DONE 3.38a
+Using subset construction, draw an FA accepting the same
+language. Label the final picture so as to make it clear how it was
+obtained from the subset construction.
+
+Exercise A:
+| $q$ | $\delta(q,a)$ | $\delta(q,b)$ |
+|   1 | 1,2           |             1 |
+|   2 |               |             3 |
+|  3* |               |               |
+
+Resulting FA transition table:
+| $q$         | $\delta(q,a)$ | $\delta(q,b)$ |
+| 1           | (1,2)         | 1             |
+| (1,2)       | (1,2)         | 3             |
+| 3*          | $\emptyset$   | $\emptyset$   |
+| $\emptyset$ | $\emptyset$   | $\emptyset$   |
+
+* DONE 3.41b
+For the following regular expression, draw an NFA accepting the
+corresponding language, so that there is a recognizable correspondence
+between the regular expression and the transition diagram.
+
+- b: $(a+b)^*(abb+ababa)(a+b)^*$
+
+#+BEGIN_LaTeX
+\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=2cm, scale=0.3]
+\node [initial, state] (1) {1};
+\node [state] (2) [above right of=1] {2};
+\node [state] (3) [below right of=1] {3};
+\node [state] (4) [above right of=3] {4};
+\node [state] (5) [above right of=4] {5};
+\node [state] (6) [right of=5] {6};
+\node [state] (7) [right of=6] {7};
+\node [state] (8) [right of=7] {8};
+\node [state] (9) [below right of=4] {9};
+\node [state] (10) [right of=9] {10};
+\node [state] (11) [right of=10] {11};
+\node [state] (12) [right of=11] {12};
+\node [state] (13) [above right of=12] {13};
+\node [state] (14) [above right of=13] {14};
+\node [state,accepting] (15) [above right of=8] {15};
+\node [state] (16) [right of=15] {16};
+\node [state] (17) [above left of=15] {17};
+
+\path[->] 
+(1) edge              node {a} (2)
+(1) edge              node {b} (3)
+(2) edge [bend left] node {$\Lambda$} (1)
+(3) edge [bend left] node {$\Lambda$} (1)
+(1) edge              node {$\Lambda$} (4)
+(4) edge              node {$\Lambda$} (5)
+(4) edge              node {$\Lambda$} (9)
+(5) edge              node {a} (6)
+(6) edge              node {b} (7)
+(7) edge              node {b} (8)
+(8) edge              node {$\Lambda$} (15)
+
+(9) edge              node {a} (10)
+(10) edge              node {b} (11)
+(11) edge              node {a} (12)
+(12) edge              node {b} (13)
+(13) edge              node {a} (14)
+(14) edge              node {$\Lambda$} (15)
+
+(15) edge              node {a} (16)
+(16) edge [bend left] node {$\Lambda$} (15)
+(15) edge              node {b} (17)
+(17) edge [bend left] node {$\Lambda$} (15);
+
+\end{tikzpicture}
+#+END_LaTeX
+
+* DONE 3.42
+For part (e) of Exercise 3.41, draw the NFA that is obtained by a
+literal application of Kleene's thereom, without any simplifications.
+
+Figure 3.41 e: $(a^*bb)^* + bb^*a^*$
+
+
+#+BEGIN_LaTeX
+\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=2cm, scale=0.3]
+
+\node [initial, state] (0) {0};
+\node [state, accepting] (1) [above of=0] {1};
+\node [state] (2) [above of=1] {2};
+\node [state] (3) [above left of=2] {3};
+\node [state] (4) [above right of=2] {4};
+\node [state] (5) [below right of=4] {5};
+\node [state] (6) [right of=5] {6};
+\node [state] (7) [right of=6] {7};
+\node [state] (8) [right of=7] {8};
+\node [state] (9) [below right of=0] {9};
+\node [state] (10) [below right of=9] {10};
+\node [state] (13) [above right of=10] {13};
+\node [state] (11) [above left of=13] {11};
+\node [state] (12) [above right of=13] {12};
+\node [state, accepting] (14) [below right of=13] {14};
+\node [state] (15) [below right of=14] {15};
+\node [state] (16) [below left of=14] {16};
+
+\path[->] 
+(0) edge              node {$\Lambda$} (1)
+(0) edge              node {$\Lambda$} (9)
+
+(1) edge              node {$\Lambda$} (2)
+(2) edge              node {$\Lambda$} (3)
+(3) edge              node {a} (4)
+(4) edge              node {$\Lambda$} (2)
+
+(2) edge              node {$\Lambda$} (5)
+(5) edge              node {b} (6)
+(6) edge              node {$\Lambda$} (7)
+(7) edge              node {b} (8)
+(8) edge [bend left]  node {$\Lambda$} (1)
+
+(9) edge              node {b} (10)
+(10) edge              node {$\Lambda$} (13)
+(13) edge              node {$\Lambda$} (11)
+(11) edge              node {b} (12)
+(12) edge              node {$\Lambda$} (13)
+
+(13) edge              node {$\Lambda$} (14)
+(14) edge              node {$\Lambda$} (16)
+(16) edge              node {a} (15)
+(15) edge              node {$\Lambda$} (14);
+
+\end{tikzpicture}
+#+END_LaTeX
+
+
+* 
+* DONE 3.51d
+Using the algorithm of Therem 3.30 to find a regular expression
+corresponding to the following FA. If the FA has $n$ states, construct
+tables showing $L(p, q, j)$ for each $j$ with $0 <= j <= n-1$.
+
+Figure 3.40d: 
+| $q$ | a | b |
+|  1* | 3 | 1 |
+|   2 | 1 | 3 |
+|   3 | 2 | 4 |
+|   4 | 4 | 2 |
+
+Formula:
+$L(p,q,k+1) = L(p,q,k)\cup L(p,k+1,k)L(k+1,k+1,k)^*L(k+1,q,k)$
+
+With values:
+$r(1,1,4) = r(1,1,3) + r(1,4,3) r(4,4,3)* r(4,1,3)$
+
+Substituting we get:
+$r(1,1,3) = r(1,1,2) + r(1,3,2) r(3,3,2)* r(3,1,2)$
+$r(1,4,3) = r(1,4,2) + r(1,3,2) r(3,3,2)* r(3,4,2)$
+$r(4,4,3) = r(4,4,2) + r(4,3,2) r(3,3,2)* r(3,4,2)$
+$r(4,1,3) = r(4,1,2) + r(4,3,2) r(3,3,2)* r(3,1,2)$
+
+| p | r(p,1,0)      | r(p,2,0)    | r(p,3,0)  | r(p,4,0)      |
+| 1 | b + $\Lambda$ | $\emptyset$ | a         | $\emptyset$   |
+| 2 | a             | $\Lambda$   | b         | $\emptyset$   |
+| 3 | $\emptyset$   | a           | $\Lambda$ | b             |
+| 4 | $\emptyset$   | b           |           | a + $\Lambda$ |
+
+| p | r(p,1,1)    | r(p,2,1)    | r(p,3,1)    | r(p,4,1)    |
+| 1 | $b^*$       | $\emptyset$ | a           | $\emptyset$ |
+| 2 | $ab^*$      | $\Lambda$   | b           | $\emptyset$ |
+| 3 | $\emptyset$ | a           | $\emptyset$ | b           |
+| 4 | $\emptyset$ | b           | $\emptyset$ | $a^*$       |
+
+| p | r(p,1,2) | r(p,2,2)    | r(p,3,2) | r(p,4,2)    |
+| 1 | $b^*$    | $\emptyset$ | a        | $\emptyset$ |
+| 2 | $ab^*$   | $\Lambda$   | b        | $\emptyset$ |
+| 3 | $aab^*$  | a           | $ab$     | b           |
+| 4 | $ba$     | b           | bb       | $a^*$       |
+
+| p | r(p,1,3)                  | r(p,2,3)            | r(p,3,3)          | r(p,4,3)          |
+| 1 | $b^* + a(ab)^*aab^*$      | $b^*a(ab)^*a$       | $a+a(ab)^*ab$     | $a(ab)^*b$        |
+| 2 | $(ab^*) + b(ab)^*(aab^*)$ | $\Lambda + b(ab)^*a$ | $b(ab)^*$         | $b(ab)^*b$        |
+| 3 | $(aab^*) + (ab)^*(aab^*)$ | $(ab)^*a$           | $(ab)^*$          | $(ab)^*b$         |
+| 4 | $(ba) + bb(ab)^*aab^*$    | $b + bb(ab)^*a$     | $bb + bb(ab)^*ab$ | $a^* + bb(ab)^*b$ |
+
+From our above formula, $r(1,1,4) = r(1,1,3) + r(1,4,3) r(4,4,3)*r(4,1,3)$, 
+we can substitute in values from the table:
+
+RegEx is $b^* + a(ab)^*aab^* + (a(ab)^*b)(a^* + bb(ab)^*b)^*((ba) + bb(ab)^*aab^*)$.

@@ -1,0 +1,47 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+
+CSCI 375: S4.2
+
+Read section 4.4 of the textbook.  Then do the following exercises
+from the end of the chapter.  Bring a printed copy to class.
+
+* 4.33
+Consider the C statements
+
+#+BEGIN_LaTeX
+\begin{verbatim}
+x = 1; 
+
+if (a > 2) 
+  if (a > 4) 
+    x = 2; 
+  else x = 3;
+\end{verbatim}
+#+END_LaTeX
+
+- a. What is the resulting value of $x$ if these statements are
+  interpreted according to the derivation tree in Figure 4.21a and $a
+  = 3$?
+
+$x = 3$. The first if branch matches, the second fails and we process
+its else condition.
+
+- b. Same question as in (a), but when $a=1$.
+
+$x = 1$ because the first if statement does not match and the other
+conditionals are under its tree.
+
+- c. What is the resulting value of $x$ if these statements are
+  interpreted according to the derivation tree in Figure 4.21b and $a
+  = 3$?
+
+$x = 1$ because the else is considered part of the top-level
+if-statement and because it does not match, x remains 1.
+
+- d. Same question as in (c), but when $a = 1$.
+
+$x = 3$ because the else is considered part of the top-level if in
+4.21b.

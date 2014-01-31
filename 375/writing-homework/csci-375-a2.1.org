@@ -1,0 +1,192 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+
+CSCI 375:A2.1
+Do the following exercises from the end of chapter 1 of the textbook.
+When done create a pdf file that has your answers and upload it.
+
+* 2.6
+Suppose $M = (Q, \Sigma, q_0, A, \delta)$ is an FA, $q$ is an element
+of $Q$, and $\delta(q, \sigma) = q$ for every $\sigma~\in~
+\Sigma$. Show using structural induction show that for every $x~\in~
+\Sigma^*, \delta^*(q,x)~=~q$.
+
+1. In state $q$, $\forall_\sigma \in \Sigma(\delta(q, \sigma) = q)$ or
+   "There exists a transition for all symbols in the alphabet."
+2. Excluding the nullstring, all strings, $x$ in $\Sigma^*$, are made of symbols from $\Sigma$.
+3. Because of 1, each symbol from $x \in \Sigma = \sigma$ and from 2
+   all $\delta(q, \sigma) = q$ the FA is always in a state $q$.
+
+* 2.10 b, c
+Let $M_1$ and $M_2$ be the FAs pictured in Figure 2.44, accepting languages $L_1$ and $L_2$, respectively.
+
+Draw FAs accepting the following languages:
+
+** b: $L_1 \cap L_2$
+
+
+#+BEGIN_LaTeX
+\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=2cm]
+\node [initial, state] (ax) {ax};
+\node [state] (bx) [right of=ax] {bx};
+\node [state] (cx) [right of=bx] {cx};
+
+\node [state] (ay) [below of=ax] {ay};
+\node [state] (by) [right of=ay] {by};
+\node [state] (cy) [right of=by] {cy};
+
+\node [state] (az) [below of=ay] {az};
+\node [state] (bz) [right of=az] {bz};
+\node [state,accepting] (cz) [right of=bz] {cz};
+
+\path[->] (ax) edge node {a} (bx)
+               edge node {b} (ay)
+          (bx) edge [loop above] node {a} (bx)
+               edge [bend left] node {b} (cy)
+          (ay) edge node {a} (bx)
+               edge node {b} (az)
+          (cy) edge node {a} (bx)
+               edge node {b} (az)
+          (az) edge node {a} (bz)
+               edge [loop left] node {b} (az)
+          (bz) edge [loop below] node {a} (bz)
+               edge node {b} (cz);
+          
+\end{tikzpicture}
+#+END_LaTeX
+
+** c: $L_1 - L_2$
+
+#+BEGIN_LaTeX
+\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=2cm]
+\node [initial, state] (ax) {ax};
+\node [state] (bx) [right of=ax] {bx};
+\node [state, accepting] (cx) [right of=bx] {cx};
+
+\node [state] (ay) [below of=ax] {ay};
+\node [state] (by) [right of=ay] {by};
+\node [state, accepting] (cy) [right of=by] {cy};
+
+\node [state] (az) [below of=ay] {az};
+\node [state] (bz) [right of=az] {bz};
+\node [state] (cz) [right of=bz] {cz};
+
+\path[->] (ax) edge node {a} (bx)
+               edge node {b} (ay)
+          (bx) edge [loop above] node {a} (bx)
+               edge [bend left] node {b} (cy)
+          (ay) edge node {a} (bx)
+               edge node {b} (az)
+          (cy) edge node {a} (bx)
+               edge node {b} (az)
+          (az) edge node {a} (bz)
+               edge [loop left] node {b} (az)
+          (bz) edge [loop below] node {a} (bz)
+               edge node {b} (cz);
+          
+\end{tikzpicture}
+#+END_LaTeX
+
+* 2.19
+
+Let $n$ be a positive integer, and let $L$ be the set of all strings
+in $Pal$ of length $2n$. In other words,
+
+$L = \{xx^r | x \in \{a,b\}^n\}$
+
+What is the minimum number of states in any FA that accepts $L$? Give
+reasons for your answer.
+
+- The minimum number of states for an FA accepting $L$ is
+
+$1 + \displaystyle \left( \sum_{i=0}^n2(2^i)\right)-2^n$
+
+My reasoning is that, for a palindrome of this alphabet, the states to
+recognize a valid string for a given length double for each character
+(up to $2^n$) and then decrease because it becomes obvious that a word
+is not a palindrome upon the first non-mirrored character.
+
+Something like abba (four characters) would have $2^0 + 2^1+ 2^2 +
+2^1 + 2^0 + 1$ (one for purgatory.)
+
+* 2.21 a
+For the following language in $L \subseteq \{a,b\}^*$, show that the
+elements of the infinite set $\{a^n | n \geq 0\}$ are pairwise
+$L$-distinguishable.
+
+- A: $L = \{a^nba^{2n} | n \geq 0\}$
+
+  In $L_1$, given any two strings from $\{a^n|n \geq 0\}$, I can
+  create a $z$ such that $z=ba^{2n}$ where this puts one string in
+  the language and the other out because no two strings in
+  $a^nba^{2n}$ will end with the same number of a's.
+
+* 2.22 a
+For each of the languages in Exercise 2.21, use the pumping lemma to
+show that it cannot be accepted by an FA.
+
+** A. $L = \{a^nba^{2n} | n \geq 0\}$
+
+Given $L$, suppose $L$ is a regular language.
+
+Let $n$ be the number of states in an FA accepting $L$. 
+
+Note that $a^{n+1}ba^{2(n+1)}$ is a string from $L$.
+
+So that there are $u$, $v$, $w$ such that $uvw=a^{n+1}ba^{2(n+1)}$
+
+and 
+  1. $|uv| \leq n$
+
+  2. $|v| > 0$
+
+  3. For every $i \geq 0$, $uv^iw \in L$
+
+Let $uv$ be $a^n$ (satisfy #1.)
+
+Let $uv^iw$ for any $i \not = 1$ and $uv^iw \not\in L$. qed.
+
+** D. $L = \{a^ib^j | j$ is a multiple of $i\}$
+
+Given $L$, suppose $L$ is a regular language.
+
+Let $n$ be the number of states in an FA accepting $L$. 
+
+Note that $a^{(n+1)}b^n$ is a string from $L$.
+
+So that there are $u$, $v$, $w$ such that $uvw=$a^nb^n$
+
+and 
+  1. $|uv| \leq n$
+
+  2. $|v| > 0$
+
+  3. For every $i \geq 0$, $uv^iw \in L$
+
+Let $uv$ be $a^n$ (satisfy #1.)
+
+Let $uv^iw$ for any $i$ such that $n_a(uv^iw) > n_b(uv^iw)$. Then
+$uv^iw \not\in L$. qed.
+
+** F. $L = \{x \in \{a,b\}^* |$ no prefix of $x$ has more b's than a's$\}$
+
+Given $L$, suppose $L$ is a regular language.
+
+Let $n$ be the number of states in an FA accepting $L$. 
+
+Note that $a^{n+1}b^{n+1}$ is a string from $L$.
+
+So that there are $u$, $v$, $w$ such that $uvw=a^{n+1}b^{n+1}$
+
+and 
+  1. $|uv| \leq n$
+
+  2. $|v| > 0$
+
+  3. For every $i \geq 0$, $uv^iw \in L$
+
+Let $uv$ be $a^n$ (satisfy #1.)
+
+Let $uv^iw, i = 0$ and observe that $uv^iw \not\in L$. qed.

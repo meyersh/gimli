@@ -1,0 +1,32 @@
+CSCI 375: S1.1
+
+Study the start of chapter 1 and sections 1.1 and 1.2 of the textbook.
+
+Questions:
+
+* 1.1 A
+Construct a truth table for the statement and find another statement
+with at most one operator (\vee, \wedge, \not, \rightarrow) that is
+logically equivalent
+
+|   |   | 1               | 3    | 2                    |        |
+| P | Q | P \rightarrow Q | \wedge | P \rightarrow \not Q | \not Q |
+| F | F | T               | T    | T                    | T      |
+| F | T | T               | T    | T                    | F      |
+| T | F | F               | F    | T                    | T      |
+| T | T | T               | F    | F                    | F      |
+
+(P \rightarrow Q) \wedge (P \rightarrow \not Q) \Rightarrow \not P
+
+* 1.4 A
+\not (P \rightarrow P) is always False. Therefore, P \vee \not (P
+\rightarrow P) is neither a contradiction or tautology.
+
+* 1.4 C
+P \rightarrow \not Q is always \not P and so is neither a 
+contradiction or tautology.
+
+* 1.7 C
+The set {0, -1, 2, -3, 4, -5, \dots } is defined as { -n^n | n \in N }
+
+

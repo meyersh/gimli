@@ -1,0 +1,47 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+
+CSCI-375-S1.3
+
+Study the rest of the first chapter of the textbook.  Then do the
+following exercises.  Print off your work and bring it to class on the
+day due.
+
+* Given the following recursive definition of Language L over the alphabet {a, b}:
+
+1. The string ab is in language L.
+2. If x is a string in L, then aXb is also a string in L.
+3. If x and y are strings in L, then xy is also a string in L.
+
+** A finite example of this language, L, will be:
+
+$L = \{ab, aabb, abaabb, aabaabbb, \dots \}$
+
+* Answer/do the following:
+
+1. Is the string abab in language L?  Why or why not?
+
+   No. The definition never concatenates a string to itself (x and y
+   are both strings in L.)
+
+2. Is the string abba in language L?  Why or why not?
+
+   No. 'a' is always appended to the beginning and 'b' to the end in
+   rule 2 and the total remains in similar order per rule 3.
+
+3. Is the string aabb in language L?  Why or why not?
+
+   Yes. Because 'ab' is a string in L, rule 2 creates 'aabb'.
+
+4. Is the string aaabb in language L?  Why or why not?
+
+   No. The 'a' prefix and 'b' suffix are always added in pairs,
+   (rule 2) or the result is a concatenation of these atomic
+   strings. 'aa' is not a string in this language.
+
+5. Is it possible for a string in language L to have a different
+   number of a’s than it has b’s?  Why or why not?
+
+   No. Rule 1 ensures that the base string always has one of each,
+   rule 2 re-enforces this. Because of rule 2, rule 3 will result in
+   strings that have equal numbers of 'a's and 'b's.

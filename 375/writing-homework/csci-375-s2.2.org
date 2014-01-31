@@ -1,0 +1,55 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+
+CSCI 375: S2.2
+
+Study  sections 2.3 and 2.4 of the textbook.  Then do the following exercises from the end of the
+chapter.  Bring a printed copy to class.
+
+* 2.17
+
+Let $L$ be the language $AnBn = \{a^nb^n | n \geq 0\}$.
+
+- a. Find two distinct strings $x$ and $y$ in $\{a,b\}^*$ that are not
+  $L$-distinguishable
+
+- b. Find an infinite set of pairwise $L$-distinguishable strings.
+
+* 2.23
+
+By ignoring some of the details in the statement of the pumping lemma,
+we can easily get these two weaker statements.
+
+I. If $L \subseteq \epsilon^*$ is an infinite language that can be
+accepted by an FA, then there are strings $u$, $v$, and $w$ such that
+$|v| > 0$ and $uv^iw \in L$ for every $i \geq 0$.
+
+II. If $L \subseteq \epsilon^*$ is an infinite language that can be
+accepted by an FA, then there are integers $p$ and $q$ such that $q >
+0$ and for every $i \geq 0, L$ contains a string of length $p + iq$.
+
+For each language $L$, decide whether statement II is enough to show
+that $l$ cannot be accepted by an FA, and explain your answer. If
+statement II is not sufficient, decide whether statement I is, and
+explain your answer.
+
+** 2.23 a
+   
+   - $L = \{a^nba^{2n} | n \geq 0\}$
+
+     hense.
+
+** 2.23 c
+
+   - $L = \{a^ib^j | j = i$ or $j = 2i\}$
+
+     thus.
+
+** 2.23 h
+
+   - $L = \{ww | w \in \{a,b\}^*\}$
+
+     therefore.
+

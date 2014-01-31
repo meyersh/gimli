@@ -1,0 +1,116 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+#+AUTHOR Shaun Meyer
+
+CSCI 375: S5.2
+
+Study section 5.3 of the textbook.  Then do the following exercises.
+Bring a printed copy to class.
+
+* 1. Create $NT(G)$ for $G = \{V, E, S, P\}$ where
+$V = \{S, A\}$
+$E = \{a, b\}$
+
+and P is the set 
+
+$S \rightarrow aSa\ |\ bSb\ |\ aAb\ |\ bAAa$
+
+$A \rightarrow aba\ |\ bab\ |\ aAb\ |\ bAAa$
+
+** Create the PDA from Definition 5.17
+$Q = \{q_0, q_1, q_2\}$
+
+$A = \{q_2\}$
+
+$\Gamma = V \cup \Sigma \cup \{Z_0\}$
+
+- Initial move of $NT(G)$ is the $\Lambda$-transition
+
+$\delta(q_0, \Lambda, Z_0) = \{(q_1, SZ_0)\}$
+
+- and the only move to the accepting state is the $\Lambda$-transition
+
+$\delta(q_1, \Lambda, Z_0) = \{(q_2, Z_0)\}$
+
+- The moves from $q_1$ are the following:
+
+  - For every $A \in V, \delta(q_1, \Lambda, A) = \{(q_1, \alpha) | A \rightarrow \alpha \in G\}$
+
+    $\delta(q_1, \Lambda, S) = \{(q_1, aSa), (q_1, bSb), (q_1, aAb), (q_1, bAAa)\}$
+
+    $\delta(q_1, \Lambda, A) = \{(q_1, aba), (q_1, bab), (q_1, aAb), (q_1, bAAa)\}$
+
+  - For every $\sigma \in \Sigma, \delta(q_1, \sigma, \sigma) = \{(q_1, \Lambda)\}$
+
+    $\delta(q_1, a, a) = \{(q_1, \Lambda)\}$
+    
+    $\delta(q_1, b, b) = \{(q_1, \Lambda)\}$
+
+* 2. Show how the machine you created for item 1 accepts the string: aabab
+
+  1) initial input, empty stack, per initial move rule move to
+     $q_1$. Stack is now $SZ_0$.
+  2) Following rules $\delta(q_1, \Lambda, S)$ push a given production
+     from $S$ onto the stack. (Consuming the original $S$.)
+  3) Current config: $(q_1, aabab, aAbZ_0)$
+  4) Now a terminal is on the top of stack, so match it with one of
+     our terminal rules, $\delta(q_1, a, a)$.
+  5) Resulting configuration: $(q_1, abab, AbZ_0)$
+  6) Match the rule for $\delta(q_1, \Lambda, A)$, consuming the $A$
+     and replacing it with an $A$ production.
+  7) Resulting configuration: $(q_1, abab, ababZ_0)$
+  8) Match a few terminal rules (#4) results in $(q_1, bab, babZ_0)
+     \vdash (q_1, ab, abZ_0) \vdash (q_1, b, bZ_0) \vdash (q_1,
+     \Lambda, Z_0)$
+  9) We have a rule for this condition $\delta(q_1, \Lambda, Z_0) = \{(q_2, Z_0)\}$
+  10) $q_2$ is accepting.
+
+* 3. Show how the machine you created for item 1 rejects the string: bb
+
+  1) initial input, empty stack, per initial move rule move to
+     $q_1$. Stack is now $SZ_0$.
+  2) Following rules $\delta(q_1, \Lambda, S)$ push a given production
+     from $S$ onto the stack. (Consuming the original $S$.)
+  3) Current config: $(\q_1, bb, bSbZ_0)$ (One of all
+     non-deterministic rules chosen for brevity.)
+  4) Consume a terminal from the stack and string. Resulting config:
+     $(q_1, b, SbZ_0)$
+  5) Now that there is a variable on the top of stack, follow a
+     variable rule and push a production onto the stack: $(q_1, b,
+     bSbbZ_0)$.
+  6) Match the terminal, resulting in configuration $(q_1, \Lambda,
+     SbbZ_0)$
+  7) Follow rule for a variable on the stack (ignoring the empty
+     string) results in $(q_1, \Lambda, bSbbbZ_0)$.
+  8) The machine stops moving at this point, we have no rules and are
+     in a non-accepting state.
+
+* 4. Do exercise 5.28c from the end of the textbook.
+
+Suppose that $M= (Q,\Sigma,\Gamma,q_0,Z_0,A,\delta)$ is a
+deterministic PDA accepting a language $L$. If $x$ is a string in $L$,
+then by definition there is a sequence of moves of $M$ with input $x$
+in which all the symbols of $x$ are read. It is conceivable, however
+that for some strings $y \not \in L$, no sequence of moves causes $M$
+to read all of $y$. This could happen in two ways: $M$ could either
+crash by not being able to move, or it could enter a loop in which
+there were infinitely many repeated $\Lambda$-transitions. 
+
+Find an example of a DCFL $L \subseteq \{a,b\}^*$, a string $y\not \in
+L$, and a DPDA $M$ accepting $L$ for which $M$ crashes on $y$ by not
+being able to move. (Say what $L$ is and what $y$ is, and give a
+transition table for $M$.) Note that once you have such an $M$, it can
+easily be modified so that $y$ causes it to enter an infinite loop of
+$\Lambda$-transitions.
+
+- My DPDA (one accepting the language \emph{Balanced}):
+| Move Number | State | Input     | Stack Symbol | Move             |
+|           1 | $q_0$ | a         | $Z_0$        | $(q_1,aZ_0)$     |
+|           2 | $q_1$ | a         | a            | $(q_1,aa)$       |
+|           3 | $q_1$ | b         | a            | $(q_1, \Lambda)$ |
+|           4 | $q_1$ | $\Lambda$ | $Z_0$        | $(q_0, Z_0)$     |
+|             | All   | Others    |              | \emph{None}      |
+
+- My non-move-causing string: $y = bb$

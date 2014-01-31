@@ -1,0 +1,19 @@
+* Partition
+
+$\emptyset = A_i \cap A_j$
+
+$A_i \cup A_2 \cdots A_n = A$
+
+** Cases
+
+- x \in A and x \in B
+
+- x \notin A and x \in B
+
+- x \in A and x \notin B
+
+- x \notin A and x \notin B
+
+
+
+

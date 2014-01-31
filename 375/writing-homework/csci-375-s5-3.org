@@ -1,0 +1,39 @@
+#+OPTIONS: num:nil toc:1 tasks:t todo:nil
+#+STARTUP: nologdone
+#+LaTeX_HEADER: \usepackage{tikz}
+#+LaTeX_HEADER: \usetikzlibrary{arrows,automata}
+
+CSCI 375: S5.3
+
+Study section 5.4 of the textbook.  Then do the following exercises.
+All of these reference the example on page 190.  In particular, this references the lines (0) through (12)
+in the middle of the page.  
+
+* 1. How many productions are actually created by the pattern in line (1).
+
+  $a[q_0, A, p][p, Z_0, q]$ creates $p \cdot p \cdot q$ productions.
+
+* 2. How many productions are created by the pattern in line (7).
+
+  $c[q1, Z_0, q]$ produces $q$ productions.
+
+* 3. List the productions created by the pattern in line (0).
+  $Q = \{q_0, q_1\}$, therefore the productions created for $S$ are $S
+  \rightarrow [q_0, Z_0, q_0]$ and $S \rightarrow [q_0, Z_0, q_q]$
+
+* 4. List the productions created by the pattern in line (5).
+  The production $[q_0, B, q]$ yields a production for all $q \in Q$
+  from $q_m$ to $q_{m+1}$.
+
+  I believe there should be two variables because we have to
+  states.
+
+  Rule 3 from the proof states that $m \geq 1$. If we push the lowest
+  bounds of this, $m = 1$. Now for the first production, $q_{1+1} =
+  q_2$, which is not in our machine?
+
+  Fudging this a little, $q=1$ (because in rule 3 it has the higher
+  value) and $p=0$ seems to come out OK:
+
+  
+  $[q_0, B, q_1] \rightarrow a[q_0, A, q_0][q_0, B, q_1]$
